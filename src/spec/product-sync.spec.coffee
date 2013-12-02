@@ -1,5 +1,5 @@
 _ = require("underscore")._
-Sync = require("../lib/sync").Sync
+ProductSync = require("../lib/product-sync").ProductSync
 Config = require("../config").config.prod
 product = require("../models/product.json")
 
@@ -59,34 +59,34 @@ NEW_PRODUCT =
     }
   ]
 
-describe "Sync", ->
+describe "ProductSync", ->
 
   it "should initialize", ->
-    sync = new Sync
+    sync = new ProductSync
     expect(sync).toBeDefined()
     expect(sync._actions).not.toBeDefined()
 
   it "should initialize with options", ->
-    sync = new Sync config: Config
+    sync = new ProductSync config: Config
     expect(sync).toBeDefined()
     expect(sync._rest).toBeDefined()
     expect(sync._rest._options.config).toEqual Config
 
   it "should throw error if no credentials are given", ->
-    sync = -> new Sync foo: "bar"
+    sync = -> new ProductSync foo: "bar"
     expect(sync).toThrow new Error("Missing credentials")
 
   _.each ["client_id", "client_secret", "project_key"], (key)->
     it "should throw error if no '#{key}' is defined", ->
       opt = _.clone(Config)
       delete opt[key]
-      sync = -> new Sync config: opt
+      sync = -> new ProductSync config: opt
       expect(sync).toThrow new Error("Missing '#{key}'")
 
 
-describe "Sync.buildActions", ->
+describe "ProductSync.buildActions", ->
   beforeEach ->
-    @sync = new Sync
+    @sync = new ProductSync
 
   it "should return reference to the object", ->
     s = @sync.buildActions(NEW_PRODUCT, OLD_PRODUCT)
@@ -112,10 +112,10 @@ describe "Sync.buildActions", ->
     expect(update).toEqual expected_update
 
 
-describe "Sync.get", ->
+describe "ProductSync.get", ->
 
   beforeEach ->
-    @sync = new Sync
+    @sync = new ProductSync
     @sync._data =
       update: "a"
       updateId: "123"
@@ -128,16 +128,16 @@ describe "Sync.get", ->
   it "should get default data key", ->
     expect(@sync.get()).toBe "a"
 
-describe "Sync.update", ->
+describe "ProductSync.update", ->
 
   beforeEach ->
-    @sync = new Sync config: Config
+    @sync = new ProductSync config: Config
 
   afterEach ->
     @sync = null
 
   it "should throw error if no credentials were given", ->
-    sync = new Sync
+    sync = new ProductSync
     expect(sync.update).toThrow new Error("Cannot update: the Rest connector wasn't instantiated (probabily because of missing credentials)")
 
   it "should send update request", (done)->

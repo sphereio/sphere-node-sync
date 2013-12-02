@@ -1,5 +1,5 @@
 _ = require("underscore")._
-Sync = require("../lib/sync").Sync
+ProductSync = require("../lib/product-sync").ProductSync
 Config = require('../config').config
 product = require("../models/product.json")
 Rest = require("sphere-node-connect").Rest
@@ -13,7 +13,7 @@ describe "Integration test", ->
   PRODUCT_ID = "79339393-6f12-4caf-b357-12b51b89bbcc"
 
   beforeEach ->
-    @sync = new Sync config: Config.prod
+    @sync = new ProductSync config: Config.prod
 
   afterEach ->
     @sync = null
@@ -136,7 +136,7 @@ describe "Integration test between projects", ->
     allAuthTokens.spread((staging, prod)=>
       @restStaging = new Rest config: staging
       @restProd = new Rest config: prod
-      @sync = new Sync config: staging
+      @sync = new ProductSync config: staging
       done()
     ).fail (err)-> throw new Error(err)
 

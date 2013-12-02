@@ -2,8 +2,8 @@ _ = require("underscore")._
 Rest = require("sphere-node-connect").Rest
 Utils = require("../lib/utils").Utils
 
-# Define Sync object
-exports.Sync = (opts = {})->
+# Define ProductSync object
+exports.ProductSync = (opts = {})->
   unless _.isEmpty opts
     config = opts.config
     throw new Error("Missing credentials") unless config
@@ -16,7 +16,7 @@ exports.Sync = (opts = {})->
   @_utils = new Utils
   return
 
-exports.Sync.prototype.buildActions = (new_obj, old_obj)->
+exports.ProductSync.prototype.buildActions = (new_obj, old_obj)->
   # diff 'em
   diff = @_utils.diff(old_obj, new_obj)
   update = undefined
@@ -34,9 +34,9 @@ exports.Sync.prototype.buildActions = (new_obj, old_obj)->
     updateId: old_obj.id
   @
 
-exports.Sync.prototype.get = (key = "update")-> @_data[key]
+exports.ProductSync.prototype.get = (key = "update")-> @_data[key]
 
-exports.Sync.prototype.update = (callback)->
+exports.ProductSync.prototype.update = (callback)->
   throw new Error("Cannot update: the Rest connector wasn't instantiated (probabily because of missing credentials)") unless @_rest
   unless _.isEmpty @_data.update
     payload = JSON.stringify @_data.update
