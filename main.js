@@ -1,0 +1,1 @@
+exports.Sync = require('./lib/sync').Sync

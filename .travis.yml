@@ -1,0 +1,24 @@
+language: node_js
+node_js:
+  - 0.8
+  - '0.10'
+before_script:
+  - npm install -g grunt-cli
+  - ./create_config.sh
+env:
+  global:
+  - secure: aGk+6WqJdvAaaH5kQD/ee59OYWH9r7frg0ajNk/RidnWkO+t/oVl2IFnuZEZvBy46aZcIeS/jl3CiSzSN2pc/Y/x+a9ihRpmX6NPyOQ/thJ6YBAvTri+OwiXmOiO/wukLTsnPC7GL41qG+vjE2Hu9fhLx5H5FCoH/tRU29JSmXc=
+  - secure: VnVJChcUk5gfj1c3fZW1YqC9lsItCIn0Rhz64nMzt3tZDDoXlSdkC06/b/NSaYschDL2t5xSOQqYLx14BTgsMFHcwd+UOPz0TnIy1MxTY2cmtehLX6oRDq15UMqTU7JX1PEX/6hXu+jPIqNymj7T8UCxOWwhnLXuuv1gZ/FuqCE=
+  - secure: SLjy4Ns0hMlhc9q80flAdLx/SJI4v1ozJsJs38wfkFtx1QkwM0MTlnHeAJtqeRr3A+CJYhmvGn1++6RMpOhhxcxI7lBbeKl6TnsRTu/PCmySYUr6H5PwXysprq5GI4TCKk7SY7qIRXoL9d/lpSlQaVTa/0gflAaCEEFxq2cIg+M=
+  - secure: E48JbkV/Md9WpBSpTHhIGNV/HRN52E+Y/hBEt3aHvuJ4/USVtkUoczdHmvVHDrj/Z0THLwmYwM3p3rjM3NWRpipLUtcyQAy0tg8D3ueAB6s4vyb+XOkwmVSjK5/5D0mAUSfFCMUyoef9KPAfDJlwv/o5BvdyQuXcARqk3yB7deg=
+  - secure: kv3bKw9b/9U9UzGDC+pqxwRrTBS6/IXuSwP9VP6tkeWJYujq712ozCrReJfAfQeJ1yxtvvMAQsF0HHcfRUJzXTaf2N96f3Gy/IH0PsQrgjgap1TfkVjCRcmVFT/UXrGxpS1bTgrTiVNBjVtF942qaf5KskEaUOOceX3S6E0gd5s=
+  - secure: xZYPqcdjIbEZ/1ksO5rwlMNNZ/fqTDICr7evOIvvSQJpYj6H/aIc3MAAdWxLjC0mzB3tjdFkHuWSiveCvCqNNJjT3z6tw6wxlVxNSLRdiN22sW5nfbM/dwjxijPcqj4txc1EgKqKmyjRgPzZaISwQ+YCYhTLDuoRTzzFri/j840=
+notifications:
+  hipchat:
+    rooms:
+      - secure: EFX7cQf6A8FjuJeb3a8Chw72H5usWjULY1wZX0iF2DUYd84KhuIXJaAtGXdCLlS51YuT9yY5xuazUYABP2JA0PaAy7+dXQm8jQL9ITk0lsagrhbrUjZPfe/b+JSObPGA7oeKe/NfCgBnWrLbNQo/Pqhnv3GAyYakay5NQcNBP6I=
+    template:
+      - '%{repository}#%{build_number} (%{author}): %{message} (<a href="%{build_url}">Details</a> <a href="%{compare_url}">Compare</a>)'
+    format: html
+    on_success: change
+    on_failure: always
