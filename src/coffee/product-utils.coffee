@@ -1,9 +1,10 @@
 _ = require("underscore")._
 jsondiffpatch = require("jsondiffpatch")
+helper = require("../lib/helper")
 
-exports.Utils = -> #noop
+exports.ProductUtils = -> #noop
 
-exports.Utils.prototype.diff = (old_obj, new_obj)->
+exports.ProductUtils.prototype.diff = (old_obj, new_obj)->
   # patch 'prices' to have an identifier in order for the diff
   # to be able to match nested objects in arrays
   # e.g.: prices: [ { _id: x, value: {} } ]
@@ -22,8 +23,9 @@ exports.Utils.prototype.diff = (old_obj, new_obj)->
   jsondiffpatch.config.objectHash = (obj)-> obj.id or obj._id or obj.name
   jsondiffpatch.diff(old_obj, new_obj)
 
+
 # This is used assuming the keys are on the first level of the object
-exports.Utils.prototype.actionsMap = (diff, old_obj)->
+exports.ProductUtils.prototype.actionsMap = (diff, old_obj)->
   actions = []
   _.each actionsList(), (item)->
     key = item.key
@@ -33,11 +35,11 @@ exports.Utils.prototype.actionsMap = (diff, old_obj)->
         if obj
           updated = {}
           if _.isArray obj
-            updated = getDeltaValue(obj)
+            updated = helper.getDeltaValue(obj)
           else
             keys = _.keys obj
             _.each keys, (k)->
-              value = getDeltaValue(obj[k])
+              value = helper.getDeltaValue(obj[k])
               updated[k] = value
           # extend values of original object so that the new value is saved
           old = _.clone old_obj[key]
@@ -52,7 +54,7 @@ exports.Utils.prototype.actionsMap = (diff, old_obj)->
     actions.push action if action
   actions
 
-exports.Utils.prototype.actionsMapPrices = (diff, old_obj, new_obj)->
+exports.ProductUtils.prototype.actionsMapPrices = (diff, old_obj, new_obj)->
   actions = []
   # masterVariant
   if diff.masterVariant
@@ -97,7 +99,7 @@ exports.Utils.prototype.actionsMapPrices = (diff, old_obj, new_obj)->
 
 # we assume that the products have the same ProductType
 # TODO: validate ProductType between products
-exports.Utils.prototype.actionsMapAttributes = (diff, new_obj)->
+exports.ProductUtils.prototype.actionsMapAttributes = (diff, new_obj)->
   actions = []
   # masterVariant
   masterVariant = diff.masterVariant
@@ -107,7 +109,7 @@ exports.Utils.prototype.actionsMapAttributes = (diff, new_obj)->
       _.each attributes, (value, key)->
         if key.match(/^\d$/g)
           if _.isArray value
-            v = getDeltaValue(value)
+            v = helper.getDeltaValue(value)
             id = new_obj.masterVariant.id
             setAction = buildNewSetAttributeAction(id, v)
             actions.push setAction if setAction
@@ -125,7 +127,7 @@ exports.Utils.prototype.actionsMapAttributes = (diff, new_obj)->
         _.each attributes, (value, key)->
           if key.match(/^\d$/g)
             if _.isArray value
-              v = getDeltaValue(value)
+              v = helper.getDeltaValue(value)
               id = new_obj.variants[i].id
               setAction = buildNewSetAttributeAction(id, v)
               actions.push setAction if setAction
@@ -136,7 +138,7 @@ exports.Utils.prototype.actionsMapAttributes = (diff, new_obj)->
               actions.push setAction if setAction
           else if key.match(/^\_\d$/g)
             if _.isArray value
-              v = getDeltaValue(value)
+              v = helper.getDeltaValue(value)
               unless v
                 v = value[0]
                 delete v.value
@@ -152,7 +154,7 @@ exports.Utils.prototype.actionsMapAttributes = (diff, new_obj)->
 
 
 #################
-# Helper methods
+# Product helper methods
 #################
 
 actionsList = ->
@@ -170,16 +172,6 @@ actionsList = ->
       key: "description"
     }
   ]
-
-getDeltaValue = (arr)->
-  size = arr.length
-  switch size
-    when 1 #new
-      arr[0]
-    when 2 #update
-      arr[1]
-    when 3 #delete
-      undefined
 
 buildRemovePriceAction = (variant, index)->
   price = variant.prices[index]
@@ -209,7 +201,7 @@ buildSetAttributeAction = (diffed_value, variant, index)->
       variantId: variant.id
       name: attribute.name
     if _.isArray(diffed_value)
-      action.value = getDeltaValue(diffed_value)
+      action.value = helper.getDeltaValue(diffed_value)
     else
       # LText: value: {en: "", de: ""}
       # Enum: value: {label: "", key: ""}
@@ -218,29 +210,29 @@ buildSetAttributeAction = (diffed_value, variant, index)->
       # *: value: ""
       if _.isString(diffed_value)
         # normal
-        action.value = getDeltaValue(diffed_value)
+        action.value = helper.getDeltaValue(diffed_value)
       else if diffed_value.label
         # enum
         lab = diffed_value.label
         if _.isArray(lab)
           # Enum
-          label = getDeltaValue(lab)
+          label = helper.getDeltaValue(lab)
         else
           # LEnum
           label = {}
           _.each lab, (v, k)->
-            label[k] = getDeltaValue(v)
+            label[k] = helper.getDeltaValue(v)
         action.value =
           label: label
-          key: getDeltaValue(diffed_value.key) or attribute.value.key
+          key: helper.getDeltaValue(diffed_value.key) or attribute.value.key
       else if diffed_value.centAmount
         # Money
         if diffed_value.centAmount
-          centAmount = getDeltaValue(diffed_value.centAmount)
+          centAmount = helper.getDeltaValue(diffed_value.centAmount)
         else
           centAmount = attribute.value.centAmount
         if diffed_value.currencyCode
-          currencyCode = getDeltaValue(diffed_value.currencyCode)
+          currencyCode = helper.getDeltaValue(diffed_value.currencyCode)
         else
           currencyCode = attribute.value.currencyCode
         action.value =
@@ -251,12 +243,12 @@ buildSetAttributeAction = (diffed_value, variant, index)->
           # enum without a label change
           action.value =
             label: attribute.value.label
-            key: getDeltaValue(diffed_value.key)
+            key: helper.getDeltaValue(diffed_value.key)
         else
           # LText
           text = {}
           _.each diffed_value, (v, k)->
-            text[k] = getDeltaValue(v)
+            text[k] = helper.getDeltaValue(v)
           action.value = text
 
   action

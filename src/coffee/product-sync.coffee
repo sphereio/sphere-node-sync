@@ -1,6 +1,6 @@
 _ = require("underscore")._
 Rest = require("sphere-node-connect").Rest
-Utils = require("../lib/utils").Utils
+ProductUtils = require("../lib/product-utils").ProductUtils
 
 # Define ProductSync object
 exports.ProductSync = (opts = {})->
@@ -13,7 +13,7 @@ exports.ProductSync = (opts = {})->
     @_rest = new Rest opts
 
   @_data = {}
-  @_utils = new Utils
+  @_utils = new ProductUtils
   return
 
 exports.ProductSync.prototype.buildActions = (new_obj, old_obj)->

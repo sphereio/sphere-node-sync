@@ -1,4 +1,4 @@
-Utils = require("../lib/utils").Utils
+ProductUtils = require("../lib/product-utils").ProductUtils
 
 ###
 Match different product attributes and variant prices
@@ -161,9 +161,9 @@ NEW_ATTRIBUTES =
     }
   ]
 
-describe "Utils.diff", ->
+describe "ProductUtils.diff", ->
   beforeEach ->
-    @utils = new Utils
+    @utils = new ProductUtils
 
   it "should diff nothing", ->
     delta = @utils.diff({id: "123"}, {id: "123"})
@@ -255,9 +255,9 @@ describe "Utils.diff", ->
     expect(delta).toEqual expected_delta
 
 
-describe "Utils.actionsMapAttributes", ->
+describe "ProductUtils.actionsMapAttributes", ->
   beforeEach ->
-    @utils = new Utils
+    @utils = new ProductUtils
 
   it "should build attribute actions", ->
     delta = @utils.diff(OLD_ATTRIBUTES, NEW_ATTRIBUTES)
