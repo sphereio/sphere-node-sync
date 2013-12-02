@@ -1,1 +1,1 @@
-exports.ProductSync = require('./lib/product-sync').ProductSync
+exports.ProductSync = require('./lib/product-sync')

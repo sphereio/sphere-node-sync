@@ -1,6 +1,6 @@
 {
   "name": "sphere-node-sync",
-  "description": "Sync component for SPHERE.IO entities.",
+  "description": "Collection of Sync components for SPHERE.IO entities.",
   "version": "0.0.1",
   "keywords": [
     "sphere",

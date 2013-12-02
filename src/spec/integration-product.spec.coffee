@@ -1,5 +1,5 @@
 _ = require("underscore")._
-ProductSync = require("../lib/product-sync").ProductSync
+ProductSync = require("../lib/product-sync")
 Config = require('../config').config
 product = require("../models/product.json")
 Rest = require("sphere-node-connect").Rest
