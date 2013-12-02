@@ -1,7 +1,6 @@
 _ = require("underscore")._
 ProductSync = require("../lib/product-sync")
 Config = require("../config").config.prod
-product = require("../models/product.json")
 
 OLD_PRODUCT =
   id: "123"
@@ -85,12 +84,12 @@ describe "ProductSync", ->
 
 
 describe "ProductSync.buildActions", ->
+
   beforeEach ->
     @sync = new ProductSync
 
-  it "should return reference to the object", ->
-    s = @sync.buildActions(NEW_PRODUCT, OLD_PRODUCT)
-    expect(s).toEqual @sync
+  afterEach ->
+    @sync = null
 
   it "should build the action update", ->
     update = @sync.buildActions(NEW_PRODUCT, OLD_PRODUCT).get()
@@ -112,22 +111,6 @@ describe "ProductSync.buildActions", ->
     expect(update).toEqual expected_update
 
 
-describe "ProductSync.get", ->
-
-  beforeEach ->
-    @sync = new ProductSync
-    @sync._data =
-      update: "a"
-      updateId: "123"
-
-  it "should get data key", ->
-    expect(@sync.get("update")).toBe "a"
-    expect(@sync.get("updateId")).toBe "123"
-    expect(@sync.get("foo")).not.toBeDefined()
-
-  it "should get default data key", ->
-    expect(@sync.get()).toBe "a"
-
 describe "ProductSync.update", ->
 
   beforeEach ->
@@ -135,10 +118,6 @@ describe "ProductSync.update", ->
 
   afterEach ->
     @sync = null
-
-  it "should throw error if no credentials were given", ->
-    sync = new ProductSync
-    expect(sync.update).toThrow new Error("Cannot update: the Rest connector wasn't instantiated (probabily because of missing credentials)")
 
   it "should send update request", (done)->
     spyOn(@sync._rest, "POST").andCallFake((path, payload, callback)-> callback(null, null, {id: "123"}))
@@ -152,13 +131,3 @@ describe "ProductSync.update", ->
       done()
     @sync.update(callMe)
     expect(@sync._rest.POST).toHaveBeenCalledWith("/products/123", JSON.stringify(@sync._data.update), jasmine.any(Function))
-
-  it "should return '304' if there are no update actions", (done)->
-    spyOn(@sync._rest, "POST")
-    callMe = (e, r, b)->
-      expect(e).toBe null
-      expect(r.statusCode).toBe 304
-      expect(b).toBe null
-      done()
-    @sync.update(callMe)
-    expect(@sync._rest.POST).not.toHaveBeenCalled()
