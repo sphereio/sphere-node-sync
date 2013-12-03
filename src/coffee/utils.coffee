@@ -5,7 +5,6 @@ jsondiffpatch = require("jsondiffpatch")
 Base Utils class
 ###
 class Utils
-  constructor: -> @
 
   diff: (old_obj, new_obj)->
     # provide a hash function to work with objects in arrays
