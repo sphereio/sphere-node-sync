@@ -1,4 +1,6 @@
-# sphere-node-sync [![Build Status](https://secure.travis-ci.org/emmenko/sphere-node-sync.png?branch=master)](http://travis-ci.org/emmenko/sphere-node-sync) [![NPM version](https://badge.fury.io/js/sphere-node-sync.png)](http://badge.fury.io/js/sphere-node-sync) [![Coverage Status](https://coveralls.io/repos/emmenko/sphere-node-sync/badge.png?branch=master)](https://coveralls.io/r/emmenko/sphere-node-sync?branch=master) [![Dependency Status](https://gemnasium.com/emmenko/sphere-node-sync.png)](https://gemnasium.com/emmenko/sphere-node-sync)
+# sphere-node-sync 
+
+[![Build Status](https://secure.travis-ci.org/emmenko/sphere-node-sync.png?branch=master)](http://travis-ci.org/emmenko/sphere-node-sync) [![NPM version](https://badge.fury.io/js/sphere-node-sync.png)](http://badge.fury.io/js/sphere-node-sync) [![Coverage Status](https://coveralls.io/repos/emmenko/sphere-node-sync/badge.png?branch=master)](https://coveralls.io/r/emmenko/sphere-node-sync?branch=master) [![Dependency Status](https://gemnasium.com/emmenko/sphere-node-sync.png)](https://gemnasium.com/emmenko/sphere-node-sync)
 
 Collection of Sync components for SPHERE.IO entities
 
