@@ -7,7 +7,7 @@ Rest = require("sphere-node-connect").Rest
 # Increase timeout
 jasmine.getEnv().defaultTimeoutInterval = 10000
 
-xdescribe "Integration test", ->
+describe "Integration test", ->
   ORDER_ID = "455e92b4-2a75-4cb8-bfdd-eb78c7f227cb"
   VERSION_ID = 1
 
