@@ -13,6 +13,7 @@ var sync = require('sphere-node-sync')
 // or require one of the Sync components
 var product_sync = require('sphere-node-sync').ProductSync
 var order_sync = require('sphere-node-sync').OrderSync
+var inventory_sync = require('sphere-node-sync').InventorySync
 ```
 
 ## Documentation
@@ -20,6 +21,7 @@ The module exposes many collection `Sync` objects, _resource-specific_, and it's
 
 - *products* - `ProductSync`
 - *orders* - `OrderSync`
+- *inventory* - `InventorySync`
 
 > All `Sync` objects share the same implementation, only the _mapping_ of the *actions update* is resource-specific. **I will assume from now on (for the sake of simplicity) that the `Sync` is either an instance of one of the resources listed above.**
 
@@ -99,6 +101,11 @@ Currently following actions are supported
 - `changeOrderState` - field `orderState`
 - `changePaymentState` - field `paymentState`
 - `changeShipmentState` - field `shipmentState`
+
+### InventorySync
+
+- `addQuantity` - field `quantityOnStock` is more than before
+- `removeQuantity` - field `quantityOnStock` is less than before
 
 
 ## Contributing

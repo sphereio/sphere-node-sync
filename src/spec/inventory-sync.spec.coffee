@@ -35,7 +35,7 @@ describe "#buildActions", ->
     ie =
       id: "abc"
       sku: "123"
-      quantity: 7
+      quantityOnStock: 7
     update = @sync.buildActions(ie, ie).get()
     expect(update).toBeUndefined()
     updateId = @sync.buildActions(ie, ie).get("updateId")
@@ -44,10 +44,10 @@ describe "#buildActions", ->
   it "more quantity", ->
     ieNew =
       sku: "123"
-      quantity: 77
+      quantityOnStock: 77
     ieOld =
       sku: "123"
-      quantity: 9
+      quantityOnStock: 9
     update = @sync.buildActions(ieNew, ieOld).get()
     expect(update).toBeDefined()
     expect(update.actions[0].action).toBe 'addQuantity'
@@ -56,10 +56,10 @@ describe "#buildActions", ->
   it "less quantity", ->
     ieNew =
       sku: "123"
-      quantity: 7
+      quantityOnStock: 7
     ieOld =
       sku: "123"
-      quantity: 9
+      quantityOnStock: 9
     update = @sync.buildActions(ieNew, ieOld).get()
     expect(update).toBeDefined()
     expect(update.actions[0].action).toBe 'removeQuantity'

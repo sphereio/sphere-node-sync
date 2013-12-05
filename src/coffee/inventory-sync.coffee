@@ -13,9 +13,9 @@ class InventorySync extends Sync
 
   _doMapActions: (diff, new_obj, old_obj)->
     actions = []
-    if diff.quantity
-      oldVal = diff.quantity[0]
-      newVal = diff.quantity[1]
+    if diff.quantityOnStock
+      oldVal = diff.quantityOnStock[0]
+      newVal = diff.quantityOnStock[1]
       diffVal = newVal - oldVal
       a =
         quantity: Math.abs diffVal
