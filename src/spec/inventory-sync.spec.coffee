@@ -64,3 +64,21 @@ describe "#buildActions", ->
     expect(update).toBeDefined()
     expect(update.actions[0].action).toBe 'removeQuantity'
     expect(update.actions[0].quantity).toBe 2
+
+describe "#update", ->
+
+  beforeEach ->
+    @sync = new InventorySync config: Config
+
+  it "should send update request", (done)->
+    spyOn(@sync._rest, "POST").andCallFake((path, payload, callback)-> callback(null, null, {id: "123"}))
+    @sync._data =
+      update:
+        actions: [ { name: "addQuantity", quantity: 7 } ]
+        version: 1
+      updateId: "123"
+    callMe = (e, r, b)->
+      expect(b.id).toBe "123"
+      done()
+    @sync.update(callMe)
+    expect(@sync._rest.POST).toHaveBeenCalledWith("/inventory/123", JSON.stringify(@sync._data.update), jasmine.any(Function))
