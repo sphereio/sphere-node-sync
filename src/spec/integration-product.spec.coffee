@@ -9,7 +9,7 @@ Q = require("q")
 # Increase timeout
 jasmine.getEnv().defaultTimeoutInterval = 10000
 
-describe "Integration test", ->
+xdescribe "Integration test", ->
   PRODUCT_ID = "79339393-6f12-4caf-b357-12b51b89bbcc"
 
   beforeEach ->
