@@ -30,7 +30,7 @@
     "node": ">= 0.8.0"
   },
   "scripts": {
-    "test": "grunt test"
+    "test": "grunt coverage"
   },
   "dependencies": {
     "jsondiffpatch": "~0.0.8",
