@@ -6,7 +6,7 @@ Inventory Updater class
 ###
 class InventoryUpdater
   constructor: (opts = {})->
-    @sync = new InventorySync @options
+    @sync = new InventorySync opts
     @rest = @sync._rest
     @existingInventoryEntries = {}
     @sku2index = {}

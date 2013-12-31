@@ -34,3 +34,20 @@ describe "#createEntry", ->
     expect(e.expectedDelivery).toBe '1970-01-01T11:11:11Z000'
     expect(e.supplyChannel.typeId).toBe 'channel'
     expect(e.supplyChannel.id).toBe 'channel123'
+
+describe '#ensureChannelByKey', ->
+  beforeEach ->
+    @updater = new InventoryUpdater config: Config
+
+  it 'should query for channel by key', (done) ->
+    spyOn(@updater.rest, "GET").andCallFake((path, callback) ->
+      callback(null, {statusCode: 200}, '{ "results": [{ "id": "channel123" }] }'))
+
+    @updater.ensureChannelByKey(@updater.rest, 'bar').then (channel) =>
+      uri = '/channels?where=key%3D%22bar%22'
+      expect(@updater.rest.GET).toHaveBeenCalledWith(uri, jasmine.any(Function))
+      expect(channel.id).toBe 'channel123'
+      done()
+    .fail (msg) ->
+      expect(true).toBe false
+      done()
