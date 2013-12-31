@@ -33,7 +33,7 @@ class InventoryUpdater
       if response.statusCode is 200
         channels = JSON.parse(body).results
         if channels.length is 1
-          deferred.resolve channels[0].id
+          deferred.resolve channels[0]
           return deferred.promise
       # can't find it - let's create the channel
       channel =
@@ -84,7 +84,7 @@ class InventoryUpdater
     deferred.promise
 
   match: (s) ->
-    if @sku2index[s.sku] is not -1
+    if @sku2index[s.sku] != -1
       @existingInventoryEntries[@sku2index[s.sku]]
 
   createOrUpdate: (inventoryEntries, callback) ->
