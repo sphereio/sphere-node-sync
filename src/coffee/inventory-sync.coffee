@@ -31,17 +31,6 @@ class InventorySync extends Sync
     payload = JSON.stringify @_data.update
     @_rest.POST "/inventory/#{@_data.updateId}", payload, callback
 
-  createInventoryEntry: (sku, quantity, expectedDelivery, channelId) ->
-    d =
-      sku: sku
-      quantityOnStock: parseInt(quantity)
-    d.expectedDelivery = expectedDelivery if expectedDelivery
-    if channelId
-      d.supplyChannel =
-        typeId: 'channel'
-        id: channelId
-    d
-
 ###
 Exports object
 ###

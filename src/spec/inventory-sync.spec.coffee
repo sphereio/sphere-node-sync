@@ -26,25 +26,6 @@ describe "InventorySync", ->
       sync = -> new InventorySync config: opt
       expect(sync).toThrow new Error("Missing '#{key}'")
 
-describe "#createEntry", ->
-  beforeEach ->
-    @sync = new InventorySync
-
-  it "should create simplest entry", ->
-    e = @sync.createInventoryEntry('123', 3)
-    expect(e.sku).toBe '123'
-    expect(e.quantityOnStock).toBe 3
-    expect(e.supplyChannel).toBeUndefined
-    expect(e.expectedDelivery).toBeUndefined
-
-  it "should create complex entry", ->
-    e = @sync.createInventoryEntry('abc', -7, '1970-01-01T11:11:11Z000', 'channel123')
-    expect(e.sku).toBe 'abc'
-    expect(e.quantityOnStock).toBe -7
-    expect(e.expectedDelivery).toBe '1970-01-01T11:11:11Z000'
-    expect(e.supplyChannel.typeId).toBe 'channel'
-    expect(e.supplyChannel.id).toBe 'channel123'
-
 describe "#buildActions", ->
 
   beforeEach ->
