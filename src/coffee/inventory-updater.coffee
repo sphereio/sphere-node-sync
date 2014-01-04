@@ -88,6 +88,8 @@ class InventoryUpdater
       @existingInventoryEntries[@sku2index[s.sku]]
 
   createOrUpdate: (inventoryEntries, callback) ->
+    if inventoryEntries.length is 0
+      return @returnResult true, 'Nothing to do.', callback
     posts = []
     for entry in inventoryEntries
       existingEntry = @match(entry)
@@ -95,8 +97,7 @@ class InventoryUpdater
         posts.push @update(entry, existingEntry)
       else
         posts.push @create(entry)
-
-    Q.allSettled(posts).then (messages) =>
+    Q.all(posts).then (messages) =>
       if messages.length is 1
         messages = messages[0]
       @returnResult true, messages, callback

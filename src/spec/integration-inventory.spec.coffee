@@ -32,10 +32,11 @@ describe "Integration test", ->
       for s in stocks
         dels.push del(s.id)
 
-      Q.allSettled(dels).then (v) =>
+      Q.all(dels).then (v) =>
         done()
       .fail (err) =>
-        throw new Error "Problems on deleting old entires in beforeEach"
+        console.log err
+        expect(false).toBe true
 
   it "should update order", (done) ->
     ie =
