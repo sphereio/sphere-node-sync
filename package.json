@@ -35,7 +35,7 @@
   "dependencies": {
     "jsondiffpatch": "~0.0.8",
     "underscore": "~1.5.2",
-    "sphere-node-connect": "~0.2.1"
+    "sphere-node-connect": "~0.2.2"
   },
   "devDependencies": {
     "coveralls": "~2.1.0",
