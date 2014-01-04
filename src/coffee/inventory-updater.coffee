@@ -65,7 +65,7 @@ class InventoryUpdater
     rest.GET '/inventory?limit=0', (error, response, body) ->
       if error
         deferred.reject 'Error on getting all inventory entries: ' + error
-      else if response.statusCode is not 200
+      else if response.statusCode isnt 200
         deferred.reject 'Problem on getting all inventory entries: ' + body
       else
         stocks = JSON.parse(body).results
@@ -84,7 +84,7 @@ class InventoryUpdater
     deferred.promise
 
   match: (s) ->
-    if @sku2index[s.sku] != -1
+    if @sku2index[s.sku] isnt -1
       @existingInventoryEntries[@sku2index[s.sku]]
 
   createOrUpdate: (inventoryEntries, callback) ->
@@ -96,11 +96,9 @@ class InventoryUpdater
       else
         posts.push @create(entry)
 
-    Q.all(posts).then (messages) =>
+    Q.allSettled(posts).then (messages) =>
       if messages.length is 1
         messages = messages[0]
-      else
-        messages = "#{messages.length} inventory entries done."
       @returnResult true, messages, callback
     .fail (msg) =>
       @returnResult false, msg, callback
@@ -122,7 +120,7 @@ class InventoryUpdater
 
   create: (stock) ->
     deferred = Q.defer()
-    @rest.POST '/inventory', JSON.stringify(stock), (error, response, body) ->
+    @rest.POST '/inventory', JSON.stringify(stock), (error, response, body) =>
       @bar.tick() if @bar
       if error
         deferred.reject 'Error on creating new inventory entry: ' + error
