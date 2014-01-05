@@ -6,13 +6,15 @@ logentries = require 'node-logentries'
 (abstract) Common Updater class
 ###
 class CommonUpdater
-  constructor: (@options = {}) ->
-    if @options.logentries_token
-      @log = logentries.logger token: @options.logentries_token
+  constructor: (options = {}) ->
+    if options.logentries_token
+      @log = logentries.logger token: options.logentries_token
+    @showProgressBar = true if options.show_progress is true
     @
 
   initProgressBar: (title, size) ->
-    @bar = new ProgressBar "#{title} [:bar] :current/:total (= :percent) done", { width: 80, total: size }
+    if @showProgressBar
+      @bar = new ProgressBar "#{title} [:bar] :current/:total (= :percent) done", { width: 80, total: size }
 
   tickProgress: () ->
     @bar.tick() if @bar

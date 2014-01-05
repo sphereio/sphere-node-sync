@@ -12,14 +12,14 @@ describe 'CommonUpdater', ->
 
 describe '#initProgressBar', ->
   it 'should create progress bar', ->
-    updater = new CommonUpdater()
+    updater = new CommonUpdater( { show_progress: true } )
     updater.initProgressBar 'foo', 42
     expect(updater.bar).toBeDefined()
     updater.bar.terminate()
 
 describe '#tickProgress', ->
   it 'should update progress bar', ->
-    updater = new CommonUpdater()
+    updater = new CommonUpdater( { show_progress: true } )
     updater.initProgressBar 'bar', 2
     expect(updater.bar.curr).toBe 0
     updater.tickProgress()
@@ -29,7 +29,7 @@ describe '#tickProgress', ->
     
 describe '#returnResult', ->
   it 'should terminate progress bar', (done) ->
-    updater = new CommonUpdater()
+    updater = new CommonUpdater( { show_progress: true } )
     updater.initProgressBar 'blabla', 7
     updater.returnResult true, 'some text', (ret) ->
       done()
