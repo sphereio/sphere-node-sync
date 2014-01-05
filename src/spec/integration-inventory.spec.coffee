@@ -14,7 +14,7 @@ describe "Integration test", ->
     @sync = new InventorySync config: Config.staging
     del = (id) =>
       deferred = Q.defer()
-      @sync._rest.DELETE "/inventory/#{id}", (error, response, body) =>
+      @sync._rest.DELETE "/inventory/#{id}", (error, response, body) ->
         if error
           deferred.reject error
         else
@@ -24,7 +24,7 @@ describe "Integration test", ->
             deferred.reject body
       deferred.promise
 
-    @sync._rest.GET "/inventory?limit=0", (error, response, body) =>
+    @sync._rest.GET "/inventory?limit=0", (error, response, body) ->
       stocks = JSON.parse(body).results
       if stocks.length is 0
         done()
@@ -32,9 +32,9 @@ describe "Integration test", ->
       for s in stocks
         dels.push del(s.id)
 
-      Q.all(dels).then (v) =>
+      Q.all(dels).then (v) ->
         done()
-      .fail (err) =>
+      .fail (err) ->
         console.log err
         expect(false).toBe true
 
@@ -49,7 +49,7 @@ describe "Integration test", ->
       expect(error).toBeNull()
       expect(response.statusCode).toBe 201
       e = JSON.parse(body)
-      @sync.buildActions(ieChanged, e).update (error, response, body) =>
+      @sync.buildActions(ieChanged, e).update (error, response, body) ->
         expect(error).toBeNull()
         expect(response.statusCode).toBe 200
         expect(JSON.parse(body).quantityOnStock).toBe 7
