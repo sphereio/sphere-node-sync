@@ -1,3 +1,4 @@
+_ = require('underscore')._
 CommonUpdater = require '../lib/common-updater'
 InventorySync = require '../lib/inventory-sync'
 Q = require('q')
@@ -34,7 +35,7 @@ class InventoryUpdater extends CommonUpdater
         return deferred.promise
       if response.statusCode is 200
         channels = JSON.parse(body).results
-        if channels.length is 1
+        if _.size(channels) is 1
           deferred.resolve channels[0]
           return deferred.promise
       # can't find it - let's create the channel
@@ -78,7 +79,7 @@ class InventoryUpdater extends CommonUpdater
       @existingInventoryEntries[@sku2index[s.sku]]
 
   createOrUpdate: (inventoryEntries, callback) ->
-    if inventoryEntries.length is 0
+    if _.size(inventoryEntries) is 0
       return @returnResult true, 'Nothing to do.', callback
     posts = []
     for entry in inventoryEntries
@@ -87,9 +88,8 @@ class InventoryUpdater extends CommonUpdater
         posts.push @update(entry, existingEntry)
       else
         posts.push @create(entry)
+    @initProgressBar 'Updating inventory', _.size(posts)
     Q.all(posts).then (messages) =>
-      if messages.length is 1
-        messages = messages[0]
       @returnResult true, messages, callback
     .fail (msg) =>
       @returnResult false, msg, callback
