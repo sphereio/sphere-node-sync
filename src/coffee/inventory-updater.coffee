@@ -1,11 +1,13 @@
-InventorySync = require('../lib/inventory-sync')
+CommonUpdater = require '../lib/common-updater'
+InventorySync = require '../lib/inventory-sync'
 Q = require('q')
 
 ###
 Inventory Updater class
 ###
-class InventoryUpdater
-  constructor: (opts = {})->
+class InventoryUpdater extends CommonUpdater
+  constructor: (opts = {}) ->
+    super(opts)
     @sync = new InventorySync opts
     @rest = @sync._rest
     @existingInventoryEntries = {}
@@ -47,18 +49,6 @@ class InventoryUpdater
         else
           deferred.reject 'Problem on creating channel: ' + body
     deferred.promise
-
-
-  returnResult: (positiveFeedback, msg, callback) ->
-    @bar.terminate() if @bar
-    retVal =
-      component: this.constructor.name
-      status: positiveFeedback
-      message: msg
-    if @log
-      logLevel = if positiveFeedback then 'info' else 'err'
-      @log.log logLevel, d
-    callback retVal
 
   allInventoryEntries: (rest) ->
     deferred = Q.defer()
@@ -107,7 +97,7 @@ class InventoryUpdater
   update: (entry, existingEntry) ->
     deferred = Q.defer()
     @sync.buildActions(entry, existingEntry).update (error, response, body) =>
-      @bar.tick() if @bar
+      @tickProgress()
       if error
         deferred.reject 'Error on updating inventory entry: ' + error
       else
@@ -122,7 +112,7 @@ class InventoryUpdater
   create: (stock) ->
     deferred = Q.defer()
     @rest.POST '/inventory', JSON.stringify(stock), (error, response, body) =>
-      @bar.tick() if @bar
+      @tickProgress()
       if error
         deferred.reject 'Error on creating new inventory entry: ' + error
       else
