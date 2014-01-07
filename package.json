@@ -36,22 +36,21 @@
     "jsondiffpatch": "~0.0.8",
     "node-logentries": "0.1.2",
     "progress": "~1.1.2",
-    "progress": "~1.1.2",
-    "underscore": "~1.5.2",
-    "sphere-node-connect": "~0.2.2"
+    "q": "~1.0.0",
+    "sphere-node-connect": "~0.2.2",
+    "underscore": "~1.5.2"
   },
   "devDependencies": {
     "coveralls": "~2.1.0",
     "grunt": "~0.4.1",
-    "grunt-shell": "~0.5.0",
+    "grunt-bump": "~0.0.11",
     "grunt-coffeelint": "~0.0.7",
     "grunt-contrib-clean": "~0.5.0",
-    "grunt-contrib-concat": "~0.3.0",
     "grunt-contrib-coffee": "~0.7.0",
+    "grunt-contrib-concat": "~0.3.0",
     "grunt-contrib-watch": "~0.5.3",
-    "grunt-bump": "~0.0.11",
-    "jasmine-node": "~1.11.0",
+    "grunt-shell": "~0.5.0",
     "istanbul": "~0.1.46",
-    "q": "~0.9.7"
+    "jasmine-node": "~1.11.0"
   }
 }
