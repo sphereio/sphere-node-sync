@@ -12,7 +12,7 @@ class CommonUpdater
   constructor: (options = {}) ->
     if options.logentries_token
       @log = logentries.logger token: options.logentries_token
-    @showProgressBar = true if options.show_progress is true
+    @showProgressBar = options.show_progress
     @
 
   initProgressBar: (title, size) ->
