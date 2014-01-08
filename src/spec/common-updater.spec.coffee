@@ -7,19 +7,19 @@ describe 'CommonUpdater', ->
     expect(updater).toBeDefined()
 
   it 'should create logger', ->
-    updater = new CommonUpdater( { logentries_token: '123' } )
+    updater = new CommonUpdater(logentries_token: '123')
     expect(updater.log).toBeDefined()
 
 describe '#initProgressBar', ->
   it 'should create progress bar', ->
-    updater = new CommonUpdater( { show_progress: true } )
+    updater = new CommonUpdater(show_progress: true)
     updater.initProgressBar 'foo', 42
     expect(updater.bar).toBeDefined()
     updater.bar.terminate()
 
 describe '#tickProgress', ->
   it 'should update progress bar', ->
-    updater = new CommonUpdater( { show_progress: true } )
+    updater = new CommonUpdater(show_progress: true)
     updater.initProgressBar 'bar', 2
     expect(updater.bar.curr).toBe 0
     updater.tickProgress()
@@ -29,7 +29,7 @@ describe '#tickProgress', ->
     
 describe '#returnResult', ->
   it 'should terminate progress bar', (done) ->
-    updater = new CommonUpdater( { show_progress: true } )
+    updater = new CommonUpdater(show_progress: true)
     updater.initProgressBar 'blabla', 7
     updater.returnResult true, 'some text', (ret) ->
       done()
@@ -60,7 +60,7 @@ describe '#returnResult', ->
       done()
 
   it 'should send info log to logentries', (done) ->
-    updater = new CommonUpdater( { logentries_token: 'abc' } )
+    updater = new CommonUpdater(logentries_token: 'abc')
     spyOn(updater.log, 'log')
     updater.returnResult true, 'txt', (ret) ->
       expectedMessage =
@@ -71,7 +71,7 @@ describe '#returnResult', ->
       done()
 
   it 'should send error log to logentries', (done) ->
-    updater = new CommonUpdater( { logentries_token: 'abc' } )
+    updater = new CommonUpdater(logentries_token: 'abc')
     spyOn(updater.log, 'log')
     updater.returnResult false, [ 'Oops' ], (ret) ->
       expectedMessage =
