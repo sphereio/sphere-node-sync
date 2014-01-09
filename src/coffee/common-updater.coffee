@@ -40,6 +40,7 @@ class CommonUpdater
     if @log
       logLevel = if isPossitive then 'info' else 'err'
       @log.log logLevel, retVal
+      @log.end()
     callback retVal
 
 ###
