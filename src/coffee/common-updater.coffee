@@ -22,7 +22,7 @@ class CommonUpdater
   tickProgress: () ->
     @bar.tick() if @bar
 
-  returnResult: (isPossitive, message, callback) ->
+  returnResult: (isPositive, message, callback) ->
     @bar.terminate() if @bar
     if _.isArray(message)
       if _.size(message) is 1
@@ -35,10 +35,10 @@ class CommonUpdater
         message = summary
     retVal =
       component: this.constructor.name
-      status: isPossitive
+      status: isPositive
       message: message
     if @log
-      logLevel = if isPossitive then 'info' else 'err'
+      logLevel = if isPositive then 'info' else 'err'
       @log.log logLevel, retVal
       @log.end()
     callback retVal
