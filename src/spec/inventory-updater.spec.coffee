@@ -1,4 +1,5 @@
 _ = require("underscore")._
+Q = require('q')
 InventoryUpdater = require("../main").InventoryUpdater
 Config = require("../config").config.prod
 
@@ -39,6 +40,10 @@ describe '#ensureChannelByKey', ->
   beforeEach ->
     @updater = new InventoryUpdater config: Config
 
+  it 'should return a promise', ->
+    promise = @updater.ensureChannelByKey(@updater.rest, 'foo')
+    expect(Q.isPromise(promise)).toBe true
+
   it 'should query for channel by key', (done) ->
     spyOn(@updater.rest, "GET").andCallFake((path, callback) ->
       callback(null, {statusCode: 200}, '{ "results": [{ "id": "channel123" }] }'))
@@ -51,3 +56,80 @@ describe '#ensureChannelByKey', ->
     .fail (msg) ->
       expect(true).toBe false
       done()
+
+describe '#allInventoryEntries', ->
+  beforeEach ->
+    @updater = new InventoryUpdater config: Config
+
+  it 'should return a promise', ->
+    promise = @updater.allInventoryEntries(@updater.rest)
+    expect(Q.isPromise(promise)).toBe true
+
+  it 'should query all entries', ->
+    spyOn(@updater.rest, "GET").andCallFake((path, callback) ->
+      callback(null, {statusCode: 200}, '{ "results": [{ "id": "channel123" }] }'))
+
+    @updater.allInventoryEntries(@updater.rest).then (stocks) =>
+      expect(stocks.length).toBe 1
+      done()
+
+  it 'should reject if status code is not 200', ->
+    spyOn(@updater.rest, "GET").andCallFake((path, callback) ->
+      callback(null, {statusCode: 400}, "foo"))
+
+    @updater.allInventoryEntries(@updater.rest).then (stocks) =>
+      expect(stocks).not.toBeDefined()
+      done()
+    .fail (msg)->
+      expect(msg).toBe 'Problem on getting all inventory entries: foo'
+      done()
+
+  it 'should reject if error', ->
+    spyOn(@updater.rest, "GET").andCallFake((path, callback) ->
+      callback("foo", null, null))
+
+    @updater.allInventoryEntries(@updater.rest).then (stocks) =>
+      expect(stocks).not.toBeDefined()
+      done()
+    .fail (msg)->
+      expect(msg).toBe 'Error on getting all inventory entries: foo'
+      done()
+
+describe '#initMatcher', ->
+  beforeEach ->
+    @updater = new InventoryUpdater config: Config
+
+  it 'should return a promise', ->
+    promise = @updater.initMatcher()
+    expect(Q.isPromise(promise)).toBe true
+
+  it 'should reject if error', ->
+    spyOn(@updater.rest, "GET").andCallFake((path, callback) ->
+      callback("foo", null, null))
+
+    @updater.initMatcher().then (entries) =>
+      expect(entries).not.toBeDefined()
+      done()
+    .fail (msg)->
+      expect(msg).toBe 'Error on getting all inventory entries: foo'
+      done()
+
+  it 'should return existing entries', ->
+    spyOn(@updater.rest, "GET").andCallFake((path, callback) ->
+      callback(null, {statusCode: 200}, '{ "results": [{ "id": "channel123", "sku": "foo" }] }'))
+
+    @updater.initMatcher().then (result) =>
+      expect(@updater.existingInventoryEntries).toEqual [{ id: "channel123", sku: "foo" }]
+      expect(@updater.sku2index.foo).toBe 0
+      expect(result).toBe true
+      done()
+
+describe '#match', ->
+  beforeEach ->
+    @updater = new InventoryUpdater config: Config
+    @updater.existingInventoryEntries = [{ id: "channel123", sku: "foo" }]
+    @updater.sku2index = foo: 0
+
+  it 'should return entry based on sku', ->
+    entry = @updater.match sku: "foo"
+    expect(entry).toEqual { id: "channel123", sku: "foo" }

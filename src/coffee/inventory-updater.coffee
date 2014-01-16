@@ -1,7 +1,7 @@
 _ = require('underscore')._
+Q = require('q')
 CommonUpdater = require '../lib/common-updater'
 InventorySync = require '../lib/inventory-sync'
-Q = require('q')
 
 ###
 Inventory Updater class
@@ -63,7 +63,7 @@ class InventoryUpdater extends CommonUpdater
         deferred.resolve stocks
     deferred.promise
 
-  initMatcher: () ->
+  initMatcher: ->
     deferred = Q.defer()
     @allInventoryEntries(@rest).then (existingEntries) =>
       @existingInventoryEntries = existingEntries
@@ -75,8 +75,9 @@ class InventoryUpdater extends CommonUpdater
     deferred.promise
 
   match: (s) ->
-    if @sku2index[s.sku] isnt -1
-      @existingInventoryEntries[@sku2index[s.sku]]
+    index = @sku2index[s.sku]
+    if index isnt -1
+      @existingInventoryEntries[index]
 
   createOrUpdate: (inventoryEntries, callback) ->
     if _.size(inventoryEntries) is 0
