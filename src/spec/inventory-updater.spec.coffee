@@ -133,3 +133,90 @@ describe '#match', ->
   it 'should return entry based on sku', ->
     entry = @updater.match sku: "foo"
     expect(entry).toEqual { id: "channel123", sku: "foo" }
+
+describe '#update', ->
+  beforeEach ->
+    @updater = new InventoryUpdater config: Config
+
+  it 'should return a promise', ->
+    spyOn(@updater.sync, "buildActions").andReturn(@updater.sync)
+    spyOn(@updater.sync, "update")
+    promise = @updater.update()
+    expect(Q.isPromise(promise)).toBe true
+    expect(@updater.sync.buildActions).toHaveBeenCalled()
+    expect(@updater.sync.update).toHaveBeenCalled()
+
+  it 'should reject if error', ->
+    spyOn(@updater.sync, "buildActions").andReturn(@updater.sync)
+    spyOn(@updater.sync, "update").andCallFake((callback)-> callback("foo", null, null))
+
+    @updater.update().then (result) =>
+      expect(result).not.toBeDefined()
+      done()
+    .fail (msg)->
+      expect(msg).toBe 'Error on updating inventory entry: foo'
+      done()
+
+  it 'should reject if there was a problem during update', ->
+    spyOn(@updater.sync, "buildActions").andReturn(@updater.sync)
+    spyOn(@updater.sync, "update").andCallFake((callback)-> callback(null, {statusCode: 500}, "foo"))
+
+    @updater.update().then (result) =>
+      expect(result).not.toBeDefined()
+      done()
+    .fail (msg)->
+      expect(msg).toBe 'Problem on updating existing inventory entry: foo'
+      done()
+
+  it 'should return message that entry was updated', ->
+    spyOn(@updater.sync, "buildActions").andReturn(@updater.sync)
+    spyOn(@updater.sync, "update").andCallFake((callback)-> callback(null, {statusCode: 200}, null))
+
+    @updater.update().then (result) =>
+      expect(result).toBe 'Inventory entry updated.'
+      done()
+
+  it 'should return message that updated was not necessary', ->
+    spyOn(@updater.sync, "buildActions").andReturn(@updater.sync)
+    spyOn(@updater.sync, "update").andCallFake((callback)-> callback(null, {statusCode: 304}, null))
+
+    @updater.update().then (result) =>
+      expect(result).toBe 'Inventory entry update not neccessary.'
+      done()
+
+describe '#create', ->
+  beforeEach ->
+    @updater = new InventoryUpdater config: Config
+
+  it 'should return a promise', ->
+    spyOn(@updater.rest, "POST")
+    promise = @updater.create()
+    expect(Q.isPromise(promise)).toBe true
+    expect(@updater.rest.POST).toHaveBeenCalled()
+
+  it 'should reject if error', ->
+    spyOn(@updater.rest, "POST").andCallFake((path, payload, callback)-> callback("foo", null, null))
+
+    @updater.create().then (result) =>
+      expect(result).not.toBeDefined()
+      done()
+    .fail (msg)->
+      expect(msg).toBe 'Error on creating new inventory entry: foo'
+      done()
+
+  it 'should reject if there was a problem during create', ->
+    spyOn(@updater.rest, "POST").andCallFake((path, payload, callback)-> callback(null, {statusCode: 500}, "foo"))
+
+    @updater.create().then (result) =>
+      expect(result).not.toBeDefined()
+      done()
+    .fail (msg)->
+      expect(msg).toBe 'Problem on creating new inventory entry: foo'
+      done()
+
+  it 'should return message that entry was created', ->
+    spyOn(@updater.rest, "POST").andCallFake((path, payload, callback)-> callback(null, {statusCode: 201}, null))
+
+    @updater.create().then (result) =>
+      expect(result).toBe 'New inventory entry created.'
+      done()
