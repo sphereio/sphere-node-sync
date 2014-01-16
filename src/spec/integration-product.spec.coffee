@@ -199,7 +199,9 @@ describe "Integration test between projects", ->
         if response.state is "fulfilled"
           resolver = response.value
           stagingProd = _.first(resolver.results)
-          updates.push syncProducts(@sync, resolver.product, stagingProd)
+          # sync only if product is found on staging
+          if stagingProd
+            updates.push syncProducts(@sync, resolver.product, stagingProd)
       Q.allSettled updates
     ).then((results)->
       errors = []
