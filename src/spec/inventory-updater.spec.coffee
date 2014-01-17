@@ -239,3 +239,44 @@ describe '#create', ->
 
     @updater.create().then (result) =>
       expect(result).toBe 'New inventory entry created.'
+
+describe '#createOrUpdate', ->
+  beforeEach ->
+    @updater = new InventoryUpdater config: Config
+
+  it 'should return if there are no inventory entries', ->
+    spyOn(@updater, "returnResult")
+    @updater.createOrUpdate([], ->)
+    expect(@updater.returnResult).toHaveBeenCalledWith(true, 'Nothing to do.', jasmine.any(Function))
+
+  it 'should init progress bar and return a promise', ->
+    spyOn(@updater, "initProgressBar")
+    promise = @updater.createOrUpdate([{id: "channel123", sku: "foo_A"}, {id: "channel456", sku: "foo_B"}], ->)
+    expect(Q.isPromise(promise)).toBe true
+    expect(@updater.initProgressBar).toHaveBeenCalledWith 'Updating inventory', 2
+
+  it 'should push update promise if entry exists', ->
+    spyOn(@updater, "match").andReturn({id: "channel789", sku: "foo_A"})
+    spyOn(@updater, "update")
+    @updater.createOrUpdate([{id: "channel123", sku: "foo_A"}, {id: "channel456", sku: "foo_B"}], ->)
+    expect(@updater.update).toHaveBeenCalledWith {id: "channel123", sku: "foo_A"}, {id: "channel789", sku: "foo_A"}
+
+  it 'should push create promise if entry exists', ->
+    spyOn(@updater, "match").andReturn(null)
+    spyOn(@updater, "create")
+    @updater.createOrUpdate([{id: "channel123", sku: "foo_A"}, {id: "channel456", sku: "foo_B"}], ->)
+    expect(@updater.create).toHaveBeenCalledWith {id: "channel123", sku: "foo_A"}
+
+  it 'should return result after update/create requests', ->
+    spyOn(@updater, "match").andReturn(null)
+    spyOn(@updater, "returnResult")
+    spyOn(@updater.rest, "POST").andCallFake((path, payload, callback)-> callback(null, {statusCode: 201}, null))
+    @updater.createOrUpdate([{id: "channel123", sku: "foo_A"}, {id: "channel456", sku: "foo_B"}], ->).then (result)=>
+      expect(@updater.returnResult).toHaveBeenCalledWith(true, 'New inventory entry created.', jasmine.any(Function))
+
+  it 'should reject if error when update/create requests', ->
+    spyOn(@updater, "match").andReturn(null)
+    spyOn(@updater, "returnResult")
+    spyOn(@updater.rest, "POST").andCallFake((path, payload, callback)-> callback("foo", null, null))
+    @updater.createOrUpdate([{id: "channel123", sku: "foo_A"}, {id: "channel456", sku: "foo_B"}], ->).then (result)=>
+      expect(@updater.returnResult).toHaveBeenCalledWith(false, 'Error on creating new inventory entry: foo', jasmine.any(Function))
