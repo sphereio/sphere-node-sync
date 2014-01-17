@@ -32,12 +32,12 @@ class InventoryUpdater extends CommonUpdater
     rest.GET "/channels?where=#{query}", (error, response, body) ->
       if error
         deferred.reject 'Error on getting channel: ' + error
-        return deferred.promise
+        return
       if response.statusCode is 200
         channels = JSON.parse(body).results
         if _.size(channels) is 1
           deferred.resolve channels[0]
-          return deferred.promise
+          return
       # can't find it - let's create the channel
       channel =
         key: channelKey

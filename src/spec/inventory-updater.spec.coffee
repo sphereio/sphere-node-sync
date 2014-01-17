@@ -71,6 +71,7 @@ describe '#ensureChannelByKey', ->
 
     @updater.ensureChannelByKey(@updater.rest, 'bar').then (channel) =>
       expect(channel).toEqual {foo: "bar"}
+      expect(@updater.rest.POST).toHaveBeenCalledWith '/channels', JSON.stringify(key: 'bar'), jasmine.any(Function)
 
   it 'should reject when error during channel creation', ->
     spyOn(@updater.rest, "GET").andCallFake((path, callback) ->
