@@ -44,7 +44,7 @@ describe '#ensureChannelByKey', ->
     promise = @updater.ensureChannelByKey(@updater.rest, 'foo')
     expect(Q.isPromise(promise)).toBe true
 
-  it 'should query for channel by key', (done) ->
+  it 'should query for channel by key', ->
     spyOn(@updater.rest, "GET").andCallFake((path, callback) ->
       callback(null, {statusCode: 200}, '{ "results": [{ "id": "channel123" }] }'))
 
@@ -52,10 +52,47 @@ describe '#ensureChannelByKey', ->
       uri = '/channels?where=key%3D%22bar%22'
       expect(@updater.rest.GET).toHaveBeenCalledWith(uri, jasmine.any(Function))
       expect(channel.id).toBe 'channel123'
-      done()
     .fail (msg) ->
       expect(true).toBe false
-      done()
+
+  it 'should reject if error', ->
+    spyOn(@updater.rest, "GET").andCallFake((path, callback) -> callback("foo", null, null))
+
+    @updater.ensureChannelByKey(@updater.rest, 'bar').then (channel) =>
+      expect(channel).not.toBeDefined()
+    .fail (msg) ->
+      expect(msg).toBe 'Error on getting channel: foo'
+
+  it 'should create a channel if not found', ->
+    spyOn(@updater.rest, "GET").andCallFake((path, callback) ->
+      callback(null, {statusCode: 404}, null))
+    spyOn(@updater.rest, "POST").andCallFake((path, payload, callback) ->
+      callback(null, {statusCode: 201}, '{"foo": "bar"}'))
+
+    @updater.ensureChannelByKey(@updater.rest, 'bar').then (channel) =>
+      expect(channel).toEqual {foo: "bar"}
+
+  it 'should reject when error during channel creation', ->
+    spyOn(@updater.rest, "GET").andCallFake((path, callback) ->
+      callback(null, {statusCode: 404}, null))
+    spyOn(@updater.rest, "POST").andCallFake((path, payload, callback) ->
+      callback("foo", null, null))
+
+    @updater.ensureChannelByKey(@updater.rest, 'bar').then (channel) =>
+      expect(channel).not.toBeDefined()
+    .fail (msg) ->
+      expect(msg).toBe 'Error on creating channel: foo'
+
+  it 'should reject if there was a problem during channel creation', ->
+    spyOn(@updater.rest, "GET").andCallFake((path, callback) ->
+      callback(null, {statusCode: 404}, null))
+    spyOn(@updater.rest, "POST").andCallFake((path, payload, callback) ->
+      callback(null, {statusCode: 500}, "foo"))
+
+    @updater.ensureChannelByKey(@updater.rest, 'bar').then (channel) =>
+      expect(channel).not.toBeDefined()
+    .fail (msg) ->
+      expect(msg).toBe 'Problem on creating channel: foo'
 
 describe '#allInventoryEntries', ->
   beforeEach ->
@@ -71,7 +108,6 @@ describe '#allInventoryEntries', ->
 
     @updater.allInventoryEntries(@updater.rest).then (stocks) =>
       expect(stocks.length).toBe 1
-      done()
 
   it 'should reject if status code is not 200', ->
     spyOn(@updater.rest, "GET").andCallFake((path, callback) ->
@@ -79,10 +115,8 @@ describe '#allInventoryEntries', ->
 
     @updater.allInventoryEntries(@updater.rest).then (stocks) =>
       expect(stocks).not.toBeDefined()
-      done()
     .fail (msg)->
       expect(msg).toBe 'Problem on getting all inventory entries: foo'
-      done()
 
   it 'should reject if error', ->
     spyOn(@updater.rest, "GET").andCallFake((path, callback) ->
@@ -90,10 +124,8 @@ describe '#allInventoryEntries', ->
 
     @updater.allInventoryEntries(@updater.rest).then (stocks) =>
       expect(stocks).not.toBeDefined()
-      done()
     .fail (msg)->
       expect(msg).toBe 'Error on getting all inventory entries: foo'
-      done()
 
 describe '#initMatcher', ->
   beforeEach ->
@@ -109,10 +141,8 @@ describe '#initMatcher', ->
 
     @updater.initMatcher().then (entries) =>
       expect(entries).not.toBeDefined()
-      done()
     .fail (msg)->
       expect(msg).toBe 'Error on getting all inventory entries: foo'
-      done()
 
   it 'should return existing entries', ->
     spyOn(@updater.rest, "GET").andCallFake((path, callback) ->
@@ -122,7 +152,6 @@ describe '#initMatcher', ->
       expect(@updater.existingInventoryEntries).toEqual [{ id: "channel123", sku: "foo" }]
       expect(@updater.sku2index.foo).toBe 0
       expect(result).toBe true
-      done()
 
 describe '#match', ->
   beforeEach ->
@@ -152,10 +181,8 @@ describe '#update', ->
 
     @updater.update().then (result) =>
       expect(result).not.toBeDefined()
-      done()
     .fail (msg)->
       expect(msg).toBe 'Error on updating inventory entry: foo'
-      done()
 
   it 'should reject if there was a problem during update', ->
     spyOn(@updater.sync, "buildActions").andReturn(@updater.sync)
@@ -163,10 +190,8 @@ describe '#update', ->
 
     @updater.update().then (result) =>
       expect(result).not.toBeDefined()
-      done()
     .fail (msg)->
       expect(msg).toBe 'Problem on updating existing inventory entry: foo'
-      done()
 
   it 'should return message that entry was updated', ->
     spyOn(@updater.sync, "buildActions").andReturn(@updater.sync)
@@ -174,7 +199,6 @@ describe '#update', ->
 
     @updater.update().then (result) =>
       expect(result).toBe 'Inventory entry updated.'
-      done()
 
   it 'should return message that updated was not necessary', ->
     spyOn(@updater.sync, "buildActions").andReturn(@updater.sync)
@@ -182,7 +206,6 @@ describe '#update', ->
 
     @updater.update().then (result) =>
       expect(result).toBe 'Inventory entry update not neccessary.'
-      done()
 
 describe '#create', ->
   beforeEach ->
@@ -199,24 +222,19 @@ describe '#create', ->
 
     @updater.create().then (result) =>
       expect(result).not.toBeDefined()
-      done()
     .fail (msg)->
       expect(msg).toBe 'Error on creating new inventory entry: foo'
-      done()
 
   it 'should reject if there was a problem during create', ->
     spyOn(@updater.rest, "POST").andCallFake((path, payload, callback)-> callback(null, {statusCode: 500}, "foo"))
 
     @updater.create().then (result) =>
       expect(result).not.toBeDefined()
-      done()
     .fail (msg)->
       expect(msg).toBe 'Problem on creating new inventory entry: foo'
-      done()
 
   it 'should return message that entry was created', ->
     spyOn(@updater.rest, "POST").andCallFake((path, payload, callback)-> callback(null, {statusCode: 201}, null))
 
     @updater.create().then (result) =>
       expect(result).toBe 'New inventory entry created.'
-      done()
