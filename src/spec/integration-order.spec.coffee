@@ -79,7 +79,7 @@ deleteResourcePromise = (rest, url) ->
       deferred.reject new Error(body)
   deferred.promise
 
-describe "OrderSync Integration", ->
+describe "OrderSync integration test", ->
 
   beforeEach (done) ->
     @sync = new OrderSync config: Config.staging
