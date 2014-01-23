@@ -66,6 +66,19 @@ createResourcePromise = (rest, url, body) ->
       deferred.reject new Error(body)
   deferred.promise
 
+deleteResourcePromise = (rest, url) ->
+  deferred = Q.defer()
+  rest.DELETE url, (error, response, body) =>
+    if response.statusCode is 200
+      deferred.resolve JSON.parse(body)
+    else if error
+      console.log error
+      deferred.reject new Error(error)
+    else
+      console.log body
+      deferred.reject new Error(body)
+  deferred.promise
+
 describe "OrderSync Integration", ->
 
   beforeEach (done) ->
@@ -83,17 +96,13 @@ describe "OrderSync Integration", ->
       done()
 
   afterEach (done) ->
-    console.log "afterEach"
 
     # TODO: delete order (not supported by API yet)
-
-    @sync._rest.DELETE "/products/#{@product.id}?version=#{@product.version}", (error, response, body) =>
-      expect(response.statusCode).toBe 200
-
-      @sync._rest.DELETE "/product-types/#{@productType.id}?version=#{@productType.version}", (error, response, body) =>
-        expect(response.statusCode).toBe 200
-        @sync = null
-        done()
+    deleteResourcePromise(@sync._rest, "/products/#{@product.id}?version=#{@product.version}")
+      .then (product) =>
+        deleteResourcePromise(@sync._rest, "/product-types/#{@productType.id}?version=#{@productType.version}")
+    .then (productType) =>
+      done()
 
   it "should do nothing", (done) ->
     expect(true).toBe true
