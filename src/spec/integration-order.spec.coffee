@@ -24,6 +24,8 @@ describe "OrderSync integration test", ->
     .then (order) =>
       @order = order
       done()
+    .fail (error) ->
+      done(error)
 
   afterEach (done) ->
 
@@ -33,6 +35,8 @@ describe "OrderSync integration test", ->
         deleteResourcePromise(@sync._rest, "/product-types/#{@productType.id}?version=#{@productType.version}")
     .then (productType) =>
       done()
+    .fail (error) ->
+      done(error)
 
   it "should do nothing", (done) ->
     expect(true).toBe true
