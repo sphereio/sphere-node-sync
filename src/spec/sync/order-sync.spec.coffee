@@ -1,6 +1,6 @@
 _ = require("underscore")._
-OrderSync = require("../lib/order-sync")
-Config = require("../config").config.prod
+OrderSync = require("../../lib/sync/order-sync")
+Config = require("../../config").config.prod
 
 OLD_ORDER =
   id: "123"

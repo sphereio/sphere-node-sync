@@ -1,7 +1,7 @@
 _ = require('underscore')._
 Q = require('q')
-CommonUpdater = require '../lib/common-updater'
-InventorySync = require '../lib/inventory-sync'
+CommonUpdater = require('./common-updater')
+InventorySync = require('../sync/inventory-sync')
 
 ###
 Inventory Updater class

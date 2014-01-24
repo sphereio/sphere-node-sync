@@ -1,10 +1,10 @@
 _ = require("underscore")._
-ProductSync = require("../lib/product-sync")
-Config = require('../config').config
-product = require("../models/product.json")
+Q = require("q")
 Rest = require("sphere-node-connect").Rest
 OAuth2 = require("sphere-node-connect").OAuth2
-Q = require("q")
+ProductSync = require("../../lib/sync/product-sync")
+Config = require('../../config').config
+product = require("../../models/product.json")
 
 # Increase timeout
 jasmine.getEnv().defaultTimeoutInterval = 10000

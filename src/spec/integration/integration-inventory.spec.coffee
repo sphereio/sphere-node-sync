@@ -1,9 +1,9 @@
 _ = require("underscore")._
-InventorySync = require("../lib/inventory-sync")
-Config = require('../config').config
-order = require("../models/order.json")
-Rest = require("sphere-node-connect").Rest
 Q = require('q')
+InventorySync = require("../../lib/sync/inventory-sync")
+Config = require('../../config').config
+order = require("../../models/order.json")
+Rest = require("sphere-node-connect").Rest
 
 # Increase timeout
 jasmine.getEnv().defaultTimeoutInterval = 10000

@@ -1,6 +1,6 @@
 _ = require("underscore")._
-ProductSync = require("../lib/product-sync")
-Config = require("../config").config.prod
+ProductSync = require("../../lib/sync/product-sync")
+Config = require("../../config").config.prod
 
 OLD_PRODUCT =
   id: "123"

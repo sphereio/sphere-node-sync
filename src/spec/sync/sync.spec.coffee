@@ -1,6 +1,6 @@
 _ = require("underscore")._
-Sync = require("../lib/sync")
-Config = require("../config").config.prod
+Sync = require("../../lib/sync/sync")
+Config = require("../../config").config.prod
 
 OLD_OBJ =
   id: "123"

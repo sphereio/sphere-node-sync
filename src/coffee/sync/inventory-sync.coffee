@@ -1,7 +1,7 @@
 _ = require("underscore")._
 Rest = require("sphere-node-connect").Rest
-Sync = require("../lib/sync")
-helper = require("../lib/helper")
+Sync = require("../sync/sync")
+helper = require("../helper")
 
 ###
 Invetory Sync class

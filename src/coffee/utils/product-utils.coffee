@@ -1,7 +1,7 @@
 _ = require("underscore")._
 jsondiffpatch = require("jsondiffpatch")
-Utils = require("../lib/utils")
-helper = require("../lib/helper")
+Utils = require("./utils")
+helper = require("../helper")
 
 ###
 Product Utils class

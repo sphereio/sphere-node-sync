@@ -1,4 +1,4 @@
-OrderUtils = require("../lib/order-utils")
+OrderUtils = require("../../lib/utils/order-utils")
 
 ###
 Match different order statuses

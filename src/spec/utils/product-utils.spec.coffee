@@ -1,4 +1,4 @@
-ProductUtils = require("../lib/product-utils")
+ProductUtils = require("../../lib/utils/product-utils")
 
 ###
 Match different product attributes and variant prices

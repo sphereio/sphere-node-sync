@@ -1,6 +1,6 @@
 _ = require("underscore")._
-InventorySync = require("../lib/inventory-sync")
-Config = require("../config").config.prod
+InventorySync = require("../../lib/sync/inventory-sync")
+Config = require("../../config").config.prod
 
 describe "InventorySync", ->
 

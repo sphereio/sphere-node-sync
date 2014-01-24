@@ -1,5 +1,5 @@
 _ = require('underscore')._
-CommonUpdater = require('../lib/common-updater')
+CommonUpdater = require('../../lib/updater/common-updater')
 
 describe 'CommonUpdater', ->
   it 'should initialize without options', ->

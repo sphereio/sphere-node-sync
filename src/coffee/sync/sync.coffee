@@ -1,6 +1,6 @@
 _ = require("underscore")._
 Rest = require("sphere-node-connect").Rest
-Utils = require("../lib/utils")
+Utils = require("../utils/utils")
 
 ###
 Base Sync class

@@ -1,7 +1,7 @@
 _ = require("underscore")._
 Rest = require("sphere-node-connect").Rest
-Sync = require("../lib/sync")
-ProductUtils = require("../lib/product-utils")
+Sync = require("../sync/sync")
+ProductUtils = require("../utils/product-utils")
 
 ###
 Product Sync class

@@ -1,6 +1,6 @@
-ProductSync = require('../lib/product-sync')
-OrderSync = require('../lib/order-sync')
-InventorySync = require('../lib/inventory-sync')
+ProductSync = require('../lib/sync/product-sync')
+OrderSync = require('../lib/sync/order-sync')
+InventorySync = require('../lib/sync/inventory-sync')
 
 describe "exports", ->
   it "ProductSync", ->

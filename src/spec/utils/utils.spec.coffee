@@ -1,5 +1,5 @@
 _ = require("underscore")._
-Utils = require("../lib/utils")
+Utils = require("../../lib/utils/utils")
 
 describe "Utils", ->
 
