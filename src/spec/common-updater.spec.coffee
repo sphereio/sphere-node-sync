@@ -1,5 +1,5 @@
 _ = require('underscore')._
-CommonUpdater = require('../main').CommonUpdater
+CommonUpdater = require('../lib/common-updater')
 
 describe 'CommonUpdater', ->
   it 'should initialize without options', ->
@@ -26,7 +26,7 @@ describe '#tickProgress', ->
     expect(updater.bar.curr).toBe 1
     updater.tickProgress()
     expect(updater.bar.curr).toBe 2
-    
+
 describe '#returnResult', ->
   it 'should terminate progress bar', (done) ->
     updater = new CommonUpdater(show_progress: true)

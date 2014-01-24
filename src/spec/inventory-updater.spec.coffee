@@ -1,6 +1,6 @@
 _ = require("underscore")._
 Q = require('q')
-InventoryUpdater = require("../main").InventoryUpdater
+InventoryUpdater = require("../lib/inventory-updater")
 Config = require("../config").config.prod
 
 describe "InventoryUpdater", ->
