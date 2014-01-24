@@ -41,10 +41,6 @@ describe "Integration test", ->
       @productType = null
       @order = null
 
-  it "should do nothing", (done) ->
-    expect(true).toBe true
-    done()
-
   it "should update an order", (done)->
     orderNew =
       orderState: "Complete"
