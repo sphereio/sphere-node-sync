@@ -23,7 +23,6 @@ class OrderUtils extends Utils
       actions.push action if action
     actions
 
-
 ###
 Exports object
 ###
@@ -46,5 +45,13 @@ actionsList = ->
     {
       action: "changeShipmentState"
       key: "shipmentState"
+    },
+    {
+      action: "changeReturnShipmentState"
+      key: "returnShipmentState"
+    },
+    {
+      action: "changeReturnPaymentState"
+      key: "returnPaymentState"
     }
   ]

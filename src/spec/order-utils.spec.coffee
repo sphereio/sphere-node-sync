@@ -14,6 +14,8 @@ NEW_ORDER =
   orderState: "Complete"
   paymentState: "Paid"
   shipmentState: "Ready"
+  returnShipmentState: "Advised"
+  returnPaymentState: "NonRefundable"
 
 describe "OrderUtils.actionsMapStatuses", ->
   beforeEach ->
@@ -25,6 +27,9 @@ describe "OrderUtils.actionsMapStatuses", ->
       orderState: ["Open", "Complete"]
       paymentState: ["Pending", "Paid"]
       shipmentState: ["Pending", "Ready"]
+      returnShipmentState: ["Advised"]
+      returnPaymentState: ["NonRefundable"]
+
     expect(delta).toEqual expected_delta
 
     update = @utils.actionsMapStatuses(delta, NEW_ORDER)
@@ -33,5 +38,7 @@ describe "OrderUtils.actionsMapStatuses", ->
         { action: "changeOrderState", orderState: "Complete" }
         { action: "changePaymentState", paymentState: "Paid" }
         { action: "changeShipmentState", shipmentState: "Ready" }
+        { action: "changeReturnShipmentState", returnShipmentState: "Advised" }
+        { action: "changeReturnPaymentState", returnPaymentState: "NonRefundable" }
       ]
     expect(update).toEqual expected_update
