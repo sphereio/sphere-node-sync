@@ -8,8 +8,7 @@ Rest = require("sphere-node-connect").Rest
 # Increase timeout
 jasmine.getEnv().defaultTimeoutInterval = 10000
 
-
-describe "OrderSync integration test", ->
+describe "Integration test", ->
 
   beforeEach (done) ->
     @sync = new OrderSync config: Config.staging
@@ -46,46 +45,21 @@ describe "OrderSync integration test", ->
     expect(true).toBe true
     done()
 
-
-xdescribe "Integration test", ->
-  ORDER_ID = "455e92b4-2a75-4cb8-bfdd-eb78c7f227cb"
-  VERSION_ID = 1
-
-  beforeEach ->
-    @sync = new OrderSync config: Config.staging
-
-  afterEach ->
-    @sync = null
-
   it "should update an order", (done)->
-    timestamp = new Date().getTime()
-    NEW_ORDER =
+    orderNew =
       orderState: "Complete"
       paymentState: "Paid"
       shipmentState: "Ready"
-    # let's reset the statues first, so that the sync will work
-    payload = JSON.stringify
-      actions: [
-        { action: "changeOrderState", orderState: "Open" }
-        { action: "changePaymentState", paymentState: "Pending" }
-        { action: "changeShipmentState", shipmentState: "Pending" }
-      ]
-      version: VERSION_ID
-    @sync._rest.POST "/orders/#{ORDER_ID}", payload, (error, response, body)=>
-      if response.statusCode is 200
-        old_order = JSON.parse(body)
-        @sync.buildActions(NEW_ORDER, old_order).update (e, r, b)->
-          expect(r.statusCode).toBe 200
-          console.error b unless r.statusCode is 200
-          updated = JSON.parse(b)
-          expect(updated).toBeDefined()
-          expect(updated.orderState).toBe "Complete"
-          expect(updated.paymentState).toBe "Paid"
-          expect(updated.shipmentState).toBe "Ready"
-          done()
-      else
-        console.error body
-        throw new Error "Could not update order"
+
+    @sync.buildActions(orderNew, @order).update (error, response, body)->
+      expect(response.statusCode).toBe 200
+      console.error body unless response.statusCode is 200
+      orderUpdated = JSON.parse(body)
+      expect(orderUpdated).toBeDefined()
+      expect(orderUpdated.orderState).toBe orderNew.orderState
+      expect(orderUpdated.paymentState).toBe orderNew.paymentState
+      expect(orderUpdated.shipmentState).toBe orderNew.shipmentState
+      done()
 
 ###
 helper methods
@@ -114,7 +88,10 @@ orderMock = (product) ->
   unique = new Date().getTime()
   order =
     id: "order-#{unique}"
-    orderState: 'Complete'
+    orderState: 'Open'
+    paymentState: 'Pending'
+    shipmentState: 'Pending'
+
     lineItems: [ {
       productId: product.id
       name:
@@ -142,10 +119,8 @@ createResourcePromise = (rest, url, body) ->
     if response.statusCode is 201
       deferred.resolve JSON.parse(body)
     else if error
-      console.log error
       deferred.reject new Error(error)
     else
-      console.log body
       deferred.reject new Error(body)
   deferred.promise
 
@@ -155,9 +130,7 @@ deleteResourcePromise = (rest, url) ->
     if response.statusCode is 200
       deferred.resolve JSON.parse(body)
     else if error
-      console.log error
       deferred.reject new Error(error)
     else
-      console.log body
       deferred.reject new Error(body)
   deferred.promise
