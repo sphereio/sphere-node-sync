@@ -37,6 +37,10 @@ describe "OrderSync integration test", ->
       done()
     .fail (error) ->
       done(error)
+    .fin ->
+      @product = null
+      @productType = null
+      @order = null
 
   it "should do nothing", (done) ->
     expect(true).toBe true
