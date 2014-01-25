@@ -25,7 +25,7 @@
       "url": "https://github.com/emmenko/sphere-node-sync/blob/master/LICENSE-MIT"
     }
   ],
-  "main": "./lib",
+  "main": "./lib/main",
   "engines": {
     "node": ">= 0.8.0"
   },
@@ -39,7 +39,7 @@
     "node-logentries": "0.1.2",
     "progress": "~1.1.2",
     "q": "~1.0.0",
-    "sphere-node-connect": "~0.2.2",
+    "sphere-node-connect": "~0.2.6",
     "underscore": "~1.5.2"
   },
   "devDependencies": {
