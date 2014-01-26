@@ -167,6 +167,7 @@ describe '#match', ->
     @updater.existingInventoryEntries = [
       { id: '1', sku: 'foo', quantityOnStock: 3 }
       { id: '2', sku: 'foo', quantityOnStock: 7, supplyChannel: { id: 'channel123' } }
+      { id: '3', sku: 'foo', quantityOnStock: 9, supplyChannel: { id: 'channelX' } }
     ]
     entry = @updater.match sku: 'foo'
     expect(entry).toEqual { id: '1', sku: 'foo', quantityOnStock: 3 }
@@ -182,6 +183,16 @@ describe '#match', ->
       quantityOnStock: 7
       supplyChannel:
         id: 'channel123'
+    expect(entry).toEqual expected
+
+    stock.supplyChannel.id = 'channelX'
+    expected =
+      id: '3'
+      sku: 'foo'
+      quantityOnStock: 9
+      supplyChannel:
+        id: 'channelX'
+    entry = @updater.match stock
     expect(entry).toEqual expected
 
 describe '#update', ->
