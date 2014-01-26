@@ -150,19 +150,39 @@ describe '#initMatcher', ->
       callback(null, {statusCode: 200}, '{ "results": [{ "id": "channel123", "sku": "foo" }] }'))
 
     @updater.initMatcher().then (result) =>
-      expect(@updater.existingInventoryEntries).toEqual [{ id: "channel123", sku: "foo" }]
-      expect(@updater.sku2index.foo).toBe 0
-      expect(result).toBe true
+      expected = [{ id: "channel123", sku: "foo" }]
+      expect(@updater.existingInventoryEntries).toEqual expected
+      expect(result).toEqual expected
 
 describe '#match', ->
   beforeEach ->
     @updater = new InventoryUpdater config: Config
-    @updater.existingInventoryEntries = [{ id: "channel123", sku: "foo" }]
-    @updater.sku2index = foo: 0
 
   it 'should return entry based on sku', ->
+    @updater.existingInventoryEntries = [{ id: "channel123", sku: "foo" }]
     entry = @updater.match sku: "foo"
     expect(entry).toEqual { id: "channel123", sku: "foo" }
+
+  it 'should return entry based on sku and channel', ->
+    @updater.existingInventoryEntries = [
+      { id: '1', sku: 'foo', quantityOnStock: 3 }
+      { id: '2', sku: 'foo', quantityOnStock: 7, supplyChannel: { id: 'channel123' } }
+    ]
+    entry = @updater.match sku: 'foo'
+    expect(entry).toEqual { id: '1', sku: 'foo', quantityOnStock: 3 }
+
+    stock =
+      sku: 'foo'
+      supplyChannel:
+        id: 'channel123'
+    entry = @updater.match stock
+    expected =
+      id: '2'
+      sku: 'foo'
+      quantityOnStock: 7
+      supplyChannel:
+        id: 'channel123'
+    expect(entry).toEqual expected
 
 describe '#update', ->
   beforeEach ->

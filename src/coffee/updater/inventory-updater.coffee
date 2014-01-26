@@ -7,12 +7,14 @@ InventorySync = require('../sync/inventory-sync')
 Inventory Updater class
 ###
 class InventoryUpdater extends CommonUpdater
+
+  CHANNEL_REF_NAME = 'supplyChannel'
+
   constructor: (opts = {}) ->
     super(opts)
     @sync = new InventorySync opts
     @rest = @sync._rest
     @existingInventoryEntries = {}
-    @sku2index = {}
     @
 
   createInventoryEntry: (sku, quantity, expectedDelivery, channelId) ->
@@ -21,7 +23,7 @@ class InventoryUpdater extends CommonUpdater
       quantityOnStock: parseInt(quantity)
     entry.expectedDelivery = expectedDelivery if expectedDelivery
     if channelId
-      entry.supplyChannel =
+      entry[CHANNEL_REF_NAME] =
         typeId: 'channel'
         id: channelId
     entry
@@ -67,17 +69,20 @@ class InventoryUpdater extends CommonUpdater
     deferred = Q.defer()
     @allInventoryEntries(@rest).then (existingEntries) =>
       @existingInventoryEntries = existingEntries
-      for existingEntry, i in @existingInventoryEntries
-        @sku2index[existingEntry.sku] = i
-      deferred.resolve true
+      deferred.resolve existingEntries
     .fail (msg) ->
       deferred.reject msg
     deferred.promise
 
   match: (s) ->
-    index = @sku2index[s.sku]
-    if index isnt -1
-      @existingInventoryEntries[index]
+    _.find @existingInventoryEntries, (entry) ->
+      return false unless entry.sku is s.sku
+      if _.has(entry, CHANNEL_REF_NAME)
+        if _.has(s, CHANNEL_REF_NAME)
+          return true if entry[CHANNEL_REF_NAME].id is s[CHANNEL_REF_NAME].id
+      else
+        return true unless _.has(s, CHANNEL_REF_NAME)
+      false
 
   createOrUpdate: (inventoryEntries, callback) ->
     if _.size(inventoryEntries) is 0
