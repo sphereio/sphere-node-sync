@@ -165,6 +165,7 @@ describe '#match', ->
 
   it 'should return entry based on sku and channel', ->
     @updater.existingInventoryEntries = [
+      { id: '0', sku: 'bar', quantityOnStock: -1 }
       { id: '1', sku: 'foo', quantityOnStock: 3 }
       { id: '2', sku: 'foo', quantityOnStock: 7, supplyChannel: { id: 'channel123' } }
       { id: '3', sku: 'foo', quantityOnStock: 9, supplyChannel: { id: 'channelX' } }
