@@ -10,7 +10,7 @@ product = require("../../models/product.json")
 jasmine.getEnv().defaultTimeoutInterval = 10000
 
 # TODO do not rely on existing data: import/delete for a test case
-describe "Integration test", ->
+xdescribe "Integration test", ->
   PRODUCT_ID = "79339393-6f12-4caf-b357-12b51b89bbcc"
 
   beforeEach ->
