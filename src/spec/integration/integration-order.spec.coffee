@@ -32,7 +32,7 @@ describe "Integration test", ->
     deleteResourcePromise(@sync._rest, "/products/#{@product.id}?version=#{@product.version}")
       .then (product) =>
         deleteResourcePromise(@sync._rest, "/product-types/#{@productType.id}?version=#{@productType.version}")
-    .then (productType) =>
+    .then (productType) ->
       done()
     .fail (error) ->
       done(error)
@@ -122,7 +122,7 @@ createResourcePromise = (rest, url, body) ->
 
 deleteResourcePromise = (rest, url) ->
   deferred = Q.defer()
-  rest.DELETE url, (error, response, body) =>
+  rest.DELETE url, (error, response, body) ->
     if response.statusCode is 200
       deferred.resolve JSON.parse(body)
     else if error

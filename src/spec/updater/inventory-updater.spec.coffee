@@ -58,7 +58,7 @@ describe '#ensureChannelByKey', ->
   it 'should reject if error', ->
     spyOn(@updater.rest, "GET").andCallFake((path, callback) -> callback("foo", null, null))
 
-    @updater.ensureChannelByKey(@updater.rest, 'bar').then (channel) =>
+    @updater.ensureChannelByKey(@updater.rest, 'bar').then (channel) ->
       expect(channel).not.toBeDefined()
     .fail (msg) ->
       expect(msg).toBe 'Error on getting channel: foo'
@@ -79,7 +79,7 @@ describe '#ensureChannelByKey', ->
     spyOn(@updater.rest, "POST").andCallFake((path, payload, callback) ->
       callback("foo", null, null))
 
-    @updater.ensureChannelByKey(@updater.rest, 'bar').then (channel) =>
+    @updater.ensureChannelByKey(@updater.rest, 'bar').then (channel) ->
       expect(channel).not.toBeDefined()
     .fail (msg) ->
       expect(msg).toBe 'Error on creating channel: foo'
@@ -90,7 +90,7 @@ describe '#ensureChannelByKey', ->
     spyOn(@updater.rest, "POST").andCallFake((path, payload, callback) ->
       callback(null, {statusCode: 500}, "foo"))
 
-    @updater.ensureChannelByKey(@updater.rest, 'bar').then (channel) =>
+    @updater.ensureChannelByKey(@updater.rest, 'bar').then (channel) ->
       expect(channel).not.toBeDefined()
     .fail (msg) ->
       expect(msg).toBe 'Problem on creating channel: foo'
@@ -107,14 +107,14 @@ describe '#allInventoryEntries', ->
     spyOn(@updater.rest, "GET").andCallFake((path, callback) ->
       callback(null, {statusCode: 200}, '{ "results": [{ "id": "channel123" }] }'))
 
-    @updater.allInventoryEntries(@updater.rest).then (stocks) =>
+    @updater.allInventoryEntries(@updater.rest).then (stocks) ->
       expect(stocks.length).toBe 1
 
   it 'should reject if status code is not 200', ->
     spyOn(@updater.rest, "GET").andCallFake((path, callback) ->
       callback(null, {statusCode: 400}, "foo"))
 
-    @updater.allInventoryEntries(@updater.rest).then (stocks) =>
+    @updater.allInventoryEntries(@updater.rest).then (stocks) ->
       expect(stocks).not.toBeDefined()
     .fail (msg)->
       expect(msg).toBe 'Problem on getting all inventory entries: foo'
@@ -123,7 +123,7 @@ describe '#allInventoryEntries', ->
     spyOn(@updater.rest, "GET").andCallFake((path, callback) ->
       callback("foo", null, null))
 
-    @updater.allInventoryEntries(@updater.rest).then (stocks) =>
+    @updater.allInventoryEntries(@updater.rest).then (stocks) ->
       expect(stocks).not.toBeDefined()
     .fail (msg)->
       expect(msg).toBe 'Error on getting all inventory entries: foo'
@@ -140,7 +140,7 @@ describe '#initMatcher', ->
     spyOn(@updater.rest, "GET").andCallFake((path, callback) ->
       callback("foo", null, null))
 
-    @updater.initMatcher().then (entries) =>
+    @updater.initMatcher().then (entries) ->
       expect(entries).not.toBeDefined()
     .fail (msg)->
       expect(msg).toBe 'Error on getting all inventory entries: foo'
@@ -211,7 +211,7 @@ describe '#update', ->
     spyOn(@updater.sync, "buildActions").andReturn(@updater.sync)
     spyOn(@updater.sync, "update").andCallFake((callback)-> callback("foo", null, null))
 
-    @updater.update().then (result) =>
+    @updater.update().then (result) ->
       expect(result).not.toBeDefined()
     .fail (msg)->
       expect(msg).toBe 'Error on updating inventory entry: foo'
@@ -220,7 +220,7 @@ describe '#update', ->
     spyOn(@updater.sync, "buildActions").andReturn(@updater.sync)
     spyOn(@updater.sync, "update").andCallFake((callback)-> callback(null, {statusCode: 500}, "foo"))
 
-    @updater.update().then (result) =>
+    @updater.update().then (result) ->
       expect(result).not.toBeDefined()
     .fail (msg)->
       expect(msg).toBe 'Problem on updating existing inventory entry: foo'
@@ -229,14 +229,14 @@ describe '#update', ->
     spyOn(@updater.sync, "buildActions").andReturn(@updater.sync)
     spyOn(@updater.sync, "update").andCallFake((callback)-> callback(null, {statusCode: 200}, null))
 
-    @updater.update().then (result) =>
+    @updater.update().then (result) ->
       expect(result).toBe 'Inventory entry updated.'
 
   it 'should return message that updated was not necessary', ->
     spyOn(@updater.sync, "buildActions").andReturn(@updater.sync)
     spyOn(@updater.sync, "update").andCallFake((callback)-> callback(null, {statusCode: 304}, null))
 
-    @updater.update().then (result) =>
+    @updater.update().then (result) ->
       expect(result).toBe 'Inventory entry update not neccessary.'
 
 describe '#create', ->
@@ -252,7 +252,7 @@ describe '#create', ->
   it 'should reject if error', ->
     spyOn(@updater.rest, "POST").andCallFake((path, payload, callback)-> callback("foo", null, null))
 
-    @updater.create().then (result) =>
+    @updater.create().then (result) ->
       expect(result).not.toBeDefined()
     .fail (msg)->
       expect(msg).toBe 'Error on creating new inventory entry: foo'
@@ -260,7 +260,7 @@ describe '#create', ->
   it 'should reject if there was a problem during create', ->
     spyOn(@updater.rest, "POST").andCallFake((path, payload, callback)-> callback(null, {statusCode: 500}, "foo"))
 
-    @updater.create().then (result) =>
+    @updater.create().then (result) ->
       expect(result).not.toBeDefined()
     .fail (msg)->
       expect(msg).toBe 'Problem on creating new inventory entry: foo'
@@ -268,7 +268,7 @@ describe '#create', ->
   it 'should return message that entry was created', ->
     spyOn(@updater.rest, "POST").andCallFake((path, payload, callback)-> callback(null, {statusCode: 201}, null))
 
-    @updater.create().then (result) =>
+    @updater.create().then (result) ->
       expect(result).toBe 'New inventory entry created.'
 
 describe '#createOrUpdate', ->
