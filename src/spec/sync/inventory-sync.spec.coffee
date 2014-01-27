@@ -65,6 +65,47 @@ describe "#buildActions", ->
     expect(update.actions[0].action).toBe 'removeQuantity'
     expect(update.actions[0].quantity).toBe 2
 
+  it 'should add expectedDelivery', ->
+    ieNew =
+      sku: 'xyz'
+      quantityOnStock: 9
+      expectedDelivery: '2014-01-01T01:02:03'
+    ieOld =
+      sku: 'xyz'
+      quantityOnStock: 9
+    update = @sync.buildActions(ieNew, ieOld).get()
+    expect(update).toBeDefined()
+    expect(update.actions[0].action).toBe 'setExpectedDelivery'
+    expect(update.actions[0].expectedDelivery).toBe '2014-01-01T01:02:03'
+
+  it 'should update expectedDelivery', ->
+    ieNew =
+      sku: 'abc'
+      quantityOnStock: 0
+      expectedDelivery: '2000'
+    ieOld =
+      sku: 'abc'
+      quantityOnStock: 0
+      expectedDelivery: '1999'
+    update = @sync.buildActions(ieNew, ieOld).get()
+    expect(update).toBeDefined()
+    expect(update.actions[0].action).toBe 'setExpectedDelivery'
+    expect(update.actions[0].expectedDelivery).toBe '2000'
+
+  it 'should remove expectedDelivery', ->
+    ieNew =
+      sku: 'abc'
+      quantityOnStock: 0
+    ieOld =
+      sku: 'abc'
+      quantityOnStock: 0
+      expectedDelivery: '1999'
+    update = @sync.buildActions(ieNew, ieOld).get()
+    expect(update).toBeDefined()
+    expect(update.actions[0].action).toBe 'setExpectedDelivery'
+    expect(update.actions[0].expectedDelivery).toBeUndefined()
+
+
 describe "#update", ->
 
   beforeEach ->
