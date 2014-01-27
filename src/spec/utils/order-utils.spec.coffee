@@ -41,6 +41,22 @@ order =
       comment: 'Product doesnt have enough mojo.'
       shipmentState: 'Advised'
       paymentState: 'Initial'
+    }
+    {
+      id: uniqueId 'ri'
+      quantity: 2
+      lineItemId: 2
+      comment: 'Product too small.'
+      shipmentState: 'Advised'
+      paymentState: 'Initial'
+    }
+    {
+      id: uniqueId 'ri'
+      quantity: 2
+      lineItemId: 2
+      comment: 'Product too small.'
+      shipmentState: 'Advised'
+      paymentState: 'Initial'
     }]
 
 describe "OrderUtils.actionsMapStatuses", ->
@@ -91,6 +107,7 @@ describe "OrderUtils.actionsMapStatuses", ->
 
     orderChanged = JSON.parse(JSON.stringify(@order))
     orderChanged.returnInfo.items[0].shipmentState = "Returned"
+    orderChanged.returnInfo.items[1].shipmentState = "Unusable"
 
     delta = @utils.diff(@order, orderChanged)
     update = @utils.actionMapReturnInfo(delta, orderChanged)
@@ -101,6 +118,11 @@ describe "OrderUtils.actionsMapStatuses", ->
           returnItemId: orderChanged.returnInfo.items[0].id
           shipmentState: orderChanged.returnInfo.items[0].shipmentState
         }
+        {
+          action: "setReturnShipmentState"
+          returnItemId: orderChanged.returnInfo.items[1].id
+          shipmentState: orderChanged.returnInfo.items[1].shipmentState
+        }
       ]
     expect(update).toEqual expectedUpdate
 
@@ -108,6 +130,7 @@ describe "OrderUtils.actionsMapStatuses", ->
 
     orderChanged = JSON.parse(JSON.stringify(@order))
     orderChanged.returnInfo.items[0].paymentState = "Refunded"
+    orderChanged.returnInfo.items[1].paymentState = "NotRefunded"
 
 
     delta = @utils.diff(@order, orderChanged)
@@ -118,6 +141,11 @@ describe "OrderUtils.actionsMapStatuses", ->
           action: "setReturnPaymentState"
           returnItemId: orderChanged.returnInfo.items[0].id
           paymentState: orderChanged.returnInfo.items[0].paymentState
+        }
+        {
+          action: "setReturnPaymentState"
+          returnItemId: orderChanged.returnInfo.items[1].id
+          paymentState: orderChanged.returnInfo.items[1].paymentState
         }
       ]
     expect(update).toEqual expectedUpdate
