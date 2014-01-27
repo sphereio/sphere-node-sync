@@ -48,6 +48,10 @@ describe "OrderUtils.actionsMapStatuses", ->
     @utils = new OrderUtils
     @order = order
 
+  afterEach ->
+    @utils = null
+    @order = null
+
   it "should return required actions for syncing status", ->
 
     orderChanged = JSON.parse(JSON.stringify(@order))
