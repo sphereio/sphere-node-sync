@@ -23,6 +23,35 @@ class OrderUtils extends Utils
       actions.push action if action
     actions
 
+  actionMapReturnInfo: (diff, old_obj, new_obj) ->
+
+    actions = []
+
+    returnInfoDiff = diff['returnInfo']
+    if returnInfoDiff
+      if _.isArray returnInfoDiff
+        # returnInfo was added
+        returnInfo = _.first returnInfoDiff
+        action =
+            action: 'addReturnInfo'
+        _.each _.keys(returnInfo), (key) ->
+          action[key] = returnInfo[key]
+        actions.push action
+      else
+        # returnInfo was updated
+        if returnInfoDiff.items
+          _.each _.keys(returnInfoDiff.items), (index) ->
+            returnItem = returnInfoDiff.items[index]
+            _.each actionsListReturnInfoState(), (actionDefinition) ->
+              returnItemState = returnItem[actionDefinition.key]
+              if returnItemState
+                action = {}
+                action["action"] = actionDefinition.action
+                action["returnItemId"] = old_obj.returnInfo.items[index].id
+                action[actionDefinition.key] = helper.getDeltaValue returnItemState
+                actions.push action
+    actions
+
 ###
 Exports object
 ###
@@ -45,13 +74,17 @@ actionsList = ->
     {
       action: "changeShipmentState"
       key: "shipmentState"
+    }
+  ]
+
+actionsListReturnInfoState = ->
+  [
+    {
+      action: "setReturnShipmentState"
+      key: "shipmentState"
     },
     {
-      action: "changeReturnShipmentState"
-      key: "returnShipmentState"
-    },
-    {
-      action: "changeReturnPaymentState"
-      key: "returnPaymentState"
+      action: "setReturnPaymentState"
+      key: "paymentState"
     }
   ]
