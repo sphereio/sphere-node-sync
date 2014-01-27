@@ -35,7 +35,7 @@ class InventorySync extends Sync
           a.expectedDelivery = diff.expectedDelivery[0]
         else if size is 2
           a.expectedDelivery = diff.expectedDelivery[1]
-        # Delete case (size is 3) - we don not set any expectedDelivery
+        # Delete case (size is 3) - we do not set any expectedDelivery
         actions.push a
     return actions
 
