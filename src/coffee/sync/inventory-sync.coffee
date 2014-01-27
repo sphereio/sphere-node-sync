@@ -4,7 +4,8 @@ Sync = require("../sync/sync")
 helper = require("../helper")
 
 ###
-Invetory Sync class
+Inventory Sync class.
+  Ensures that quantityOnStock and expectedDelivery is in sync.
 ###
 class InventorySync extends Sync
   constructor: (opts = {})->
