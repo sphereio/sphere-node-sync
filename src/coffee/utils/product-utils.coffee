@@ -22,6 +22,30 @@ class ProductUtils extends Utils
     patchPrices(old_obj)
     patchPrices(new_obj)
 
+    # setting an lenum via the API support only to set the key of the enum.
+    # Thus we delete the original value (containing key and label) and set
+    # the key as value at the attribute.
+    # This way (l)enum attributes are handled the same way as text attributes.
+    patchEnums = (obj) ->
+      if obj.masterVariant
+        if obj.masterVariant.attributes
+          _.each obj.masterVariant.attributes, (attrib, index) ->
+            if _.has(attrib.value, 'key') and _.has(attrib.value, 'label')
+              v = attrib.value.key
+              delete attrib.value
+              attrib.value = v
+      if obj.variants
+        _.each obj.variants, (variant)->
+          if variant.attributes
+            _.each variant.attributes, (attrib, index) ->
+              if _.has(attrib.value, 'key') and _.has(attrib.value, 'label')
+                v = attrib.value.key
+                delete attrib.value
+                attrib.value = v
+
+    patchEnums(old_obj)
+    patchEnums(new_obj)
+
     super(old_obj, new_obj)
 
 
@@ -107,7 +131,7 @@ class ProductUtils extends Utils
     if masterVariant
       attributes = masterVariant.attributes
       if attributes
-        _.each attributes, (value, key)->
+        _.each attributes, (value, key) ->
           if key.match(/^\d$/g)
             if _.isArray value
               v = helper.getDeltaValue(value)
@@ -117,6 +141,19 @@ class ProductUtils extends Utils
             else
               # key is index of attribute
               index = key
+              setAction = buildSetAttributeAction(value.value, new_obj.masterVariant, index)
+              actions.push setAction if setAction
+          else if key.match(/^\_\d$/g)
+            if _.isArray value
+              v = helper.getDeltaValue(value)
+              unless v
+                v = value[0]
+                delete v.value
+              id = new_obj.masterVariant.id
+              setAction = buildNewSetAttributeAction(id, v)
+              actions.push setAction if setAction
+            else
+              index = key.substring(1)
               setAction = buildSetAttributeAction(value.value, new_obj.masterVariant, index)
               actions.push setAction if setAction
 
@@ -209,27 +246,11 @@ buildSetAttributeAction = (diffed_value, variant, index)->
       action.value = helper.getDeltaValue(diffed_value)
     else
       # LText: value: {en: "", de: ""}
-      # Enum: value: {label: "", key: ""}
-      # LEnum: value: {label: {en: "", de: ""}, key: ""}
       # Money: value: {centAmount: 123, currencyCode: ""}
       # *: value: ""
       if _.isString(diffed_value)
         # normal
         action.value = helper.getDeltaValue(diffed_value)
-      else if diffed_value.label
-        # enum
-        lab = diffed_value.label
-        if _.isArray(lab)
-          # Enum
-          label = helper.getDeltaValue(lab)
-        else
-          # LEnum
-          label = {}
-          _.each lab, (v, k)->
-            label[k] = helper.getDeltaValue(v)
-        action.value =
-          label: label
-          key: helper.getDeltaValue(diffed_value.key) or attribute.value.key
       else if diffed_value.centAmount
         # Money
         if diffed_value.centAmount
@@ -243,18 +264,12 @@ buildSetAttributeAction = (diffed_value, variant, index)->
         action.value =
           centAmount: centAmount
           currencyCode: currencyCode
-      else
-        if diffed_value.key
-          # enum without a label change
-          action.value =
-            label: attribute.value.label
-            key: helper.getDeltaValue(diffed_value.key)
-        else
-          # LText
-          text = {}
-          _.each diffed_value, (v, k)->
-            text[k] = helper.getDeltaValue(v)
-          action.value = text
+      else if _.isObject(diffed_value)
+        # LText
+        text = {}
+        _.each diffed_value, (v, k)->
+          text[k] = helper.getDeltaValue(v)
+        action.value = text
 
   action
 

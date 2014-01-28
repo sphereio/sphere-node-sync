@@ -81,10 +81,32 @@ NEW_ALL_ATTRIBUTES =
       { name: "foo", value: "qux" } # text
       { name: "dog", value: {en: "Doggy", it: "Cane"} } # ltext
       { name: "num", value: 100 } # number
-      { name: "count", value: { label: "Two", key: "two" } } # enum
-      { name: "size", value: { label: {de: "Größe"}, key: "small" } } # lenum
-      { name: "color", value: { label: {en: "Color"}, key: "blue" } } # lenum
+      { name: "count", value: "two" } # enum
+      { name: "size", value: "small" } # lenum
+      { name: "color", value: "blue" } # lenum
       { name: "cost", value: { centAmount: 550, currencyCode: "EUR" } } # money
+    ]
+
+###
+Match (l)enum the way they would be created
+###
+EXISTING_ENUM_ATTRIBUTES =
+  id: 'enum-101'
+  masterVariant:
+    id: 1
+    attributes: [
+      { name: 'count', value: { label: "My Key", key: 'myKey' } } # enum
+      { name: 'size', value: { label: { en: "Size" }, key: "big" } } # lenum
+      { name: 'color', value: { label: { de: "Farbe" }, key: "red" } } # lenum
+    ]
+NEW_ENUM_ATTRIBUTES =
+  id: 'enum-101'
+  masterVariant:
+    id: 1
+    attributes: [
+      { name: 'count', value: 'myKey' } # enum - unchanged
+      { name: 'size', value: 'small' } # lenum - changed key
+      # color is removed
     ]
 
 ###
@@ -98,7 +120,7 @@ OLD_ATTRIBUTES =
       { name:"uid", value: "20063672" },
       { name:"length", value: 160 },
       { name:"wide", value: 85 },
-      { name:"bulkygoods", value: { label:"Ja", key:"YES" } },
+      { name:"bulkygoods", value: { label: "Ja", key: "YES" } },
       { name:"ean", value: "20063672" }
     ]
   variants: [
@@ -108,7 +130,7 @@ OLD_ATTRIBUTES =
         { name:"uid", value: "20063672" },
         { name:"length", value: 160 },
         { name:"wide", value: 85 },
-        { name:"bulkygoods", value: { label:"Ja", key:"YES" } },
+        { name:"bulkygoods", value: { label: "Ja", key: "YES" } },
         { name:"ean", value: "20063672" }
       ]
     },
@@ -133,7 +155,7 @@ NEW_ATTRIBUTES =
       { name:"uid", value: "20063675" },
       { name:"length", value: 160 },
       { name:"wide", value: 10 },
-      { name:"bulkygoods", value: { label: "Nein", key: "NO" } },
+      { name:"bulkygoods", value: "NO" },
       { name:"ean", value: "20063672" }
     ]
   variants: [
@@ -143,7 +165,7 @@ NEW_ATTRIBUTES =
         { name:"uid", value: "20055572" },
         { name:"length", value: 333 },
         { name:"wide", value: 33 },
-        { name:"bulkygoods", value: { label: "Ja", key: "YES" } },
+        { name:"bulkygoods", value: "YES" },
         { name:"ean", value: "20063672" }
       ]
     },
@@ -152,7 +174,7 @@ NEW_ATTRIBUTES =
       attributes: [
         { name:"uid", value: "00001" },
         { name:"length", value: 500 },
-        { name:"bulkygoods", value: { label: "Si", key: "SI" } }
+        { name:"bulkygoods", value: "SI" }
       ]
     },
     {
@@ -241,19 +263,24 @@ describe "ProductUtils.diff", ->
               it: ["Cane"]
               de: ["Hund", 0, 0]
           2: { value: [50, 100] }
-          3: { value: { label: ["One", "Two"], key: ["one", "two"] } }
-          4:
-            value:
-              label:
-                de: ["Größe"]
-                en: ["Size", 0, 0]
-              key: ["medium", "small"]
-          5: { value: { key: ["red", "blue"] } }
+          3: { value: ["one", "two"] }
+          4: { value: ["medium", "small"] }
+          5: { value: ["red", "blue"] }
           6: { value: { centAmount : [990, 550] } }
           _t : "a"
 
     expect(delta).toEqual expected_delta
 
+  it 'should patch enums', ->
+    delta = @utils.diff(EXISTING_ENUM_ATTRIBUTES, NEW_ENUM_ATTRIBUTES)
+    expected_delta =
+      masterVariant:
+        attributes:
+          1: { value: ["big","small"] }
+          _t : "a"
+          _2 : [ { name: "color", value:"red"}, 0, 0 ]
+
+    expect(delta).toEqual expected_delta
 
 describe "ProductUtils.actionsMapAttributes", ->
   beforeEach ->
@@ -266,7 +293,7 @@ describe "ProductUtils.actionsMapAttributes", ->
         attributes:
           0: { value: ["20063672", "20063675"] }
           2: { value: [85, 10] }
-          3: { value: { label: ["Ja", "Nein"], key: ["YES", "NO"] } }
+          3: { value: ["YES", "NO"] }
           _t: "a"
       variants:
         0:
@@ -279,14 +306,14 @@ describe "ProductUtils.actionsMapAttributes", ->
           attributes:
             0: [ { name: "uid", value: "00001" } ]
             1: [ { name: "length", value: 500 } ]
-            2: [ { name: "bulkygoods", value: { label: "Si", key: "SI"} } ]
+            2: [ { name: "bulkygoods", value: "SI"} ]
             _t: "a"
         2:
           attributes:
             _t: "a"
             _0: [ { name: "uid", value: "1234567" }, 0, 0 ]
             _1: [ { name: "length", value: 123 }, 0, 0 ]
-            _2: [ { name: "bulkygoods", value: { label: "Si", key: "SI" } }, 0, 0 ]
+            _2: [ { name: "bulkygoods", value: "SI" }, 0, 0 ]
         _t: "a"
     expect(delta).toEqual expected_delta
 
@@ -295,13 +322,13 @@ describe "ProductUtils.actionsMapAttributes", ->
       [
         { action: "setAttribute", variantId: 1, name: "uid", value: "20063675" }
         { action: "setAttribute", variantId: 1, name: "wide", value: 10 }
-        { action: "setAttribute", variantId: 1, name: "bulkygoods", value:{ label:"Nein", key:"NO" } }
+        { action: "setAttribute", variantId: 1, name: "bulkygoods", value: "NO" }
         { action: "setAttribute", variantId: 2, name: "uid", value: "20055572" }
         { action: "setAttribute", variantId: 2, name: "length", value: 333 }
         { action: "setAttribute", variantId: 2, name: "wide", value: 33 }
         { action: "setAttribute", variantId: 3, name: "uid", value: "00001" }
         { action: "setAttribute", variantId: 3, name: "length", value: 500 }
-        { action: "setAttribute", variantId: 3, name: "bulkygoods", value: { label:"Si", key:"SI" } }
+        { action: "setAttribute", variantId: 3, name: "bulkygoods", value: "SI" }
         { action: "setAttribute", variantId: 4, name: "uid", value: undefined }
         { action: "setAttribute", variantId: 4, name: "length", value: undefined }
         { action: "setAttribute", variantId: 4, name: "bulkygoods", value: undefined }
@@ -316,9 +343,19 @@ describe "ProductUtils.actionsMapAttributes", ->
         { action: "setAttribute", variantId: 1, name: "foo", value: "qux" }
         { action: "setAttribute", variantId: 1, name: "dog", value: {en: "Doggy", it: "Cane", de : undefined} }
         { action: "setAttribute", variantId: 1, name: "num", value: 100 }
-        { action: "setAttribute", variantId: 1, name: "count", value: { label: "Two", key: "two" } }
-        { action: "setAttribute", variantId: 1, name: "size", value: { label: {de: "Größe", en : undefined}, key: "small" } }
-        { action: "setAttribute", variantId: 1, name: "color", value: { label: {en : "Color"}, key: "blue" } }
+        { action: "setAttribute", variantId: 1, name: "count", value: "two" }
+        { action: "setAttribute", variantId: 1, name: "size", value: "small" }
+        { action: "setAttribute", variantId: 1, name: "color", value: "blue" }
         { action: "setAttribute", variantId: 1, name: "cost", value: { centAmount: 550, currencyCode: "EUR" } }
+      ]
+    expect(update).toEqual expected_update
+
+  it "should build attribute especially for (l)enum", ->
+    delta = @utils.diff EXISTING_ENUM_ATTRIBUTES, NEW_ENUM_ATTRIBUTES
+    update = @utils.actionsMapAttributes delta, NEW_ENUM_ATTRIBUTES
+    expected_update =
+      [
+        { action: 'setAttribute', variantId: 1, name: 'size', value: 'small' }
+        { action: 'setAttribute', variantId: 1, name: 'color' }
       ]
     expect(update).toEqual expected_update
