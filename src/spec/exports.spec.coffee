@@ -1,7 +1,8 @@
-ProductSync = require('../lib/sync/product-sync')
-OrderSync = require('../lib/sync/order-sync')
-InventorySync = require('../lib/sync/inventory-sync')
-InventoryUpdater = require('../lib/updater/inventory-updater')
+ProductSync = require('../lib/main').ProductSync
+OrderSync = require('../lib/main').OrderSync
+InventorySync = require('../lib/main').InventorySync
+InventoryUpdater = require('../lib/main').InventoryUpdater
+CommonUpdater = require('../lib/main').CommonUpdater
 
 describe "exports", ->
   it "ProductSync", ->
@@ -15,3 +16,6 @@ describe "exports", ->
 
   it "InventoryUpdater", ->
     expect(InventoryUpdater).toBeDefined()
+
+  it "CommonUpdater", ->
+    expect(CommonUpdater).toBeDefined()
