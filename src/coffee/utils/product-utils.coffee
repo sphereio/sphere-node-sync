@@ -227,6 +227,7 @@ buildSetAttributeAction = (diffed_value, variant, index, allSameValueAttributeNa
       name: attribute.name
     if _.contains(allSameValueAttributeNames, attribute.name)
       action.action = 'setAttributeInAllVariants'
+      delete action.variantId
     if _.isArray(diffed_value)
       action.value = helper.getDeltaValue(diffed_value)
     else
@@ -267,4 +268,5 @@ buildNewSetAttributeAction = (id, el, allSameValueAttributeNames)->
     value: el.value
   if _.contains(allSameValueAttributeNames, attributeName)
     action.action = 'setAttributeInAllVariants'
+    delete action.variantId
   action

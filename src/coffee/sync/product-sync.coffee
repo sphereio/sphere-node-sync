@@ -13,10 +13,14 @@ class ProductSync extends Sync
     @_utils = new ProductUtils
     @
 
+  buildActions: (new_obj, old_obj, allSameValueAttributeNames = []) ->
+    @allSameValueAttributeNames = allSameValueAttributeNames
+    super new_obj, old_obj
+
   _doMapActions: (diff, new_obj, old_obj)->
     actions = @_utils.actionsMap(diff, old_obj)
     actionsPrices = @_utils.actionsMapPrices(diff, old_obj, new_obj)
-    actionsAttributes = @_utils.actionsMapAttributes(diff, new_obj)
+    actionsAttributes = @_utils.actionsMapAttributes(diff, new_obj, @allSameValueAttributeNames)
     actions = _.union actions, actionsPrices, actionsAttributes
     actions
 

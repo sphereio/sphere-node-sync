@@ -183,6 +183,54 @@ NEW_ATTRIBUTES =
     }
   ]
 
+###
+Match different attributes that have the `allSameValue` constraint
+###
+OLD_ALL_SAME_ATTRIBUTES =
+  id: "123"
+  masterVariant:
+    id: 1
+    attributes: [
+      { name:"brand", value: "Awesome Shoes" }
+    ]
+  variants: [
+    {
+      id: 2
+      attributes: [
+        { name:"brand", value: "Awesome Shoes" },
+      ]
+    },
+    {
+      id: 3
+      attributes: [
+        { name:"brand", value: "Awesome Shoes" },
+      ]
+    }
+  ]
+
+
+NEW_ALL_SAME_ATTRIBUTES =
+  id: "123"
+  masterVariant:
+    id: 1
+    attributes: [
+      { name:"brand", value: "Cool Shirts" }
+    ]
+  variants: [
+    {
+      id: 2
+      attributes: [
+        { name:"brand", value: "Cool Shirts" },
+      ]
+    },
+    {
+      id: 3
+      attributes: [
+        { name:"brand", value: "Cool Shirts" },
+      ]
+    }
+  ]
+
 describe "ProductUtils.diff", ->
   beforeEach ->
     @utils = new ProductUtils
@@ -357,5 +405,16 @@ describe "ProductUtils.actionsMapAttributes", ->
       [
         { action: 'setAttribute', variantId: 1, name: 'size', value: 'small' }
         { action: 'setAttribute', variantId: 1, name: 'color' }
+      ]
+    expect(update).toEqual expected_update
+
+  it "should build setAttributeInAllVariants actions", ->
+    delta = @utils.diff OLD_ALL_SAME_ATTRIBUTES, NEW_ALL_SAME_ATTRIBUTES
+    update = @utils.actionsMapAttributes delta, NEW_ALL_SAME_ATTRIBUTES, ['brand']
+    expected_update =
+      [
+        { action: 'setAttributeInAllVariants', name: 'brand', value: 'Cool Shirts' }
+        { action: 'setAttributeInAllVariants', name: 'brand', value: 'Cool Shirts' }
+        { action: 'setAttributeInAllVariants', name: 'brand', value: 'Cool Shirts' }
       ]
     expect(update).toEqual expected_update
