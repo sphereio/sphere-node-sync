@@ -184,9 +184,9 @@ NEW_ATTRIBUTES =
   ]
 
 ###
-Match different attributes that have the `allSameValue` constraint
+Match different attributes that have the `SameForAll` constraint
 ###
-OLD_ALL_SAME_ATTRIBUTES =
+OLD_SAME_FOR_ALL_ATTRIBUTES =
   id: "123"
   masterVariant:
     id: 1
@@ -209,7 +209,7 @@ OLD_ALL_SAME_ATTRIBUTES =
   ]
 
 
-NEW_ALL_SAME_ATTRIBUTES =
+NEW_SAME_FOR_ALL_ATTRIBUTES =
   id: "123"
   masterVariant:
     id: 1
@@ -409,8 +409,8 @@ describe "ProductUtils.actionsMapAttributes", ->
     expect(update).toEqual expected_update
 
   it "should build setAttributeInAllVariants actions", ->
-    delta = @utils.diff OLD_ALL_SAME_ATTRIBUTES, NEW_ALL_SAME_ATTRIBUTES
-    update = @utils.actionsMapAttributes delta, NEW_ALL_SAME_ATTRIBUTES, ['brand']
+    delta = @utils.diff OLD_SAME_FOR_ALL_ATTRIBUTES, NEW_SAME_FOR_ALL_ATTRIBUTES
+    update = @utils.actionsMapAttributes delta, NEW_SAME_FOR_ALL_ATTRIBUTES, ['brand']
     expected_update =
       [
         { action: 'setAttributeInAllVariants', name: 'brand', value: 'Cool Shirts' }

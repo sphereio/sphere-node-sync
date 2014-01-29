@@ -122,7 +122,7 @@ class ProductUtils extends Utils
     # this will sort the actions ranked in asc order (first 'remove' then 'add')
     _.sortBy actions, (a)-> a.action is "addPrice"
 
-  actionsMapVariantAttributes = (attributes, variant, allSameValueAttributeNames) ->
+  actionsMapVariantAttributes = (attributes, variant, sameForAllAttributeNames) ->
     actions = []
     if attributes
       _.each attributes, (value, key) ->
@@ -135,7 +135,7 @@ class ProductUtils extends Utils
           else
             # key is index of attribute
             index = key
-            setAction = buildSetAttributeAction(value.value, variant, index, allSameValueAttributeNames)
+            setAction = buildSetAttributeAction(value.value, variant, index, sameForAllAttributeNames)
             actions.push setAction if setAction
         else if key.match(/^\_\d$/g)
           if _.isArray value
@@ -148,27 +148,27 @@ class ProductUtils extends Utils
             actions.push setAction if setAction
           else
             index = key.substring(1)
-            setAction = buildSetAttributeAction(value.value, variant, index, allSameValueAttributeNames)
+            setAction = buildSetAttributeAction(value.value, variant, index, sameForAllAttributeNames)
             actions.push setAction if setAction
 
     actions
 
   # we assume that the products have the same ProductType
   # TODO: validate ProductType between products
-  actionsMapAttributes: (diff, new_obj, allSameValueAttributeNames = []) ->
+  actionsMapAttributes: (diff, new_obj, sameForAllAttributeNames = []) ->
     actions = []
     # masterVariant
     masterVariant = diff.masterVariant
     if masterVariant
       attributes = masterVariant.attributes
-      mActions = actionsMapVariantAttributes attributes, new_obj.masterVariant, allSameValueAttributeNames
+      mActions = actionsMapVariantAttributes attributes, new_obj.masterVariant, sameForAllAttributeNames
       actions = actions.concat mActions
 
     # variants
     if diff.variants
       _.each diff.variants, (variant, i)->
         attributes = variant.attributes
-        vActions = actionsMapVariantAttributes attributes, new_obj.variants[i], allSameValueAttributeNames
+        vActions = actionsMapVariantAttributes attributes, new_obj.variants[i], sameForAllAttributeNames
         actions = actions.concat vActions
 
     actions
@@ -218,14 +218,14 @@ buildAddPriceAction = (variant, index)->
       price: price
   action
 
-buildSetAttributeAction = (diffed_value, variant, index, allSameValueAttributeNames)->
+buildSetAttributeAction = (diffed_value, variant, index, sameForAllAttributeNames)->
   attribute = variant.attributes[index]
   if attribute
     action =
       action: "setAttribute"
       variantId: variant.id
       name: attribute.name
-    if _.contains(allSameValueAttributeNames, attribute.name)
+    if _.contains(sameForAllAttributeNames, attribute.name)
       action.action = 'setAttributeInAllVariants'
       delete action.variantId
     if _.isArray(diffed_value)
@@ -259,14 +259,14 @@ buildSetAttributeAction = (diffed_value, variant, index, allSameValueAttributeNa
 
   action
 
-buildNewSetAttributeAction = (id, el, allSameValueAttributeNames)->
+buildNewSetAttributeAction = (id, el, sameForAllAttributeNames)->
   attributeName = el.name
   action =
     action: "setAttribute"
     variantId: id
     name: attributeName
     value: el.value
-  if _.contains(allSameValueAttributeNames, attributeName)
+  if _.contains(sameForAllAttributeNames, attributeName)
     action.action = 'setAttributeInAllVariants'
     delete action.variantId
   action
