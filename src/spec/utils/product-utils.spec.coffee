@@ -414,7 +414,5 @@ describe "ProductUtils.actionsMapAttributes", ->
     expected_update =
       [
         { action: 'setAttributeInAllVariants', name: 'brand', value: 'Cool Shirts' }
-        { action: 'setAttributeInAllVariants', name: 'brand', value: 'Cool Shirts' }
-        { action: 'setAttributeInAllVariants', name: 'brand', value: 'Cool Shirts' }
       ]
     expect(update).toEqual expected_update

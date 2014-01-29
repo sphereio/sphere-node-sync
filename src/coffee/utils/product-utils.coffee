@@ -171,7 +171,8 @@ class ProductUtils extends Utils
         vActions = actionsMapVariantAttributes attributes, new_obj.variants[i], sameForAllAttributeNames
         actions = actions.concat vActions
 
-    actions
+    # Ensure we have each action only once per product. Use string representation of object to allow `===` on array objects
+    _.unique actions, (action) -> JSON.stringify action
 
 ###
 Exports object
