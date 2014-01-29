@@ -26,22 +26,22 @@ class ProductUtils extends Utils
     # Thus we delete the original value (containing key and label) and set
     # the key as value at the attribute.
     # This way (l)enum attributes are handled the same way as text attributes.
+    patchEnum = (attribute) ->
+      if _.has(attribute.value, 'key') and _.has(attribute.value, 'label')
+        v = attribute.value.key
+        delete attribute.value
+        attribute.value = v
+
     patchEnums = (obj) ->
       if obj.masterVariant
         if obj.masterVariant.attributes
           _.each obj.masterVariant.attributes, (attrib, index) ->
-            if _.has(attrib.value, 'key') and _.has(attrib.value, 'label')
-              v = attrib.value.key
-              delete attrib.value
-              attrib.value = v
+            patchEnum attrib
       if obj.variants
         _.each obj.variants, (variant)->
           if variant.attributes
             _.each variant.attributes, (attrib, index) ->
-              if _.has(attrib.value, 'key') and _.has(attrib.value, 'label')
-                v = attrib.value.key
-                delete attrib.value
-                attrib.value = v
+              patchEnum attrib
 
     patchEnums(old_obj)
     patchEnums(new_obj)
@@ -122,71 +122,54 @@ class ProductUtils extends Utils
     # this will sort the actions ranked in asc order (first 'remove' then 'add')
     _.sortBy actions, (a)-> a.action is "addPrice"
 
+  actionsMapVariantAttributes = (attributes, variant) ->
+    actions = []
+    if attributes
+      _.each attributes, (value, key) ->
+        if key.match(/^\d$/g)
+          if _.isArray value
+            v = helper.getDeltaValue(value)
+            id = variant.id
+            setAction = buildNewSetAttributeAction(id, v)
+            actions.push setAction if setAction
+          else
+            # key is index of attribute
+            index = key
+            setAction = buildSetAttributeAction(value.value, variant, index)
+            actions.push setAction if setAction
+        else if key.match(/^\_\d$/g)
+          if _.isArray value
+            v = helper.getDeltaValue(value)
+            unless v
+              v = value[0]
+              delete v.value
+            id = variant.id
+            setAction = buildNewSetAttributeAction(id, v)
+            actions.push setAction if setAction
+          else
+            index = key.substring(1)
+            setAction = buildSetAttributeAction(value.value, variant, index)
+            actions.push setAction if setAction
+
+    actions
+
   # we assume that the products have the same ProductType
   # TODO: validate ProductType between products
-  actionsMapAttributes: (diff, new_obj)->
+  actionsMapAttributes: (diff, new_obj) ->
     actions = []
     # masterVariant
     masterVariant = diff.masterVariant
     if masterVariant
       attributes = masterVariant.attributes
-      if attributes
-        _.each attributes, (value, key) ->
-          if key.match(/^\d$/g)
-            if _.isArray value
-              v = helper.getDeltaValue(value)
-              id = new_obj.masterVariant.id
-              setAction = buildNewSetAttributeAction(id, v)
-              actions.push setAction if setAction
-            else
-              # key is index of attribute
-              index = key
-              setAction = buildSetAttributeAction(value.value, new_obj.masterVariant, index)
-              actions.push setAction if setAction
-          else if key.match(/^\_\d$/g)
-            if _.isArray value
-              v = helper.getDeltaValue(value)
-              unless v
-                v = value[0]
-                delete v.value
-              id = new_obj.masterVariant.id
-              setAction = buildNewSetAttributeAction(id, v)
-              actions.push setAction if setAction
-            else
-              index = key.substring(1)
-              setAction = buildSetAttributeAction(value.value, new_obj.masterVariant, index)
-              actions.push setAction if setAction
+      mActions = actionsMapVariantAttributes attributes, new_obj.masterVariant
+      actions = actions.concat mActions
 
     # variants
     if diff.variants
       _.each diff.variants, (variant, i)->
         attributes = variant.attributes
-        if attributes
-          _.each attributes, (value, key)->
-            if key.match(/^\d$/g)
-              if _.isArray value
-                v = helper.getDeltaValue(value)
-                id = new_obj.variants[i].id
-                setAction = buildNewSetAttributeAction(id, v)
-                actions.push setAction if setAction
-              else
-                # key is index of attribute
-                index = key
-                setAction = buildSetAttributeAction(value.value, new_obj.variants[i], index)
-                actions.push setAction if setAction
-            else if key.match(/^\_\d$/g)
-              if _.isArray value
-                v = helper.getDeltaValue(value)
-                unless v
-                  v = value[0]
-                  delete v.value
-                id = new_obj.variants[i].id
-                setAction = buildNewSetAttributeAction(id, v)
-                actions.push setAction if setAction
-              else
-                index = key.substring(1)
-                setAction = buildSetAttributeAction(value.value, new_obj.variants[i], index)
-                actions.push setAction if setAction
+        vActions = actionsMapVariantAttributes attributes, new_obj.variants[i]
+        actions = actions.concat vActions
 
     actions
 
