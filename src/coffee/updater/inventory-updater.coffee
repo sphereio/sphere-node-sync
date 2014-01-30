@@ -88,15 +88,24 @@ class InventoryUpdater extends CommonUpdater
     if _.size(inventoryEntries) is 0
       return @returnResult true, 'Nothing to do.', callback
     posts = []
+    @initProgressBar 'Updating inventory', _.size(inventoryEntries)
     for entry in inventoryEntries
       existingEntry = @match(entry)
       if existingEntry
         posts.push @update(entry, existingEntry)
       else
         posts.push @create(entry)
-    @initProgressBar 'Updating inventory', _.size(posts)
-    Q.all(posts).then (messages) =>
-      @returnResult true, messages, callback
+
+    @processInBatches posts, callback
+
+  processInBatches: (posts, callback, numberOfParallelRequest = 50, acc = []) =>
+    current = _.take posts, numberOfParallelRequest
+    Q.all(current).then (msg) =>
+      messages = acc.concat(msg)
+      if _.size(current) < numberOfParallelRequest
+        @returnResult true, messages, callback
+      else
+        @processInBatches _.tail(posts, numberOfParallelRequest), callback, numberOfParallelRequest, messages
     .fail (msg) =>
       @returnResult false, msg, callback
 
