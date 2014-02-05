@@ -23,33 +23,41 @@ class OrderUtils extends Utils
       actions.push action if action
     actions
 
-  actionMapReturnInfo: (diff, old_obj, new_obj) ->
+  actionMapReturnInfo: (diff, old_obj) ->
 
     actions = []
+    returnInfoDiffs = diff['returnInfo']
+    if returnInfoDiffs
+      # iterate over returnInfo instances
+      _.each _.keys(returnInfoDiffs), (returnInfoIndex) ->
+        if returnInfoIndex != "_t"
+          returnInfoDiff = returnInfoDiffs[returnInfoIndex]
+          if _.isArray returnInfoDiff
+            # returnInfo was added
+            returnInfo = _.last returnInfoDiff
+            action =
+              action: 'addReturnInfo'
+            _.each _.keys(returnInfo), (key) ->
+              action[key] = returnInfo[key]
+            actions.push action
 
-    returnInfoDiff = diff['returnInfo']
-    if returnInfoDiff
-      if _.isArray returnInfoDiff
-        # returnInfo was added
-        returnInfo = _.first returnInfoDiff
-        action =
-            action: 'addReturnInfo'
-        _.each _.keys(returnInfo), (key) ->
-          action[key] = returnInfo[key]
-        actions.push action
-      else
-        # returnInfo was updated
-        if returnInfoDiff.items
-          _.each _.keys(returnInfoDiff.items), (index) ->
-            returnItem = returnInfoDiff.items[index]
-            _.each actionsListReturnInfoState(), (actionDefinition) ->
-              returnItemState = returnItem[actionDefinition.key]
-              if returnItemState
-                action = {}
-                action["action"] = actionDefinition.action
-                action["returnItemId"] = old_obj.returnInfo.items[index].id
-                action[actionDefinition.key] = helper.getDeltaValue returnItemState
-                actions.push action
+            # TODO: split into multiple actions (addReturnInfo + setReturnShipmentState/setReturnPaymentState)
+            #   in case shipmentState/paymentState already transitioned to a non-initial state
+          else
+            returnInfo = returnInfoDiff
+            # iterate over returnInfo items instances
+            _.each _.keys(returnInfo.items), (returnInfoItemIndex) ->
+              if returnInfoItemIndex != "_t"
+                returnInfoItem = returnInfo.items[returnInfoItemIndex]
+                # iterate over all returnInfo status actions
+                _.each actionsListReturnInfoState(), (actionDefinition) ->
+                  returnItemState = returnInfoItem[actionDefinition.key]
+                  if returnItemState
+                    action = {}
+                    action["action"] = actionDefinition.action
+                    action["returnItemId"] = old_obj.returnInfo[returnInfoIndex].items[returnInfoItemIndex].id
+                    action[actionDefinition.key] = helper.getDeltaValue returnItemState
+                    actions.push action
     actions
 
 ###

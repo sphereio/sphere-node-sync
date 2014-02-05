@@ -31,12 +31,12 @@ order =
   totalPrice:
     currencyCode: 'EUR'
     centAmount: 999
-  returnInfo:
+  returnInfo: [{
     returnTrackingId: "bla blubb"
     returnDate: new Date()
     items: [{
       id: uniqueId 'ri'
-      quantity: 1
+      quantity: 11
       lineItemId: 1
       comment: 'Product doesnt have enough mojo.'
       shipmentState: 'Advised'
@@ -44,7 +44,7 @@ order =
     }
     {
       id: uniqueId 'ri'
-      quantity: 2
+      quantity: 22
       lineItemId: 2
       comment: 'Product too small.'
       shipmentState: 'Advised'
@@ -52,12 +52,12 @@ order =
     }
     {
       id: uniqueId 'ri'
-      quantity: 2
-      lineItemId: 2
-      comment: 'Product too small.'
+      quantity: 33
+      lineItemId: 3
+      comment: 'Product too big.'
       shipmentState: 'Advised'
       paymentState: 'Initial'
-    }]
+    }]}]
 
 describe "OrderUtils.actionsMapStatuses", ->
   beforeEach ->
@@ -89,16 +89,16 @@ describe "OrderUtils.actionsMapStatuses", ->
 
   it "should return required actions for syncing returnInfo", ->
 
-    @order = JSON.parse(JSON.stringify(@order))
+    @order = JSON.parse(JSON.stringify(order))
     orderChanged = JSON.parse(JSON.stringify(order))
 
-    # remove returnInfo key/value
-    delete @order.returnInfo
+    # empty returnInfo list
+    @order.returnInfo = []
 
     delta = @utils.diff(@order, orderChanged)
     update = @utils.actionMapReturnInfo(delta, orderChanged)
 
-    action = JSON.parse(JSON.stringify(orderChanged.returnInfo))
+    action = JSON.parse(JSON.stringify(orderChanged.returnInfo[0]))
     action["action"] = "addReturnInfo"
 
     expect(update).toEqual [action]
@@ -106,8 +106,8 @@ describe "OrderUtils.actionsMapStatuses", ->
   it "should return required action for syncing shipmentState (returnInfo)", ->
 
     orderChanged = JSON.parse(JSON.stringify(@order))
-    orderChanged.returnInfo.items[0].shipmentState = "Returned"
-    orderChanged.returnInfo.items[1].shipmentState = "Unusable"
+    orderChanged.returnInfo[0].items[0].shipmentState = "Returned"
+    orderChanged.returnInfo[0].items[1].shipmentState = "Unusable"
 
     delta = @utils.diff(@order, orderChanged)
     update = @utils.actionMapReturnInfo(delta, orderChanged)
@@ -115,13 +115,13 @@ describe "OrderUtils.actionsMapStatuses", ->
       [
         {
           action: "setReturnShipmentState"
-          returnItemId: orderChanged.returnInfo.items[0].id
-          shipmentState: orderChanged.returnInfo.items[0].shipmentState
+          returnItemId: orderChanged.returnInfo[0].items[0].id
+          shipmentState: orderChanged.returnInfo[0].items[0].shipmentState
         }
         {
           action: "setReturnShipmentState"
-          returnItemId: orderChanged.returnInfo.items[1].id
-          shipmentState: orderChanged.returnInfo.items[1].shipmentState
+          returnItemId: orderChanged.returnInfo[0].items[1].id
+          shipmentState: orderChanged.returnInfo[0].items[1].shipmentState
         }
       ]
     expect(update).toEqual expectedUpdate
@@ -129,23 +129,23 @@ describe "OrderUtils.actionsMapStatuses", ->
   it "should return required action for syncing paymentState (returnInfo)", ->
 
     orderChanged = JSON.parse(JSON.stringify(@order))
-    orderChanged.returnInfo.items[0].paymentState = "Refunded"
-    orderChanged.returnInfo.items[1].paymentState = "NotRefunded"
-
+    orderChanged.returnInfo[0].items[0].paymentState = "Refunded"
+    orderChanged.returnInfo[0].items[1].paymentState = "NotRefunded"
 
     delta = @utils.diff(@order, orderChanged)
+
     update = @utils.actionMapReturnInfo(delta, orderChanged)
     expectedUpdate =
       [
         {
           action: "setReturnPaymentState"
-          returnItemId: orderChanged.returnInfo.items[0].id
-          paymentState: orderChanged.returnInfo.items[0].paymentState
+          returnItemId: orderChanged.returnInfo[0].items[0].id
+          paymentState: orderChanged.returnInfo[0].items[0].paymentState
         }
         {
           action: "setReturnPaymentState"
-          returnItemId: orderChanged.returnInfo.items[1].id
-          paymentState: orderChanged.returnInfo.items[1].paymentState
+          returnItemId: orderChanged.returnInfo[0].items[1].id
+          paymentState: orderChanged.returnInfo[0].items[1].paymentState
         }
       ]
     expect(update).toEqual expectedUpdate

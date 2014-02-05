@@ -42,10 +42,11 @@ describe "Integration test", ->
       @order = null
 
   it "should update an order", (done)->
-    orderNew =
-      orderState: "Complete"
-      paymentState: "Paid"
-      shipmentState: "Ready"
+
+    orderNew = JSON.parse(JSON.stringify(@order))
+    orderNew.orderState = "Complete"
+    orderNew.paymentState = "Paid"
+    orderNew.shipmentState = "Ready"
 
     @sync.buildActions(orderNew, @order).update (error, response, body)->
       expect(response.statusCode).toBe 200
@@ -56,6 +57,67 @@ describe "Integration test", ->
       expect(orderUpdated.paymentState).toBe orderNew.paymentState
       expect(orderUpdated.shipmentState).toBe orderNew.shipmentState
       done()
+
+  it "should sync returnInfo", (done) ->
+
+    orderNew = JSON.parse(JSON.stringify(@order))
+
+    orderNew.returnInfo.push
+      returnTrackingId: "1"
+      returnDate: new Date()
+      items: [{
+        quantity: 1
+        lineItemId: @order.lineItems[0].id
+        comment: 'Product doesnt have enough mojo.'
+        shipmentState: 'Advised'
+      }]
+
+    @sync.buildActions(orderNew, @order).update (error, response, body) ->
+      expect(response.statusCode).toBe 200
+      console.error body unless response.statusCode is 200
+      orderUpdated = JSON.parse(body)
+
+      expect(orderUpdated).toBeDefined()
+      expect(orderUpdated.returnInfo[0].id).toBe orderNew.returnInfo[0].id
+
+      done()
+
+  it "should sync returnInfo status", (done) ->
+
+    orderNew = JSON.parse(JSON.stringify(@order))
+
+    orderNew.returnInfo.push
+      returnTrackingId: "bla blubb"
+      returnDate: new Date()
+      items: [{
+        quantity: 1
+        lineItemId: @order.lineItems[0].id
+        comment: 'Product doesnt have enough mojo.'
+        shipmentState: 'Returned'
+      }]
+
+    # prepare order: add returnInfo first
+    @sync.buildActions(orderNew, @order).update (error, response, body) =>
+
+      console.error body unless response.statusCode is 200
+      orderUpdated = JSON.parse(body)
+
+      orderNew2 = JSON.parse(JSON.stringify(orderUpdated))
+
+      orderNew2.returnInfo[0].items[0].shipmentState = 'BackInStock'
+      orderNew2.returnInfo[0].items[0].paymentState = 'Refunded'
+
+      # update returnInfo status
+      @sync.buildActions(orderNew2, orderUpdated).update (error, response, body) =>
+        
+        expect(response.statusCode).toBe 200
+        console.error body unless response.statusCode is 200
+        orderUpdated2 = JSON.parse(body)
+
+        expect(orderUpdated2).toBeDefined()
+        expect(orderUpdated2.returnInfo[0].items[0].shipmentState).toEqual orderNew2.returnInfo[0].items[0].shipmentState
+        expect(orderUpdated2.returnInfo[0].items[0].paymentState).toEqual orderNew2.returnInfo[0].items[0].paymentState
+        done()
 
 ###
 helper methods
@@ -108,6 +170,7 @@ orderMock = (product) ->
     totalPrice:
       currencyCode: 'EUR'
       centAmount: 999
+    returnInfo: []
 
 createResourcePromise = (rest, url, body) ->
   deferred = Q.defer()

@@ -14,8 +14,9 @@ class OrderSync extends Sync
     @
 
   _doMapActions: (diff, new_obj, old_obj)->
-    actions = @_utils.actionsMapStatuses(diff, old_obj)
-    actions
+    actionsStatus = @_utils.actionsMapStatuses(diff, old_obj)
+    actionsReturnInfo = @_utils.actionMapReturnInfo(diff, old_obj)
+    _.union actionsStatus, actionsReturnInfo
 
   _doUpdate: (callback)->
     payload = JSON.stringify @_data.update
