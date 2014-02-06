@@ -33,7 +33,7 @@ order =
     centAmount: 999
   returnInfo: [{
     returnTrackingId: "bla blubb"
-    returnDate: new Date()
+    returnDate: new Date().toISOString()
     items: [{
       id: uniqueId 'ri'
       quantity: 11
@@ -62,7 +62,7 @@ order =
 describe "OrderUtils.actionsMapStatuses", ->
   beforeEach ->
     @utils = new OrderUtils
-    @order = order
+    @order = JSON.parse(JSON.stringify(order))
 
   afterEach ->
     @utils = null
@@ -148,4 +148,65 @@ describe "OrderUtils.actionsMapStatuses", ->
           paymentState: orderChanged.returnInfo[0].items[1].paymentState
         }
       ]
+    expect(update).toEqual expectedUpdate
+
+  it "should return required actions for syncing returnInfo and shipmentState", ->
+
+    orderChanged = JSON.parse(JSON.stringify(@order))
+
+    # add a 2nd returnInfo
+    orderChanged.returnInfo.push
+      returnTrackingId: "bla blubb"
+      returnDate: new Date().toISOString()
+      items: [{
+        id: uniqueId 'ri'
+        quantity: 111
+        lineItemId: 1
+        comment: 'Product doesnt have enough mojo.'
+        shipmentState: 'Advised'
+        paymentState: 'Initial'
+      }
+      {
+        id: uniqueId 'ri'
+        quantity: 222
+        lineItemId: 2
+        comment: 'Product too small.'
+        shipmentState: 'Advised'
+        paymentState: 'Initial'
+      }
+      {
+        id: uniqueId 'ri'
+        quantity: 333
+        lineItemId: 3
+        comment: 'Product too big.'
+        shipmentState: 'Advised'
+        paymentState: 'Initial'
+      }]
+
+    # change shipment status of existing returnInfo
+    orderChanged.returnInfo[0].items[0].shipmentState = "Returned"
+    orderChanged.returnInfo[0].items[1].shipmentState = "Unusable"
+
+    delta = @utils.diff(@order, orderChanged)
+    update = @utils.actionMapReturnInfo(delta, orderChanged)
+
+    addAction = JSON.parse(JSON.stringify(orderChanged.returnInfo[1]))
+    addAction["action"] = "addReturnInfo"
+
+    expectedUpdate =
+      [
+        {
+          action: "setReturnShipmentState"
+          returnItemId: orderChanged.returnInfo[0].items[0].id
+          shipmentState: orderChanged.returnInfo[0].items[0].shipmentState
+        }
+        {
+          action: "setReturnShipmentState"
+          returnItemId: orderChanged.returnInfo[0].items[1].id
+          shipmentState: orderChanged.returnInfo[0].items[1].shipmentState
+        }
+        addAction
+      ]
+
+
     expect(update).toEqual expectedUpdate
