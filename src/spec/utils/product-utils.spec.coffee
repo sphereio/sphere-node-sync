@@ -231,6 +231,62 @@ NEW_SAME_FOR_ALL_ATTRIBUTES =
     }
   ]
 
+###
+Match different attributes that have `set` as base type
+###
+OLD_SET_ATTRIBUTES =
+  id: "set123"
+  masterVariant:
+    id: 1
+    attributes: [
+      { name:"colors", value: [ 'green', 'red' ] }
+    ]
+  variants: [
+    {
+      id: 2
+      attributes: [
+        { name:"colors", value: [ 'black', 'white' ] },
+      ]
+    },
+    {
+      id: 3
+      attributes: [
+        { name:"colors", value: [ 'yellow' ] },
+      ]
+    },
+    {
+      id: 4
+      attributes: []
+    }
+  ]
+
+NEW_SET_ATTRIBUTES =
+  id: "set123"
+  masterVariant:
+    id: 1
+    attributes: [
+      { name:"colors", value: [ 'pink' ] }
+    ]
+  variants: [
+    {
+      id: 2
+      attributes: [
+        { name:"colors", value: [ 'white', 'black' ] },
+      ]
+    },
+    {
+      id: 3
+      attributes: []
+    },
+    {
+      id: 4
+      attributes: [
+        { name:"colors", value: [ 'gray' ] },
+      ]
+    }
+  ]
+
+
 describe "ProductUtils.diff", ->
   beforeEach ->
     @utils = new ProductUtils
@@ -414,5 +470,17 @@ describe "ProductUtils.actionsMapAttributes", ->
     expected_update =
       [
         { action: 'setAttributeInAllVariants', name: 'brand', value: 'Cool Shirts' }
+      ]
+    expect(update).toEqual expected_update
+
+  it 'should build setVariants actions for set attributes', ->
+    delta = @utils.diff OLD_SET_ATTRIBUTES, NEW_SET_ATTRIBUTES
+    update = @utils.actionsMapAttributes delta, NEW_SET_ATTRIBUTES
+    expected_update =
+      [
+        { action: 'setAttribute', variantId: 1, name: 'colors', value: [ 'pink' ] }
+        { action: 'setAttribute', variantId: 2, name: 'colors', value: [ 'white', 'black' ] }
+        { action: 'setAttribute', variantId: 3, name: 'colors' }
+        { action: 'setAttribute', variantId: 4, name: 'colors', value: [ 'gray' ] }
       ]
     expect(update).toEqual expected_update

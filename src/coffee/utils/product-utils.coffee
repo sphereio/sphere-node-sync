@@ -226,6 +226,7 @@ buildSetAttributeAction = (diffed_value, variant, index, sameForAllAttributeName
       action: "setAttribute"
       variantId: variant.id
       name: attribute.name
+
     if _.contains(sameForAllAttributeNames, attribute.name)
       action.action = 'setAttributeInAllVariants'
       delete action.variantId
@@ -252,11 +253,15 @@ buildSetAttributeAction = (diffed_value, variant, index, sameForAllAttributeName
           centAmount: centAmount
           currencyCode: currencyCode
       else if _.isObject(diffed_value)
-        # LText
-        text = {}
-        _.each diffed_value, (v, k)->
-          text[k] = helper.getDeltaValue(v)
-        action.value = text
+        if _.has(diffed_value, '_t') and diffed_value['_t'] is 'a'
+          # set-typed attribute
+          action.value = attribute.value
+        else
+          # LText
+          text = {}
+          _.each diffed_value, (v, k)->
+            text[k] = helper.getDeltaValue(v)
+          action.value = text
 
   action
 
