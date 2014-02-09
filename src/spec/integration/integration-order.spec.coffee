@@ -108,7 +108,7 @@ describe "Integration test", ->
       orderNew2.returnInfo[0].items[0].paymentState = 'Refunded'
 
       # update returnInfo status
-      @sync.buildActions(orderNew2, orderUpdated).update (error, response, body) =>
+      @sync.buildActions(orderNew2, orderUpdated).update (error, response, body) ->
         
         expect(response.statusCode).toBe 200
         console.error body unless response.statusCode is 200
