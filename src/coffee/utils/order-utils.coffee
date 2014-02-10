@@ -1,15 +1,20 @@
-_ = require("underscore")._
-jsondiffpatch = require("jsondiffpatch")
-Utils = require("./utils")
-helper = require("../helper")
+_ = require('underscore')._
+jsondiffpatch = require('jsondiffpatch')
+Utils = require('./utils')
+helper = require('../helper')
 
 ###
 Order Utils class
 ###
 class OrderUtils extends Utils
 
-  # This is used assuming the keys are on the first level of the object
-  actionsMapStatuses: (diff, old_obj)->
+  ###
+  Create list of actions for syncing order status values.
+  @param {object} diff Result of jsondiffpatch tool.
+  @param {object} old_obj Order to be updated.
+  @return list with actions
+  ###
+  actionsMapStatusValues: (diff, old_obj) ->
     actions = []
     _.each actionsList(), (item)->
       key = item.key
@@ -23,14 +28,30 @@ class OrderUtils extends Utils
       actions.push action if action
     actions
 
-  actionMapReturnInfo: (diff, old_obj) ->
+  ###
+  Create list of actions for syncing delivery items.
+  @param {object} diff Result of jsondiffpatch tool.
+  @param {object} old_obj Order to be updated.
+  @return list with actions
+  ###
+  actionsMapDeliveries: (diff, old_obj) ->
+    actions = []
+
+
+  ###
+  Create list of actions for syncing returnInfo items and returnInfo status values.
+  @param {object} diff Result of jsondiffpatch tool.
+  @param {object} old_obj Order to be updated.
+  @return list with actions
+  ###
+  actionsMapReturnInfo: (diff, old_obj) ->
 
     actions = []
     returnInfoDiffs = diff['returnInfo']
     if returnInfoDiffs
       # iterate over returnInfo instances
       _.each _.keys(returnInfoDiffs), (returnInfoIndex) ->
-        if returnInfoIndex != "_t"
+        if returnInfoIndex != '_t'
           returnInfoDiff = returnInfoDiffs[returnInfoIndex]
           if _.isArray returnInfoDiff
             # returnInfo was added
@@ -47,15 +68,15 @@ class OrderUtils extends Utils
             returnInfo = returnInfoDiff
             # iterate over returnInfo items instances
             _.each _.keys(returnInfo.items), (returnInfoItemIndex) ->
-              if returnInfoItemIndex != "_t"
+              if returnInfoItemIndex != '_t'
                 returnInfoItem = returnInfo.items[returnInfoItemIndex]
                 # iterate over all returnInfo status actions
                 _.each actionsListReturnInfoState(), (actionDefinition) ->
                   returnItemState = returnInfoItem[actionDefinition.key]
                   if returnItemState
                     action = {}
-                    action["action"] = actionDefinition.action
-                    action["returnItemId"] = old_obj.returnInfo[returnInfoIndex].items[returnInfoItemIndex].id
+                    action['action'] = actionDefinition.action
+                    action['returnItemId'] = old_obj.returnInfo[returnInfoIndex].items[returnInfoItemIndex].id
                     action[actionDefinition.key] = helper.getDeltaValue returnItemState
                     actions.push action
     actions
@@ -72,27 +93,27 @@ module.exports = OrderUtils
 actionsList = ->
   [
     {
-      action: "changeOrderState"
-      key: "orderState"
+      action: 'changeOrderState'
+      key: 'orderState'
     },
     {
-      action: "changePaymentState"
-      key: "paymentState"
+      action: 'changePaymentState'
+      key: 'paymentState'
     },
     {
-      action: "changeShipmentState"
-      key: "shipmentState"
+      action: 'changeShipmentState'
+      key: 'shipmentState'
     }
   ]
 
 actionsListReturnInfoState = ->
   [
     {
-      action: "setReturnShipmentState"
-      key: "shipmentState"
+      action: 'setReturnShipmentState'
+      key: 'shipmentState'
     },
     {
-      action: "setReturnPaymentState"
-      key: "paymentState"
+      action: 'setReturnPaymentState'
+      key: 'paymentState'
     }
   ]

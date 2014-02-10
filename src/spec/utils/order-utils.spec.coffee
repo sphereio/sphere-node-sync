@@ -59,7 +59,7 @@ order =
       paymentState: 'Initial'
     }]}]
 
-describe "OrderUtils.actionsMapStatuses", ->
+describe "OrderUtils.actionsMapStatusValues", ->
   beforeEach ->
     @utils = new OrderUtils
     @order = JSON.parse(JSON.stringify(order))
@@ -76,7 +76,7 @@ describe "OrderUtils.actionsMapStatuses", ->
     orderChanged.shipmentState = "Ready"
 
     delta = @utils.diff(@order, orderChanged)
-    update = @utils.actionsMapStatuses(delta, orderChanged)
+    update = @utils.actionsMapStatusValues(delta, orderChanged)
 
     expected_update =
       [
@@ -96,7 +96,7 @@ describe "OrderUtils.actionsMapStatuses", ->
     @order.returnInfo = []
 
     delta = @utils.diff(@order, orderChanged)
-    update = @utils.actionMapReturnInfo(delta, orderChanged)
+    update = @utils.actionsMapReturnInfo(delta, orderChanged)
 
     action = JSON.parse(JSON.stringify(orderChanged.returnInfo[0]))
     action["action"] = "addReturnInfo"
@@ -110,7 +110,7 @@ describe "OrderUtils.actionsMapStatuses", ->
     orderChanged.returnInfo[0].items[1].shipmentState = "Unusable"
 
     delta = @utils.diff(@order, orderChanged)
-    update = @utils.actionMapReturnInfo(delta, orderChanged)
+    update = @utils.actionsMapReturnInfo(delta, orderChanged)
     expectedUpdate =
       [
         {
@@ -134,7 +134,7 @@ describe "OrderUtils.actionsMapStatuses", ->
 
     delta = @utils.diff(@order, orderChanged)
 
-    update = @utils.actionMapReturnInfo(delta, orderChanged)
+    update = @utils.actionsMapReturnInfo(delta, orderChanged)
     expectedUpdate =
       [
         {
@@ -188,7 +188,7 @@ describe "OrderUtils.actionsMapStatuses", ->
     orderChanged.returnInfo[0].items[1].shipmentState = "Unusable"
 
     delta = @utils.diff(@order, orderChanged)
-    update = @utils.actionMapReturnInfo(delta, orderChanged)
+    update = @utils.actionsMapReturnInfo(delta, orderChanged)
 
     addAction = JSON.parse(JSON.stringify(orderChanged.returnInfo[1]))
     addAction["action"] = "addReturnInfo"
