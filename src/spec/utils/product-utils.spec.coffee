@@ -239,19 +239,25 @@ OLD_SET_ATTRIBUTES =
   masterVariant:
     id: 1
     attributes: [
-      { name:"colors", value: [ 'green', 'red' ] }
+      { name:"colors", value: [
+        { key: 'green', label: 'Green' }
+        { key: 'red', label: 'Red' }
+      ] }
     ]
   variants: [
     {
       id: 2
       attributes: [
-        { name:"colors", value: [ 'black', 'white' ] },
+        { name:"colors", value: [
+          { key: 'black', label: 'Black' }
+          { key: 'white', label: 'White' }
+        ] }
       ]
     },
     {
       id: 3
       attributes: [
-        { name:"colors", value: [ 'yellow' ] },
+        { name:"colors", value: [ { key: 'yellow', label: 'Yellow' } ] },
       ]
     },
     {
@@ -265,13 +271,13 @@ NEW_SET_ATTRIBUTES =
   masterVariant:
     id: 1
     attributes: [
-      { name:"colors", value: [ 'pink' ] }
+      { name:"colors", value: [ 'pink', 'orange' ] }
     ]
   variants: [
     {
       id: 2
       attributes: [
-        { name:"colors", value: [ 'white', 'black' ] },
+        { name:"colors", value: [ 'black', 'white' ] },
       ]
     },
     {
@@ -478,8 +484,7 @@ describe "ProductUtils.actionsMapAttributes", ->
     update = @utils.actionsMapAttributes delta, NEW_SET_ATTRIBUTES
     expected_update =
       [
-        { action: 'setAttribute', variantId: 1, name: 'colors', value: [ 'pink' ] }
-        { action: 'setAttribute', variantId: 2, name: 'colors', value: [ 'white', 'black' ] }
+        { action: 'setAttribute', variantId: 1, name: 'colors', value: [ 'pink', 'orange' ] }
         { action: 'setAttribute', variantId: 3, name: 'colors' }
         { action: 'setAttribute', variantId: 4, name: 'colors', value: [ 'gray' ] }
       ]

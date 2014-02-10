@@ -31,6 +31,12 @@ class ProductUtils extends Utils
         v = attribute.value.key
         delete attribute.value
         attribute.value = v
+      else if _.isArray(attribute.value)
+        for val, index in attribute.value
+          if _.has(val, 'key') and _.has(val, 'label')
+            attribute.value[index] = val.key
+          else # if we can't find key and label it isn't an (l)enum set and we can simply stop
+            return
 
     patchEnums = (obj) ->
       if obj.masterVariant
