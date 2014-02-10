@@ -27,6 +27,7 @@ class ProductUtils extends Utils
     # the key as value at the attribute.
     # This way (l)enum attributes are handled the same way as text attributes.
     patchEnum = (attribute) ->
+      return if _.isUndefined(attribute.value) or _.isNull(attribute.value)
       if _.has(attribute.value, 'key') and _.has(attribute.value, 'label')
         v = attribute.value.key
         delete attribute.value
