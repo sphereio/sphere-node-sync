@@ -3,7 +3,7 @@ helper = require("../lib/helper")
 
 describe "Helper", ->
 
-  _.each ["new", "update", "delete"], (key)->
+  _.each ["new", "update", "delete"], (key) ->
     it "should get delta value for '#{key}' value", ->
       switch key
         when "new"

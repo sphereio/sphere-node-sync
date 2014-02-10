@@ -16,7 +16,7 @@ class OrderUtils extends Utils
   ###
   actionsMapStatusValues: (diff, old_obj) ->
     actions = []
-    _.each actionsList(), (item)->
+    _.each actionsList(), (item) ->
       key = item.key
       obj = diff[key]
       if obj

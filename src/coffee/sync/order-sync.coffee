@@ -7,19 +7,19 @@ OrderUtils = require("../utils/order-utils")
 Order Sync class
 ###
 class OrderSync extends Sync
-  constructor: (opts = {})->
+  constructor: (opts = {}) ->
     super(opts)
     # Override base utils
     @_utils = new OrderUtils
     @
 
-  _doMapActions: (diff, new_obj, old_obj)->
+  _doMapActions: (diff, new_obj, old_obj) ->
     actionsStatus = @_utils.actionsMapStatusValues(diff, old_obj)
     actionsReturnInfo = @_utils.actionsMapReturnInfo(diff, old_obj)
     actionsDeliveries = @_utils.actionsMapDeliveries(diff, old_obj)
     _.union actionsStatus, actionsReturnInfo, actionsDeliveries
 
-  _doUpdate: (callback)->
+  _doUpdate: (callback) ->
     payload = JSON.stringify @_data.update
     @_rest.POST "/orders/#{@_data.updateId}", payload, callback
 

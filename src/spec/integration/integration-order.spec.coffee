@@ -41,14 +41,14 @@ describe "Integration test", ->
       @productType = null
       @order = null
 
-  it "should update an order", (done)->
+  it "should update an order", (done) ->
 
     orderNew = JSON.parse(JSON.stringify(@order))
     orderNew.orderState = "Complete"
     orderNew.paymentState = "Paid"
     orderNew.shipmentState = "Ready"
 
-    @sync.buildActions(orderNew, @order).update (error, response, body)->
+    @sync.buildActions(orderNew, @order).update (error, response, body) ->
       expect(response.statusCode).toBe 200
       console.error body unless response.statusCode is 200
       orderUpdated = JSON.parse(body)
@@ -123,7 +123,7 @@ describe "Integration test", ->
 helper methods
 ###
 
-productTypeMock = () ->
+productTypeMock = ->
   unique = new Date().getTime()
   productType =
     name: "PT-#{unique}"

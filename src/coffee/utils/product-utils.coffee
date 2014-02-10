@@ -7,18 +7,18 @@ helper = require("../helper")
 Product Utils class
 ###
 class ProductUtils extends Utils
-  diff: (old_obj, new_obj)->
+  diff: (old_obj, new_obj) ->
     # patch 'prices' to have an identifier in order for the diff
     # to be able to match nested objects in arrays
     # e.g.: prices: [ { _id: x, value: {} } ]
-    patchPrices = (obj)->
+    patchPrices = (obj) ->
       if obj.masterVariant
         if obj.masterVariant.prices and obj.masterVariant.prices.length > 0
-          _.each obj.masterVariant.prices, (p, i)-> p._id = i
+          _.each obj.masterVariant.prices, (p, i) -> p._id = i
       if obj.variants and obj.variants.length > 0
-        _.each obj.variants, (v)->
+        _.each obj.variants, (v) ->
           if v.prices and v.prices.length > 0
-            _.each v.prices, (p, i)-> p._id = i
+            _.each v.prices, (p, i) -> p._id = i
     patchPrices(old_obj)
     patchPrices(new_obj)
 
@@ -44,7 +44,7 @@ class ProductUtils extends Utils
           _.each obj.masterVariant.attributes, (attrib, index) ->
             patchEnum attrib
       if obj.variants
-        _.each obj.variants, (variant)->
+        _.each obj.variants, (variant) ->
           if variant.attributes
             _.each variant.attributes, (attrib, index) ->
               patchEnum attrib
@@ -56,9 +56,9 @@ class ProductUtils extends Utils
 
 
   # This is used assuming the keys are on the first level of the object
-  actionsMap: (diff, old_obj)->
+  actionsMap: (diff, old_obj) ->
     actions = []
-    _.each actionsList(), (item)->
+    _.each actionsList(), (item) ->
       key = item.key
       action = switch key
         when "name", "slug", "description"
@@ -69,7 +69,7 @@ class ProductUtils extends Utils
               updated = helper.getDeltaValue(obj)
             else
               keys = _.keys obj
-              _.each keys, (k)->
+              _.each keys, (k) ->
                 value = helper.getDeltaValue(obj[k])
                 updated[k] = value
             # extend values of original object so that the new value is saved
@@ -85,13 +85,13 @@ class ProductUtils extends Utils
       actions.push action if action
     actions
 
-  actionsMapPrices: (diff, old_obj, new_obj)->
+  actionsMapPrices: (diff, old_obj, new_obj) ->
     actions = []
     # masterVariant
     if diff.masterVariant
       prices = diff.masterVariant.prices
       if prices
-        _.each prices, (value, key)->
+        _.each prices, (value, key) ->
           if key.match(/^\d$/g)
             # key is index of new price
             index = key
@@ -107,10 +107,10 @@ class ProductUtils extends Utils
 
     # variants
     if diff.variants
-      _.each diff.variants, (variant, i)->
+      _.each diff.variants, (variant, i) ->
         prices = variant.prices
         if prices
-          _.each prices, (value, key)->
+          _.each prices, (value, key) ->
             if key.match(/^\d$/g)
               # key is index of new price
               index = key
@@ -126,7 +126,7 @@ class ProductUtils extends Utils
               actions.push addAction if addAction
 
     # this will sort the actions ranked in asc order (first 'remove' then 'add')
-    _.sortBy actions, (a)-> a.action is "addPrice"
+    _.sortBy actions, (a) -> a.action is "addPrice"
 
   actionsMapVariantAttributes = (attributes, variant, sameForAllAttributeNames) ->
     actions = []
@@ -172,7 +172,7 @@ class ProductUtils extends Utils
 
     # variants
     if diff.variants
-      _.each diff.variants, (variant, i)->
+      _.each diff.variants, (variant, i) ->
         attributes = variant.attributes
         vActions = actionsMapVariantAttributes attributes, new_obj.variants[i], sameForAllAttributeNames
         actions = actions.concat vActions
@@ -205,7 +205,7 @@ actionsList = ->
     }
   ]
 
-buildRemovePriceAction = (variant, index)->
+buildRemovePriceAction = (variant, index) ->
   price = variant.prices[index]
   if price
     delete price._id
@@ -215,7 +215,7 @@ buildRemovePriceAction = (variant, index)->
       price: price
   action
 
-buildAddPriceAction = (variant, index)->
+buildAddPriceAction = (variant, index) ->
   price = variant.prices[index]
   if price
     delete price._id
@@ -225,7 +225,7 @@ buildAddPriceAction = (variant, index)->
       price: price
   action
 
-buildSetAttributeAction = (diffed_value, variant, index, sameForAllAttributeNames)->
+buildSetAttributeAction = (diffed_value, variant, index, sameForAllAttributeNames) ->
   attribute = variant.attributes[index]
   if attribute
     action =
@@ -265,13 +265,13 @@ buildSetAttributeAction = (diffed_value, variant, index, sameForAllAttributeName
         else
           # LText
           text = {}
-          _.each diffed_value, (v, k)->
+          _.each diffed_value, (v, k) ->
             text[k] = helper.getDeltaValue(v)
           action.value = text
 
   action
 
-buildNewSetAttributeAction = (id, el, sameForAllAttributeNames)->
+buildNewSetAttributeAction = (id, el, sameForAllAttributeNames) ->
   attributeName = el.name
   action =
     action: "setAttribute"

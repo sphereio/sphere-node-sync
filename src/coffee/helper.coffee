@@ -2,7 +2,7 @@
 # Helper methods
 #################
 
-exports.getDeltaValue = (arr)->
+exports.getDeltaValue = (arr) ->
   size = arr.length
   switch size
     when 1 #new

@@ -75,7 +75,7 @@ describe "ProductSync", ->
     sync = -> new ProductSync foo: "bar"
     expect(sync).toThrow new Error("Missing credentials")
 
-  _.each ["client_id", "client_secret", "project_key"], (key)->
+  _.each ["client_id", "client_secret", "project_key"], (key) ->
     it "should throw error if no '#{key}' is defined", ->
       opt = _.clone(Config)
       delete opt[key]
@@ -119,14 +119,14 @@ describe "ProductSync.update", ->
   afterEach ->
     @sync = null
 
-  it "should send update request", (done)->
-    spyOn(@sync._rest, "POST").andCallFake((path, payload, callback)-> callback(null, null, {id: "123"}))
+  it "should send update request", (done) ->
+    spyOn(@sync._rest, "POST").andCallFake((path, payload, callback) -> callback(null, null, {id: "123"}))
     @sync._data =
       update:
         actions: []
         version: 1
       updateId: "123"
-    callMe = (e, r, b)->
+    callMe = (e, r, b) ->
       expect(b.id).toBe "123"
       done()
     @sync.update(callMe)

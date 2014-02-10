@@ -8,11 +8,11 @@ Inventory Sync class.
   Ensures that quantityOnStock and expectedDelivery is in sync.
 ###
 class InventorySync extends Sync
-  constructor: (opts = {})->
+  constructor: (opts = {}) ->
     super(opts)
     @
 
-  _doMapActions: (diff, new_obj, old_obj)->
+  _doMapActions: (diff, new_obj, old_obj) ->
     actions = []
     if diff.quantityOnStock
       if _.isArray(diff.quantityOnStock) and _.size(diff.quantityOnStock) is 2
@@ -40,7 +40,7 @@ class InventorySync extends Sync
         actions.push a
     return actions
 
-  _doUpdate: (callback)->
+  _doUpdate: (callback) ->
     payload = JSON.stringify @_data.update
     @_rest.POST "/inventory/#{@_data.updateId}", payload, callback
 

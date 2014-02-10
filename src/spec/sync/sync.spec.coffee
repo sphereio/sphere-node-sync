@@ -29,7 +29,7 @@ describe "Sync", ->
     sync = -> new Sync foo: "bar"
     expect(sync).toThrow new Error("Missing credentials")
 
-  _.each ["client_id", "client_secret", "project_key"], (key)->
+  _.each ["client_id", "client_secret", "project_key"], (key) ->
     it "should throw error if no '#{key}' is defined", ->
       opt = _.clone(Config)
       delete opt[key]
@@ -85,14 +85,14 @@ describe "Sync.update", ->
     sync = new Sync
     expect(sync.update).toThrow new Error("Cannot update: the Rest connector wasn't instantiated (probabily because of missing credentials)")
 
-  it "should send update request", (done)->
+  it "should send update request", (done) ->
     spyOn(@sync._rest, "POST")
     @sync._data =
       update:
         actions: []
         version: 1
       updateId: "123"
-    callMe = (e, r, b)->
+    callMe = (e, r, b) ->
       expect(e).toBe null
       expect(r).toBe null
       expect(b).toBe null
@@ -100,9 +100,9 @@ describe "Sync.update", ->
     @sync.update(callMe)
     expect(@sync._rest.POST).not.toHaveBeenCalled()
 
-  it "should return '304' if there are no update actions", (done)->
+  it "should return '304' if there are no update actions", (done) ->
     spyOn(@sync._rest, "POST")
-    callMe = (e, r, b)->
+    callMe = (e, r, b) ->
       expect(e).toBe null
       expect(r.statusCode).toBe 304
       expect(b).toBe null

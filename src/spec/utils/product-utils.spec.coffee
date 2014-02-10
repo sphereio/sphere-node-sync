@@ -117,21 +117,21 @@ OLD_ATTRIBUTES =
   masterVariant:
     id: 1
     attributes: [
-      { name:"uid", value: "20063672" },
-      { name:"length", value: 160 },
-      { name:"wide", value: 85 },
-      { name:"bulkygoods", value: { label: "Ja", key: "YES" } },
-      { name:"ean", value: "20063672" }
+      { name: "uid", value: "20063672" },
+      { name: "length", value: 160 },
+      { name: "wide", value: 85 },
+      { name: "bulkygoods", value: { label: "Ja", key: "YES" } },
+      { name: "ean", value: "20063672" }
     ]
   variants: [
     {
       id: 2
       attributes: [
-        { name:"uid", value: "20063672" },
-        { name:"length", value: 160 },
-        { name:"wide", value: 85 },
-        { name:"bulkygoods", value: { label: "Ja", key: "YES" } },
-        { name:"ean", value: "20063672" }
+        { name: "uid", value: "20063672" },
+        { name: "length", value: 160 },
+        { name: "wide", value: 85 },
+        { name: "bulkygoods", value: { label: "Ja", key: "YES" } },
+        { name: "ean", value: "20063672" }
       ]
     },
     {
@@ -141,9 +141,9 @@ OLD_ATTRIBUTES =
     {
       id: 4
       attributes: [
-        { name:"uid", value: "1234567" },
-        { name:"length", value: 123 },
-        { name:"bulkygoods", value: { label: "Si", key: "SI" } }
+        { name: "uid", value: "1234567" },
+        { name: "length", value: 123 },
+        { name: "bulkygoods", value: { label: "Si", key: "SI" } }
       ]
     }
   ]
@@ -152,29 +152,29 @@ NEW_ATTRIBUTES =
   masterVariant:
     id: 1
     attributes: [
-      { name:"uid", value: "20063675" },
-      { name:"length", value: 160 },
-      { name:"wide", value: 10 },
-      { name:"bulkygoods", value: "NO" },
-      { name:"ean", value: "20063672" }
+      { name: "uid", value: "20063675" },
+      { name: "length", value: 160 },
+      { name: "wide", value: 10 },
+      { name: "bulkygoods", value: "NO" },
+      { name: "ean", value: "20063672" }
     ]
   variants: [
     {
       id: 2
       attributes: [
-        { name:"uid", value: "20055572" },
-        { name:"length", value: 333 },
-        { name:"wide", value: 33 },
-        { name:"bulkygoods", value: "YES" },
-        { name:"ean", value: "20063672" }
+        { name: "uid", value: "20055572" },
+        { name: "length", value: 333 },
+        { name: "wide", value: 33 },
+        { name: "bulkygoods", value: "YES" },
+        { name: "ean", value: "20063672" }
       ]
     },
     {
       id: 3
       attributes: [
-        { name:"uid", value: "00001" },
-        { name:"length", value: 500 },
-        { name:"bulkygoods", value: "SI" }
+        { name: "uid", value: "00001" },
+        { name: "length", value: 500 },
+        { name: "bulkygoods", value: "SI" }
       ]
     },
     {
@@ -191,19 +191,19 @@ OLD_SAME_FOR_ALL_ATTRIBUTES =
   masterVariant:
     id: 1
     attributes: [
-      { name:"brand", value: "Awesome Shoes" }
+      { name: "brand", value: "Awesome Shoes" }
     ]
   variants: [
     {
       id: 2
       attributes: [
-        { name:"brand", value: "Awesome Shoes" },
+        { name: "brand", value: "Awesome Shoes" },
       ]
     },
     {
       id: 3
       attributes: [
-        { name:"brand", value: "Awesome Shoes" },
+        { name: "brand", value: "Awesome Shoes" },
       ]
     }
   ]
@@ -214,19 +214,19 @@ NEW_SAME_FOR_ALL_ATTRIBUTES =
   masterVariant:
     id: 1
     attributes: [
-      { name:"brand", value: "Cool Shirts" }
+      { name: "brand", value: "Cool Shirts" }
     ]
   variants: [
     {
       id: 2
       attributes: [
-        { name:"brand", value: "Cool Shirts" },
+        { name: "brand", value: "Cool Shirts" },
       ]
     },
     {
       id: 3
       attributes: [
-        { name:"brand", value: "Cool Shirts" },
+        { name: "brand", value: "Cool Shirts" },
       ]
     }
   ]
@@ -239,7 +239,7 @@ OLD_SET_ATTRIBUTES =
   masterVariant:
     id: 1
     attributes: [
-      { name:"colors", value: [
+      { name: "colors", value: [
         { key: 'green', label: 'Green' }
         { key: 'red', label: 'Red' }
       ] }
@@ -248,7 +248,7 @@ OLD_SET_ATTRIBUTES =
     {
       id: 2
       attributes: [
-        { name:"colors", value: [
+        { name: "colors", value: [
           { key: 'black', label: 'Black' }
           { key: 'white', label: 'White' }
         ] }
@@ -257,7 +257,7 @@ OLD_SET_ATTRIBUTES =
     {
       id: 3
       attributes: [
-        { name:"colors", value: [ { key: 'yellow', label: 'Yellow' } ] },
+        { name: "colors", value: [ { key: 'yellow', label: 'Yellow' } ] },
       ]
     },
     {
@@ -271,13 +271,13 @@ NEW_SET_ATTRIBUTES =
   masterVariant:
     id: 1
     attributes: [
-      { name:"colors", value: [ 'pink', 'orange' ] }
+      { name: "colors", value: [ 'pink', 'orange' ] }
     ]
   variants: [
     {
       id: 2
       attributes: [
-        { name:"colors", value: [ 'black', 'white' ] },
+        { name: "colors", value: [ 'black', 'white' ] },
       ]
     },
     {
@@ -287,7 +287,7 @@ NEW_SET_ATTRIBUTES =
     {
       id: 4
       attributes: [
-        { name:"colors", value: [ 'gray' ] },
+        { name: "colors", value: [ 'gray' ] },
       ]
     }
   ]
@@ -345,20 +345,20 @@ describe "ProductUtils.diff", ->
       description: [en: "Sample description", 0, 0] # deleted
       masterVariant:
         prices:
-          1: { value:{ centAmount:[ 1000, 3800 ] } }
-          2: { country:['DE', 'IT'] }
-          _t:'a'
-          _3:[{value:{currencyCode:'EUR', centAmount:1200 }, customerGroup:{id:'984a64de-24a4-42c0-868b-da7abfe1c5f6', typeId:'customer-group'}, _id:3}, 0, 0]
+          1: { value: { centAmount: [ 1000, 3800 ] } }
+          2: { country: ['DE', 'IT'] }
+          _t: 'a'
+          _3: [{value: {currencyCode: 'EUR', centAmount: 1200 }, customerGroup: {id: '984a64de-24a4-42c0-868b-da7abfe1c5f6', typeId: 'customer-group'}, _id: 3}, 0, 0]
       variants:
         0:
           prices:
             2:
-              value:{ centAmount:[ 2100, 2200 ] },
-              customerGroup:[{id:'59c64f80-6472-474e-b5be-dc57b45b2faf', typeId:'customer-group'}],
-              country:['US', 0, 0]
-            _t:'a'
-            _3:[{value:{currencyCode:'EUR', centAmount:2200 }, customerGroup:{id:'59c64f80-6472-474e-b5be-dc57b45b2faf', typeId:'customer-group'}, _id:3}, 0, 0]
-        _t:'a'
+              value: { centAmount: [ 2100, 2200 ] },
+              customerGroup: [{id: '59c64f80-6472-474e-b5be-dc57b45b2faf', typeId: 'customer-group'}],
+              country: ['US', 0, 0]
+            _t: 'a'
+            _3: [{value: {currencyCode: 'EUR', centAmount: 2200 }, customerGroup: {id: '59c64f80-6472-474e-b5be-dc57b45b2faf', typeId: 'customer-group'}, _id: 3}, 0, 0]
+        _t: 'a'
     expect(delta).toEqual expected_delta
 
   it "should diff different attribute types", ->
@@ -376,8 +376,8 @@ describe "ProductUtils.diff", ->
           3: { value: ["one", "two"] }
           4: { value: ["medium", "small"] }
           5: { value: ["red", "blue"] }
-          6: { value: { centAmount : [990, 550] } }
-          _t : "a"
+          6: { value: { centAmount: [990, 550] } }
+          _t: "a"
 
     expect(delta).toEqual expected_delta
 
@@ -387,8 +387,8 @@ describe "ProductUtils.diff", ->
       masterVariant:
         attributes:
           1: { value: ["big","small"] }
-          _t : "a"
-          _2 : [ { name: "color", value:"red"}, 0, 0 ]
+          _t: "a"
+          _2: [ { name: "color", value: "red"}, 0, 0 ]
 
     expect(delta).toEqual expected_delta
 
@@ -451,7 +451,7 @@ describe "ProductUtils.actionsMapAttributes", ->
     expected_update =
       [
         { action: "setAttribute", variantId: 1, name: "foo", value: "qux" }
-        { action: "setAttribute", variantId: 1, name: "dog", value: {en: "Doggy", it: "Cane", de : undefined} }
+        { action: "setAttribute", variantId: 1, name: "dog", value: {en: "Doggy", it: "Cane", de: undefined} }
         { action: "setAttribute", variantId: 1, name: "num", value: 100 }
         { action: "setAttribute", variantId: 1, name: "count", value: "two" }
         { action: "setAttribute", variantId: 1, name: "size", value: "small" }

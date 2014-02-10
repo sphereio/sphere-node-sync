@@ -116,7 +116,7 @@ describe '#allInventoryEntries', ->
 
     @updater.allInventoryEntries(@updater.rest).then (stocks) ->
       expect(stocks).not.toBeDefined()
-    .fail (msg)->
+    .fail (msg) ->
       expect(msg).toBe 'Problem on getting all inventory entries: foo'
 
   it 'should reject if error', ->
@@ -125,7 +125,7 @@ describe '#allInventoryEntries', ->
 
     @updater.allInventoryEntries(@updater.rest).then (stocks) ->
       expect(stocks).not.toBeDefined()
-    .fail (msg)->
+    .fail (msg) ->
       expect(msg).toBe 'Error on getting all inventory entries: foo'
 
 describe '#initMatcher', ->
@@ -142,7 +142,7 @@ describe '#initMatcher', ->
 
     @updater.initMatcher().then (entries) ->
       expect(entries).not.toBeDefined()
-    .fail (msg)->
+    .fail (msg) ->
       expect(msg).toBe 'Error on getting all inventory entries: foo'
 
   it 'should return existing entries', ->
@@ -210,32 +210,32 @@ describe '#update', ->
 
   it 'should reject if error', ->
     spyOn(@updater.sync, "buildActions").andReturn(@updater.sync)
-    spyOn(@updater.sync, "update").andCallFake((callback)-> callback("foo", null, null))
+    spyOn(@updater.sync, "update").andCallFake((callback) -> callback("foo", null, null))
 
     @updater.update().then (result) ->
       expect(result).not.toBeDefined()
-    .fail (msg)->
+    .fail (msg) ->
       expect(msg).toBe 'Error on updating inventory entry: foo'
 
   it 'should reject if there was a problem during update', ->
     spyOn(@updater.sync, "buildActions").andReturn(@updater.sync)
-    spyOn(@updater.sync, "update").andCallFake((callback)-> callback(null, {statusCode: 500}, "foo"))
+    spyOn(@updater.sync, "update").andCallFake((callback) -> callback(null, {statusCode: 500}, "foo"))
 
     @updater.update().then (result) ->
       expect(result).not.toBeDefined()
-    .fail (msg)->
+    .fail (msg) ->
       expect(msg).toBe 'Problem on updating existing inventory entry: foo'
 
   it 'should return message that entry was updated', ->
     spyOn(@updater.sync, "buildActions").andReturn(@updater.sync)
-    spyOn(@updater.sync, "update").andCallFake((callback)-> callback(null, {statusCode: 200}, null))
+    spyOn(@updater.sync, "update").andCallFake((callback) -> callback(null, {statusCode: 200}, null))
 
     @updater.update().then (result) ->
       expect(result).toBe 'Inventory entry updated.'
 
   it 'should return message that updated was not necessary', ->
     spyOn(@updater.sync, "buildActions").andReturn(@updater.sync)
-    spyOn(@updater.sync, "update").andCallFake((callback)-> callback(null, {statusCode: 304}, null))
+    spyOn(@updater.sync, "update").andCallFake((callback) -> callback(null, {statusCode: 304}, null))
 
     @updater.update().then (result) ->
       expect(result).toBe 'Inventory entry update not neccessary.'
@@ -251,23 +251,23 @@ describe '#create', ->
     expect(@updater.rest.POST).toHaveBeenCalled()
 
   it 'should reject if error', ->
-    spyOn(@updater.rest, "POST").andCallFake((path, payload, callback)-> callback("foo", null, null))
+    spyOn(@updater.rest, "POST").andCallFake((path, payload, callback) -> callback("foo", null, null))
 
     @updater.create().then (result) ->
       expect(result).not.toBeDefined()
-    .fail (msg)->
+    .fail (msg) ->
       expect(msg).toBe 'Error on creating new inventory entry: foo'
 
   it 'should reject if there was a problem during create', ->
-    spyOn(@updater.rest, "POST").andCallFake((path, payload, callback)-> callback(null, {statusCode: 500}, "foo"))
+    spyOn(@updater.rest, "POST").andCallFake((path, payload, callback) -> callback(null, {statusCode: 500}, "foo"))
 
     @updater.create().then (result) ->
       expect(result).not.toBeDefined()
-    .fail (msg)->
+    .fail (msg) ->
       expect(msg).toBe 'Problem on creating new inventory entry: foo'
 
   it 'should return message that entry was created', ->
-    spyOn(@updater.rest, "POST").andCallFake((path, payload, callback)-> callback(null, {statusCode: 201}, null))
+    spyOn(@updater.rest, "POST").andCallFake((path, payload, callback) -> callback(null, {statusCode: 201}, null))
 
     @updater.create().then (result) ->
       expect(result).toBe 'New inventory entry created.'
@@ -278,37 +278,37 @@ describe '#createOrUpdate', ->
 
   it 'should return if there are no inventory entries', ->
     spyOn(@updater, "returnResult")
-    @updater.createOrUpdate([], ->)
+    @updater.createOrUpdate([], -> )
     expect(@updater.returnResult).toHaveBeenCalledWith(true, 'Nothing to do.', jasmine.any(Function))
 
   it 'should init progress bar and return a promise', ->
     spyOn(@updater, "initProgressBar")
-    promise = @updater.createOrUpdate([{id: "channel123", sku: "foo_A"}, {id: "channel456", sku: "foo_B"}], ->)
+    promise = @updater.createOrUpdate([{id: "channel123", sku: "foo_A"}, {id: "channel456", sku: "foo_B"}], -> )
     expect(Q.isPromise(promise)).toBe true
     expect(@updater.initProgressBar).toHaveBeenCalledWith 'Updating inventory', 2
 
   it 'should push update promise if entry exists', ->
     spyOn(@updater, "match").andReturn({id: "channel789", sku: "foo_A"})
     spyOn(@updater, "update")
-    @updater.createOrUpdate([{id: "channel123", sku: "foo_A"}, {id: "channel456", sku: "foo_B"}], ->)
+    @updater.createOrUpdate([{id: "channel123", sku: "foo_A"}, {id: "channel456", sku: "foo_B"}], -> )
     expect(@updater.update).toHaveBeenCalledWith {id: "channel123", sku: "foo_A"}, {id: "channel789", sku: "foo_A"}
 
   it 'should push create promise if entry exists', ->
     spyOn(@updater, "match").andReturn(null)
     spyOn(@updater, "create")
-    @updater.createOrUpdate([{id: "channel123", sku: "foo_A"}, {id: "channel456", sku: "foo_B"}], ->)
+    @updater.createOrUpdate([{id: "channel123", sku: "foo_A"}, {id: "channel456", sku: "foo_B"}], -> )
     expect(@updater.create).toHaveBeenCalledWith {id: "channel123", sku: "foo_A"}
 
   it 'should return result after update/create requests', ->
     spyOn(@updater, "match").andReturn(null)
     spyOn(@updater, "returnResult")
-    spyOn(@updater.rest, "POST").andCallFake((path, payload, callback)-> callback(null, {statusCode: 201}, null))
-    @updater.createOrUpdate([{id: "channel123", sku: "foo_A"}, {id: "channel456", sku: "foo_B"}], ->).then (result)=>
+    spyOn(@updater.rest, "POST").andCallFake((path, payload, callback) -> callback(null, {statusCode: 201}, null))
+    @updater.createOrUpdate([{id: "channel123", sku: "foo_A"}, {id: "channel456", sku: "foo_B"}], -> ).then (result)=>
       expect(@updater.returnResult).toHaveBeenCalledWith(true, 'New inventory entry created.', jasmine.any(Function))
 
   it 'should reject if error when update/create requests', ->
     spyOn(@updater, "match").andReturn(null)
     spyOn(@updater, "returnResult")
-    spyOn(@updater.rest, "POST").andCallFake((path, payload, callback)-> callback("foo", null, null))
-    @updater.createOrUpdate([{id: "channel123", sku: "foo_A"}, {id: "channel456", sku: "foo_B"}], ->).then (result)=>
+    spyOn(@updater.rest, "POST").andCallFake((path, payload, callback) -> callback("foo", null, null))
+    @updater.createOrUpdate([{id: "channel123", sku: "foo_A"}, {id: "channel456", sku: "foo_B"}], -> ).then (result)=>
       expect(@updater.returnResult).toHaveBeenCalledWith(false, 'Error on creating new inventory entry: foo', jasmine.any(Function))

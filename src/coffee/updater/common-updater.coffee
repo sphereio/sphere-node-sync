@@ -19,7 +19,7 @@ class CommonUpdater
     if @showProgressBar
       @bar = new ProgressBar "#{title} [:bar] :current/:total (= :percent) done", { width: 80, total: size }
 
-  tickProgress: () ->
+  tickProgress: ->
     @bar.tick() if @bar
 
   returnResult: (isPositive, message, callback) ->

@@ -6,7 +6,7 @@ Utils = require("../utils/utils")
 Base Sync class
 ###
 class Sync
-  constructor: (opts = {})->
+  constructor: (opts = {}) ->
     unless _.isEmpty opts
       config = opts.config
       throw new Error("Missing credentials") unless config
@@ -19,7 +19,7 @@ class Sync
     @_utils = new Utils
     @
 
-  buildActions: (new_obj, old_obj)->
+  buildActions: (new_obj, old_obj) ->
     # diff 'em
     diff = @_utils.diff(old_obj, new_obj)
     update = undefined
@@ -34,9 +34,9 @@ class Sync
       updateId: old_obj.id
     @
 
-  get: (key = "update")-> @_data[key]
+  get: (key = "update") -> @_data[key]
 
-  update: (callback)->
+  update: (callback) ->
     throw new Error("Cannot update: the Rest connector wasn't instantiated (probabily because of missing credentials)") unless @_rest
     unless _.isEmpty @_data.update
       @_doUpdate(callback)
@@ -47,11 +47,11 @@ class Sync
   ###
   Methods to override
   ###
-  _doMapActions: (diff, new_obj, old_obj)->
+  _doMapActions: (diff, new_obj, old_obj) ->
     # => Override to map actions
     []
 
-  _doUpdate: (callback)->
+  _doUpdate: (callback) ->
     # => Override to send update request
     callback(null, null, null)
 

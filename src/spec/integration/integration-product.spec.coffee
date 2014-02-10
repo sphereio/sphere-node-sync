@@ -19,20 +19,20 @@ xdescribe "Integration test", ->
   afterEach ->
     @sync = null
 
-  it "should get products", (done)->
-    @sync._rest.GET "/product-projections/#{PRODUCT_ID}?staged=true", (error, response, body)->
+  it "should get products", (done) ->
+    @sync._rest.GET "/product-projections/#{PRODUCT_ID}?staged=true", (error, response, body) ->
       expect(response.statusCode).toBe 200
       json = JSON.parse(body)
       expect(json).toBeDefined()
       expect(json.id).PRODUCT_ID
       done()
 
-  it "should return 404 if product is not found", (done)->
-    @sync._rest.GET "/product-projections/123", (error, response, body)->
+  it "should return 404 if product is not found", (done) ->
+    @sync._rest.GET "/product-projections/123", (error, response, body) ->
       expect(response.statusCode).toBe 404
       done()
 
-  it "should update a product", (done)->
+  it "should update a product", (done) ->
     timestamp = new Date().getTime()
     NEW_PRODUCT =
       id: product.id
@@ -40,7 +40,7 @@ xdescribe "Integration test", ->
       description: product.description
       slug:
         en: "integration-sync-#{timestamp}"
-    callMe = (e, r, b)->
+    callMe = (e, r, b) ->
       expect(r.statusCode).toBe 200
       console.error b unless r.statusCode is 200
       updated = JSON.parse(b)
@@ -52,7 +52,7 @@ xdescribe "Integration test", ->
       old_product = JSON.parse(body)
       @sync.buildActions(NEW_PRODUCT, old_product).update(callMe)
 
-  it "should update a product with different prices", (done)->
+  it "should update a product with different prices", (done) ->
     timestamp = new Date().getTime()
     NEW_PRODUCT =
       id: product.id
@@ -90,7 +90,7 @@ xdescribe "Integration test", ->
                 centAmount: 10000
               customerGroup:
                 typeId: "customer-group"
-                id:"984a64de-24a4-42c0-868b-da7abfe1c5f6"
+                id: "984a64de-24a4-42c0-868b-da7abfe1c5f6"
             },
             {
               value:
@@ -104,7 +104,7 @@ xdescribe "Integration test", ->
           attributes: []
         }
       ]
-    callMe = (e, r, b)->
+    callMe = (e, r, b) ->
       expect(r.statusCode).toBe 200
       console.error b unless r.statusCode is 200
       updated = JSON.parse(b)
@@ -119,11 +119,11 @@ xdescribe "Integration test", ->
 
 describe "Integration test between projects", ->
 
-  beforeEach (done)->
-    getAuthToken = (config)->
+  beforeEach (done) ->
+    getAuthToken = (config) ->
       d = Q.defer()
       oa = new OAuth2 config: config
-      oa.getAccessToken (error, response, body)->
+      oa.getAccessToken (error, response, body) ->
         if body
           data = JSON.parse(body)
           optionsApi = _.clone(config)
@@ -139,19 +139,19 @@ describe "Integration test between projects", ->
       @restProd = new Rest config: prod
       @sync = new ProductSync config: staging
       done()
-    ).fail (err)-> throw new Error(err)
+    ).fail (err) -> throw new Error(err)
 
   afterEach ->
     @restStaging = null
     @restProd = null
     @sync = null
 
-  it "should sync products with same SKU", (done)->
+  it "should sync products with same SKU", (done) ->
     triggerFail = (e)=> @fail new Error e.join("\n")
 
-    getProducts = (rest)->
+    getProducts = (rest) ->
       deferred = Q.defer()
-      rest.GET "/product-projections?staged=true", (error, response, body)->
+      rest.GET "/product-projections?staged=true", (error, response, body) ->
         if response.statusCode is 200
           results = JSON.parse(body).results
           deferred.resolve results
@@ -159,10 +159,10 @@ describe "Integration test between projects", ->
           deferred.reject body
       deferred.promise
 
-    searchProduct = (rest, value, prod)->
+    searchProduct = (rest, value, prod) ->
       deferred = Q.defer()
       predicate = "masterVariant(sku=\"#{value}\")"
-      rest.GET "/product-projections?where=#{encodeURIComponent(predicate)}&staged=true", (error, response, body)->
+      rest.GET "/product-projections?where=#{encodeURIComponent(predicate)}&staged=true", (error, response, body) ->
         if response.statusCode is 200
           results = JSON.parse(body).results
           deferred.resolve
@@ -172,10 +172,10 @@ describe "Integration test between projects", ->
           deferred.reject body
       deferred.promise
 
-    syncProducts = (sync, new_product, old_product)->
+    syncProducts = (sync, new_product, old_product) ->
       deferred = Q.defer()
       try
-        sync.buildActions(new_product, old_product).update (e, r, b)->
+        sync.buildActions(new_product, old_product).update (e, r, b) ->
           if r.statusCode is 200 or r.statusCode is 304
             deferred.resolve(true)
           else
@@ -204,9 +204,9 @@ describe "Integration test between projects", ->
           if stagingProd
             updates.push syncProducts(@sync, resolver.product, stagingProd)
       Q.allSettled updates
-    ).then((results)->
+    ).then((results) ->
       errors = []
-      _.each results, (result)->
+      _.each results, (result) ->
         if result.state is "fulfilled"
           expect(result.value).toBe true
         else
@@ -216,4 +216,4 @@ describe "Integration test between projects", ->
         done()
       else
         done()
-    ).fail (err)-> triggerFail [err]
+    ).fail (err) -> triggerFail [err]
