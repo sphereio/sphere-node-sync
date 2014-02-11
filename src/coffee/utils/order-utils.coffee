@@ -57,13 +57,16 @@ class OrderUtils extends Utils
             _.each _.keys(delivery.parcels), (parcelIndex) ->
               if parcelIndex != '_t'
                 parcel = delivery.parcels[parcelIndex]
-                action =
-                  action: 'addParcelToDelivery'
-                  measurements: old_obj.deliveries[deliveryIndex].parcels[parcelIndex].measurements
-                  trackingData: old_obj.deliveries[deliveryIndex].parcels[parcelIndex].trackingData
-                _.each _.keys(parcel), (key) ->
-                  action[key] = parcel[key]
-                actions.push action
+                if _.isArray parcel
+                  # delivery was added
+                  delivery = _.last parcel
+                  action =
+                    action: 'addParcelToDelivery'
+                    measurements: old_obj.deliveries[deliveryIndex].parcels[parcelIndex].measurements
+                    trackingData: old_obj.deliveries[deliveryIndex].parcels[parcelIndex].trackingData
+                  _.each _.keys(parcel), (key) ->
+                    action[key] = parcel[key]
+                  actions.push action
     actions
 
 
