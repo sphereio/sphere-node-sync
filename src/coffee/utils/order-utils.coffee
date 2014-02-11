@@ -36,6 +36,37 @@ class OrderUtils extends Utils
   ###
   actionsMapDeliveries: (diff, old_obj) ->
     actions = []
+    deliveriesDiffs = diff['deliveries']
+    if deliveriesDiffs
+      # iterate over returnInfo instances
+      _.each _.keys(deliveriesDiffs), (deliveryIndex) ->
+        if deliveryIndex != '_t'
+          deliveryDiff = deliveriesDiffs[deliveryIndex]
+          if _.isArray deliveryDiff
+            # delivery was added
+            delivery = _.last deliveryDiff
+            action =
+              action: 'addDelivery'
+            _.each _.keys(delivery), (key) ->
+              action[key] = delivery[key]
+            actions.push action
+
+          else
+            delivery = deliveryDiff
+            # iterate over parcel instances
+            _.each _.keys(delivery.parcels), (parcelIndex) ->
+              if parcelIndex != '_t'
+                parcel = delivery.parcels[parcelIndex]
+                action =
+                  action: 'addParcelToDelivery'
+                  measurements: old_obj.deliveries[deliveryIndex].parcels[parcelIndex].measurements
+                  trackingData: old_obj.deliveries[deliveryIndex].parcels[parcelIndex].trackingData
+                _.each _.keys(parcel), (key) ->
+                  action[key] = parcel[key]
+                actions.push action
+    actions
+
+
 
 
   ###
