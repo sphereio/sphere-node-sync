@@ -272,9 +272,9 @@ describe "OrderUtils.actionsMapStatusValues", ->
     orderChanged.deliveries[0].parcels.push parcel
 
     delta = @utils.diff(@order, orderChanged)
-    update = @utils.actionsMapReturnInfo(delta, orderChanged)
+    update = @utils.actionsMapDeliveries(delta, orderChanged)
 
     expectedUpdate = JSON.parse(JSON.stringify(parcel))
     expectedUpdate.action = 'addParcelToDelivery'
 
-    expect(update).toEqual expectedUpdate
+    expect(update).toEqual [expectedUpdate]
