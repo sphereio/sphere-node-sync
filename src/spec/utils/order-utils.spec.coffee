@@ -250,31 +250,31 @@ describe "OrderUtils.actionsMapStatusValues", ->
 
     expect(update).toEqual [action]
 
-    it "should return required action for syncing parcels (deliveries)", ->
+  it "should return required action for syncing parcels (deliveries)", ->
 
-      orderChanged = JSON.parse(JSON.stringify(@order))
+    orderChanged = JSON.parse(JSON.stringify(@order))
 
-      parcel =
-        id: uniqueId 'p'
-        measurements:
-          heightInMillimeter: 200
-          lengthInMillimeter: 200
-          widthInMillimeter: 200
-          weightInGram: 200
-        trackingData:
-          trackingId: '1Z6185W16894827591'
-          carrier: 'UPS'
-          provider: 'shipcloud.io'
-          providerTransaction: '549796981774cd802e9636ded5608bfa1ecce9ad'
-          isReturn: true
+    parcel =
+      id: uniqueId 'p'
+      measurements:
+        heightInMillimeter: 200
+        lengthInMillimeter: 200
+        widthInMillimeter: 200
+        weightInGram: 200
+      trackingData:
+        trackingId: '1Z6185W16894827591'
+        carrier: 'UPS'
+        provider: 'shipcloud.io'
+        providerTransaction: '549796981774cd802e9636ded5608bfa1ecce9ad'
+        isReturn: true
 
-      # add another parcel
-      orderChanged.deliveries[0].parcels.push parcel
+    # add another parcel
+    orderChanged.deliveries[0].parcels.push parcel
 
-      delta = @utils.diff(@order, orderChanged)
-      update = @utils.actionsMapReturnInfo(delta, orderChanged)
+    delta = @utils.diff(@order, orderChanged)
+    update = @utils.actionsMapReturnInfo(delta, orderChanged)
 
-      expectedUpdate = JSON.parse(JSON.stringify(parcel))
-      expectedUpdate.action = 'addParcelToDelivery'
+    expectedUpdate = JSON.parse(JSON.stringify(parcel))
+    expectedUpdate.action = 'addParcelToDelivery'
 
-      expect(update).toEqual expectedUpdate
+    expect(update).toEqual expectedUpdate
