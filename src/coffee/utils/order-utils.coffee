@@ -40,7 +40,7 @@ class OrderUtils extends Utils
     if deliveriesDiffs
       # iterate over returnInfo instances
       _.each _.keys(deliveriesDiffs), (deliveryIndex) ->
-        if deliveryIndex != '_t'
+        if deliveryIndex isnt '_t'
           deliveryDiff = deliveriesDiffs[deliveryIndex]
           if _.isArray deliveryDiff
             # delivery was added
@@ -54,7 +54,7 @@ class OrderUtils extends Utils
           else
             # iterate over parcel instances
             _.each _.keys(deliveryDiff.parcels), (parcelIndex) ->
-              if parcelIndex != '_t'
+              if parcelIndex  isnt '_t'
                 parcelDiff = deliveryDiff.parcels[parcelIndex]
 
                 if _.isArray parcelDiff
@@ -84,7 +84,7 @@ class OrderUtils extends Utils
     if returnInfoDiffs
       # iterate over returnInfo instances
       _.each _.keys(returnInfoDiffs), (returnInfoIndex) ->
-        if returnInfoIndex != '_t'
+        if returnInfoIndex isnt '_t'
           returnInfoDiff = returnInfoDiffs[returnInfoIndex]
           if _.isArray returnInfoDiff
             # returnInfo was added
@@ -101,7 +101,7 @@ class OrderUtils extends Utils
             returnInfo = returnInfoDiff
             # iterate over returnInfo items instances
             _.each _.keys(returnInfo.items), (returnInfoItemIndex) ->
-              if returnInfoItemIndex != '_t'
+              if returnInfoItemIndex isnt '_t'
                 returnInfoItem = returnInfo.items[returnInfoItemIndex]
                 # iterate over all returnInfo status actions
                 _.each actionsListReturnInfoState(), (actionDefinition) ->
