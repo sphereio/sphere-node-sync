@@ -52,14 +52,14 @@ class OrderUtils extends Utils
             actions.push action
 
           else
-            delivery = deliveryDiff
             # iterate over parcel instances
-            _.each _.keys(delivery.parcels), (parcelIndex) ->
+            _.each _.keys(deliveryDiff.parcels), (parcelIndex) ->
               if parcelIndex != '_t'
-                parcel = delivery.parcels[parcelIndex]
-                if _.isArray parcel
+                parcelDiff = deliveryDiff.parcels[parcelIndex]
+
+                if _.isArray parcelDiff
                   # delivery was added
-                  delivery = _.last parcel
+                  parcel = _.last parcelDiff
                   action =
                     action: 'addParcelToDelivery'
                     measurements: old_obj.deliveries[deliveryIndex].parcels[parcelIndex].measurements
