@@ -36,7 +36,7 @@ class InventoryUpdater extends CommonUpdater
         deferred.reject 'Error on getting channel: ' + error
         return
       if response.statusCode is 200
-        channels = JSON.parse(body).results
+        channels = body.results
         if _.size(channels) is 1
           deferred.resolve channels[0]
           return
@@ -47,8 +47,7 @@ class InventoryUpdater extends CommonUpdater
         if error
           deferred.reject 'Error on creating channel: ' + error
         else if response.statusCode is 201
-          c = JSON.parse body
-          deferred.resolve c
+          deferred.resolve body
         else
           deferred.reject 'Problem on creating channel: ' + body
     deferred.promise
@@ -61,8 +60,7 @@ class InventoryUpdater extends CommonUpdater
       else if response.statusCode isnt 200
         deferred.reject 'Problem on getting all inventory entries: ' + body
       else
-        stocks = JSON.parse(body).results
-        deferred.resolve stocks
+        deferred.resolve body.results
     deferred.promise
 
   initMatcher: ->

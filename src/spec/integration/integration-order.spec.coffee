@@ -1,4 +1,5 @@
 _ = require("underscore")._
+_.mixin deepClone: (obj) -> JSON.parse(JSON.stringify(obj))
 Q = require('q')
 Rest = require("sphere-node-connect").Rest
 OrderSync = require("../../lib/sync/order-sync")
@@ -42,8 +43,8 @@ describe "Integration test", ->
       @order = null
 
   it "should update an order", (done) ->
+    orderNew = _.deepClone @order
 
-    orderNew = JSON.parse(JSON.stringify(@order))
     orderNew.orderState = "Complete"
     orderNew.paymentState = "Paid"
     orderNew.shipmentState = "Ready"
@@ -51,7 +52,7 @@ describe "Integration test", ->
     @sync.buildActions(orderNew, @order).update (error, response, body) ->
       expect(response.statusCode).toBe 200
       console.error body unless response.statusCode is 200
-      orderUpdated = JSON.parse(body)
+      orderUpdated = body
       expect(orderUpdated).toBeDefined()
       expect(orderUpdated.orderState).toBe orderNew.orderState
       expect(orderUpdated.paymentState).toBe orderNew.paymentState
@@ -59,8 +60,7 @@ describe "Integration test", ->
       done()
 
   it "should sync returnInfo", (done) ->
-
-    orderNew = JSON.parse(JSON.stringify(@order))
+    orderNew = _.deepClone @order
 
     orderNew.returnInfo.push
       returnTrackingId: "1"
@@ -75,16 +75,14 @@ describe "Integration test", ->
     @sync.buildActions(orderNew, @order).update (error, response, body) ->
       expect(response.statusCode).toBe 200
       console.error body unless response.statusCode is 200
-      orderUpdated = JSON.parse(body)
-
+      orderUpdated = body
       expect(orderUpdated).toBeDefined()
       expect(orderUpdated.returnInfo[0].id).toBe orderNew.returnInfo[0].id
 
       done()
 
   it "should sync returnInfo status", (done) ->
-
-    orderNew = JSON.parse(JSON.stringify(@order))
+    orderNew = _.deepClone @order
 
     orderNew.returnInfo.push
       returnTrackingId: "bla blubb"
@@ -100,19 +98,18 @@ describe "Integration test", ->
     @sync.buildActions(orderNew, @order).update (error, response, body) =>
 
       console.error body unless response.statusCode is 200
-      orderUpdated = JSON.parse(body)
-
-      orderNew2 = JSON.parse(JSON.stringify(orderUpdated))
+      orderUpdated = body
+      orderNew2 = _.deepClone orderUpdated
 
       orderNew2.returnInfo[0].items[0].shipmentState = 'BackInStock'
       orderNew2.returnInfo[0].items[0].paymentState = 'Refunded'
 
       # update returnInfo status
       @sync.buildActions(orderNew2, orderUpdated).update (error, response, body) ->
-        
+
         expect(response.statusCode).toBe 200
         console.error body unless response.statusCode is 200
-        orderUpdated2 = JSON.parse(body)
+        orderUpdated2 = body
 
         expect(orderUpdated2).toBeDefined()
         expect(orderUpdated2.returnInfo[0].items[0].shipmentState).toEqual orderNew2.returnInfo[0].items[0].shipmentState
@@ -176,7 +173,7 @@ createResourcePromise = (rest, url, body) ->
   deferred = Q.defer()
   rest.POST url, JSON.stringify(body), (error, response, body) ->
     if response.statusCode is 201
-      deferred.resolve JSON.parse(body)
+      deferred.resolve body
     else if error
       deferred.reject new Error(error)
     else
@@ -187,7 +184,7 @@ deleteResourcePromise = (rest, url) ->
   deferred = Q.defer()
   rest.DELETE url, (error, response, body) ->
     if response.statusCode is 200
-      deferred.resolve JSON.parse(body)
+      deferred.resolve body
     else if error
       deferred.reject new Error(error)
     else

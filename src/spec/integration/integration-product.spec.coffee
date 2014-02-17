@@ -22,9 +22,8 @@ xdescribe "Integration test", ->
   it "should get products", (done) ->
     @sync._rest.GET "/product-projections/#{PRODUCT_ID}?staged=true", (error, response, body) ->
       expect(response.statusCode).toBe 200
-      json = JSON.parse(body)
-      expect(json).toBeDefined()
-      expect(json.id).PRODUCT_ID
+      expect(body).toBeDefined()
+      expect(body.id).PRODUCT_ID
       done()
 
   it "should return 404 if product is not found", (done) ->
@@ -43,13 +42,12 @@ xdescribe "Integration test", ->
     callMe = (e, r, b) ->
       expect(r.statusCode).toBe 200
       console.error b unless r.statusCode is 200
-      updated = JSON.parse(b)
-      expect(updated).toBeDefined()
+      expect(b).toBeDefined()
       done()
     @sync._rest.GET "/product-projections/#{PRODUCT_ID}?staged=true", (error, response, body)=>
       expect(response.statusCode).toBe 200
       console.error body unless response.statusCode is 200
-      old_product = JSON.parse(body)
+      old_product = body
       @sync.buildActions(NEW_PRODUCT, old_product).update(callMe)
 
   it "should update a product with different prices", (done) ->
@@ -107,13 +105,12 @@ xdescribe "Integration test", ->
     callMe = (e, r, b) ->
       expect(r.statusCode).toBe 200
       console.error b unless r.statusCode is 200
-      updated = JSON.parse(b)
-      expect(updated).toBeDefined()
+      expect(b).toBeDefined()
       done()
     @sync._rest.GET "/product-projections/#{PRODUCT_ID}?staged=true", (error, response, body)=>
       expect(response.statusCode).toBe 200
       console.error body unless response.statusCode is 200
-      old_product = JSON.parse(body)
+      old_product = body
       @sync.buildActions(NEW_PRODUCT, old_product).update(callMe)
 
 
@@ -125,9 +122,8 @@ describe "Integration test between projects", ->
       oa = new OAuth2 config: config
       oa.getAccessToken (error, response, body) ->
         if body
-          data = JSON.parse(body)
           optionsApi = _.clone(config)
-          optionsApi.access_token = data.access_token
+          optionsApi.access_token = body.access_token
           d.resolve(optionsApi)
         else
           d.reject new Error(error)
@@ -153,8 +149,7 @@ describe "Integration test between projects", ->
       deferred = Q.defer()
       rest.GET "/product-projections?staged=true", (error, response, body) ->
         if response.statusCode is 200
-          results = JSON.parse(body).results
-          deferred.resolve results
+          deferred.resolve body.results
         else
           deferred.reject body
       deferred.promise
@@ -164,10 +159,9 @@ describe "Integration test between projects", ->
       predicate = "masterVariant(sku=\"#{value}\")"
       rest.GET "/product-projections?where=#{encodeURIComponent(predicate)}&staged=true", (error, response, body) ->
         if response.statusCode is 200
-          results = JSON.parse(body).results
           deferred.resolve
             product: prod
-            results: results
+            results: body.results
         else
           deferred.reject body
       deferred.promise

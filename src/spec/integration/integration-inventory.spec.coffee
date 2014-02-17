@@ -25,7 +25,7 @@ describe "Integration test", ->
       deferred.promise
 
     @sync._rest.GET "/inventory?limit=0", (error, response, body) ->
-      stocks = JSON.parse(body).results
+      stocks = body.results
       if stocks.length is 0
         done()
       dels = []
@@ -48,11 +48,10 @@ describe "Integration test", ->
     @sync._rest.POST "/inventory", JSON.stringify(ie), (error, response, body) =>
       expect(error).toBeNull()
       expect(response.statusCode).toBe 201
-      e = JSON.parse(body)
-      @sync.buildActions(ieChanged, e).update (error, response, body) ->
+      @sync.buildActions(ieChanged, body).update (error, response, body) ->
         expect(error).toBeNull()
         expect(response.statusCode).toBe 200
-        expect(JSON.parse(body).quantityOnStock).toBe 7
+        expect(body.quantityOnStock).toBe 7
         done()
 
   it "should add expectedDelivery date", (done) ->
@@ -66,13 +65,11 @@ describe "Integration test", ->
     @sync._rest.POST "/inventory", JSON.stringify(ie), (error, response, body) =>
       expect(error).toBeNull()
       expect(response.statusCode).toBe 201
-      e = JSON.parse(body)
-      @sync.buildActions(ieChanged, e).update (error, response, body) ->
+      @sync.buildActions(ieChanged, body).update (error, response, body) ->
         expect(error).toBeNull()
         expect(response.statusCode).toBe 200
-        stock = JSON.parse(body)
-        expect(stock.quantityOnStock).toBe 7
-        expect(stock.expectedDelivery).toBe '2000-01-01T01:01:01.000Z'
+        expect(body.quantityOnStock).toBe 7
+        expect(body.expectedDelivery).toBe '2000-01-01T01:01:01.000Z'
         done()
 
   it "should update expectedDelivery date", (done) ->
@@ -87,13 +84,11 @@ describe "Integration test", ->
     @sync._rest.POST "/inventory", JSON.stringify(ie), (error, response, body) =>
       expect(error).toBeNull()
       expect(response.statusCode).toBe 201
-      e = JSON.parse(body)
-      @sync.buildActions(ieChanged, e).update (error, response, body) ->
+      @sync.buildActions(ieChanged, body).update (error, response, body) ->
         expect(error).toBeNull()
         expect(response.statusCode).toBe 200
-        stock = JSON.parse(body)
-        expect(stock.quantityOnStock).toBe 3
-        expect(stock.expectedDelivery).toBe '2000-01-01T01:01:01.000Z'
+        expect(body.quantityOnStock).toBe 3
+        expect(body.expectedDelivery).toBe '2000-01-01T01:01:01.000Z'
         done()
 
   it "should remove expectedDelivery date", (done) ->
@@ -107,11 +102,9 @@ describe "Integration test", ->
     @sync._rest.POST "/inventory", JSON.stringify(ie), (error, response, body) =>
       expect(error).toBeNull()
       expect(response.statusCode).toBe 201
-      e = JSON.parse(body)
-      @sync.buildActions(ieChanged, e).update (error, response, body) ->
+      @sync.buildActions(ieChanged, body).update (error, response, body) ->
         expect(error).toBeNull()
         expect(response.statusCode).toBe 200
-        stock = JSON.parse(body)
-        expect(stock.quantityOnStock).toBe 3
-        expect(stock.expectedDelivery).toBeUndefined()
+        expect(body.quantityOnStock).toBe 3
+        expect(body.expectedDelivery).toBeUndefined()
         done()

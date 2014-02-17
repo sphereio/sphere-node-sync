@@ -1,3 +1,5 @@
+_ = require("underscore")._
+_.mixin deepClone: (obj) -> JSON.parse(JSON.stringify(obj))
 OrderUtils = require("../../lib/utils/order-utils")
 
 uniqueId = (prefix = '') ->
@@ -6,12 +8,12 @@ uniqueId = (prefix = '') ->
 ###
 Match different order statuses
 ###
-order =
+ORDER =
   id: "123"
   orderState: "Open"
   paymentState: "Pending"
   shipmentState: "Pending"
-  lineItems: [ {
+  lineItems: [
     productId: uniqueId 'p'
     name:
       de: 'foo'
@@ -27,50 +29,52 @@ order =
       value:
         centAmount: 999
         currencyCode: 'EUR'
-  } ]
+  ]
   totalPrice:
     currencyCode: 'EUR'
     centAmount: 999
-  returnInfo: [{
+  returnInfo: [
     returnTrackingId: "bla blubb"
     returnDate: new Date().toISOString()
-    items: [{
-      id: uniqueId 'ri'
-      quantity: 11
-      lineItemId: 1
-      comment: 'Product doesnt have enough mojo.'
-      shipmentState: 'Advised'
-      paymentState: 'Initial'
-    }
-    {
-      id: uniqueId 'ri'
-      quantity: 22
-      lineItemId: 2
-      comment: 'Product too small.'
-      shipmentState: 'Advised'
-      paymentState: 'Initial'
-    }
-    {
-      id: uniqueId 'ri'
-      quantity: 33
-      lineItemId: 3
-      comment: 'Product too big.'
-      shipmentState: 'Advised'
-      paymentState: 'Initial'
-    }]}]
+    items: [
+      {
+        id: uniqueId 'ri'
+        quantity: 11
+        lineItemId: 1
+        comment: 'Product doesnt have enough mojo.'
+        shipmentState: 'Advised'
+        paymentState: 'Initial'
+      },
+      {
+        id: uniqueId 'ri'
+        quantity: 22
+        lineItemId: 2
+        comment: 'Product too small.'
+        shipmentState: 'Advised'
+        paymentState: 'Initial'
+      },
+      {
+        id: uniqueId 'ri'
+        quantity: 33
+        lineItemId: 3
+        comment: 'Product too big.'
+        shipmentState: 'Advised'
+        paymentState: 'Initial'
+      }
+    ]
+  ]
 
 describe "OrderUtils.actionsMapStatusValues", ->
   beforeEach ->
     @utils = new OrderUtils
-    @order = JSON.parse(JSON.stringify(order))
+    @order = _.deepClone ORDER
 
   afterEach ->
     @utils = null
     @order = null
 
   it "should return required actions for syncing status", ->
-
-    orderChanged = JSON.parse(JSON.stringify(@order))
+    orderChanged = _.deepClone @order
     orderChanged.orderState = "Complete"
     orderChanged.paymentState = "Paid"
     orderChanged.shipmentState = "Ready"
@@ -88,9 +92,8 @@ describe "OrderUtils.actionsMapStatusValues", ->
 
 
   it "should return required actions for syncing returnInfo", ->
-
-    @order = JSON.parse(JSON.stringify(order))
-    orderChanged = JSON.parse(JSON.stringify(order))
+    @order = _.deepClone ORDER
+    orderChanged = _.deepClone ORDER
 
     # empty returnInfo list
     @order.returnInfo = []
@@ -98,14 +101,13 @@ describe "OrderUtils.actionsMapStatusValues", ->
     delta = @utils.diff(@order, orderChanged)
     update = @utils.actionsMapReturnInfo(delta, orderChanged)
 
-    action = JSON.parse(JSON.stringify(orderChanged.returnInfo[0]))
+    action = _.deepClone orderChanged.returnInfo[0]
     action["action"] = "addReturnInfo"
 
     expect(update).toEqual [action]
 
   it "should return required action for syncing shipmentState (returnInfo)", ->
-
-    orderChanged = JSON.parse(JSON.stringify(@order))
+    orderChanged = _.deepClone @order
     orderChanged.returnInfo[0].items[0].shipmentState = "Returned"
     orderChanged.returnInfo[0].items[1].shipmentState = "Unusable"
 
@@ -127,8 +129,7 @@ describe "OrderUtils.actionsMapStatusValues", ->
     expect(update).toEqual expectedUpdate
 
   it "should return required action for syncing paymentState (returnInfo)", ->
-
-    orderChanged = JSON.parse(JSON.stringify(@order))
+    orderChanged = _.deepClone @order
     orderChanged.returnInfo[0].items[0].paymentState = "Refunded"
     orderChanged.returnInfo[0].items[1].paymentState = "NotRefunded"
 
@@ -151,8 +152,7 @@ describe "OrderUtils.actionsMapStatusValues", ->
     expect(update).toEqual expectedUpdate
 
   it "should return required actions for syncing returnInfo and shipmentState", ->
-
-    orderChanged = JSON.parse(JSON.stringify(@order))
+    orderChanged = _.deepClone @order
 
     # add a 2nd returnInfo
     orderChanged.returnInfo.push
@@ -190,7 +190,7 @@ describe "OrderUtils.actionsMapStatusValues", ->
     delta = @utils.diff(@order, orderChanged)
     update = @utils.actionsMapReturnInfo(delta, orderChanged)
 
-    addAction = JSON.parse(JSON.stringify(orderChanged.returnInfo[1]))
+    addAction = _.deepClone orderChanged.returnInfo[1]
     addAction["action"] = "addReturnInfo"
 
     expectedUpdate =
@@ -207,6 +207,4 @@ describe "OrderUtils.actionsMapStatusValues", ->
         }
         addAction
       ]
-
-
     expect(update).toEqual expectedUpdate
