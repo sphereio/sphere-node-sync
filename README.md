@@ -4,6 +4,24 @@
 
 Collection of Sync components for SPHERE.IO entities
 
+## Table of Contents
+* [Getting Started](#getting-started)
+* [Documentation](#documentation)
+  * [Rest connector](#rest-connector)
+  * [Error handling](#error-handling)
+  * [Methods](#methods)
+    * [buildActions](#buildactions) 
+    * [get](#get)
+    * [update](#update)
+* [Supported Update actions](#supported-update-actions)
+  * [ProductSync](#productsync) 
+  * [OrderSync](#ordersync) 
+  * [InventorySync](#inventorysync) 
+* [Contributing](#contributing)
+* [Releasing](#releasing)
+* [Styleguide](#styleguide)
+* [License](#license)
+
 ## Getting Started
 Install the module with: `npm install sphere-node-sync`
 
