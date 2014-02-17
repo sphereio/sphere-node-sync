@@ -144,7 +144,7 @@ Besides the `Sync` components, the module exposes `Updater` components which are
 Current updaters exposed are:
 
 - `CommonUpdater` (abstract class that holds common functionalities like *progressBar*, **logs**, etc)
-- `InventoryUpdater` __TBD__
+- `InventoryUpdater` (abstract class that includes some common functions to handle inventory updates)
 
 
 ## Contributing

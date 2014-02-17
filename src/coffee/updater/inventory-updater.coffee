@@ -4,7 +4,8 @@ CommonUpdater = require('./common-updater')
 InventorySync = require('../sync/inventory-sync')
 
 ###
-Inventory Updater class
+(abstract) Inventory Updater class
+  This class includes some common functions to handle inventory updates.
 ###
 class InventoryUpdater extends CommonUpdater
 
