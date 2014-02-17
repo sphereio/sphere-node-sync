@@ -79,8 +79,9 @@ sync.buildActions(new_obj, old_obj).get()
 #### `update`
 It will send an update request to the resource, using the `id` of the `old_obj` passed in the `buildActions`.
 It's recommended to use it by chaining it with the `buildActions` method.
-If a callback is given it will pass [following arguments](https://github.com/mikeal/request#requestoptions-callback): `(error, response, body)`
+If a callback is given it will pass [following arguments](https://github.com/mikeal/request#requestoptions-callback): `(error, response, body)`.
 
+> Note that `body` is automatically parsed as JSON object.
 > It will throw an `Error` if no credentials were given to the `Sync` object.
 
 ```javascript
@@ -100,18 +101,22 @@ Currently following actions are supported
 - `removePrice` - field `prices` (all variants)
 - `addPrice` - field `prices` (all variants)
 - `setAttribute` - field `attributes` (all variants)
+- `setAttributeInAllVariants` - field `attributes` (all variants)
 
 ### OrderSync
 
 - `changeOrderState` - field `orderState`
 - `changePaymentState` - field `paymentState`
 - `changeShipmentState` - field `shipmentState`
+- `setReturnShipmentState` - field `shipmentState`
+- `setReturnPaymentState` - field `paymentState`
+- `addReturnInfo` - field `returnInfo`
 
 ### InventorySync
 
 - `addQuantity` - field `quantityOnStock` is more than before
 - `removeQuantity` - field `quantityOnStock` is less than before
-
+- `setExpectedDelivery` - field `expectedDelivery`
 
 ## Contributing
 In lieu of a formal styleguide, take care to maintain the existing coding style. Add unit tests for any new or changed functionality. Lint and test your code using [Grunt](http://gruntjs.com/).
