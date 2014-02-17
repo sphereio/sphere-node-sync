@@ -17,6 +17,7 @@ Collection of Sync components for SPHERE.IO entities
   * [ProductSync](#productsync) 
   * [OrderSync](#ordersync) 
   * [InventorySync](#inventorysync) 
+* [Updater components](#updater-components)
 * [Contributing](#contributing)
 * [Releasing](#releasing)
 * [Styleguide](#styleguide)
@@ -135,6 +136,16 @@ Currently following actions are supported
 - `addQuantity` - field `quantityOnStock` is more than before
 - `removeQuantity` - field `quantityOnStock` is less than before
 - `setExpectedDelivery` - field `expectedDelivery`
+
+
+## Updater components
+Besides the `Sync` components, the module exposes `Updater` components which are basically resource-specific classes that add functionalities around the syncing.
+
+Current updaters exposed are:
+
+- `CommonUpdater` (abstract class that holds common functionalities like *progressBar*, **logs**, etc)
+- `InventoryUpdater` __TBD__
+
 
 ## Contributing
 In lieu of a formal styleguide, take care to maintain the existing coding style. Add unit tests for any new or changed functionality. Lint and test your code using [Grunt](http://gruntjs.com/).
