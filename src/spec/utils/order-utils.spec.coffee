@@ -58,28 +58,29 @@ order =
       shipmentState: 'Advised'
       paymentState: 'Initial'
     }]}]
-  deliveries: [{
-    id: uniqueId 'di'
-    items: [{
-      lineItemId: 1
-      quantity: 1
-    }]
-    parcels: [{
-      id: uniqueId 'p'
-      measurements: {
-        heightInMillimeter: 200
-        lengthInMillimeter: 200
-        widthInMillimeter: 200
-        weightInGram: 200
-      },
-      trackingData: {
-        trackingId: '1Z6185W16894827591'
-        carrier: 'UPS'
-        provider: 'shipcloud.io'
-        providerTransaction: '549796981774cd802e9636ded5608bfa1ecce9ad'
-        isReturn: true
-      }
-    }]}]
+  shippingInfo:
+    deliveries: [{
+      id: uniqueId 'di'
+      items: [{
+        lineItemId: 1
+        quantity: 1
+      }]
+      parcels: [{
+        id: uniqueId 'p'
+        measurements: {
+          heightInMillimeter: 200
+          lengthInMillimeter: 200
+          widthInMillimeter: 200
+          weightInGram: 200
+        },
+        trackingData: {
+          trackingId: '1Z6185W16894827591'
+          carrier: 'UPS'
+          provider: 'shipcloud.io'
+          providerTransaction: '549796981774cd802e9636ded5608bfa1ecce9ad'
+          isReturn: true
+        }
+      }]}]
 
 describe "OrderUtils.actionsMapStatusValues", ->
   beforeEach ->
@@ -240,12 +241,12 @@ describe "OrderUtils.actionsMapStatusValues", ->
     orderChanged = JSON.parse(JSON.stringify(order))
 
     # empty deliveries list
-    @order.deliveries = []
+    @order.shippingInfo.deliveries = []
 
     delta = @utils.diff(@order, orderChanged)
     update = @utils.actionsMapDeliveries(delta, orderChanged)
 
-    action = JSON.parse(JSON.stringify(orderChanged.deliveries[0]))
+    action = JSON.parse(JSON.stringify(orderChanged.shippingInfo.deliveries[0]))
     action["action"] = "addDelivery"
 
     expect(update).toEqual [action]
@@ -269,7 +270,7 @@ describe "OrderUtils.actionsMapStatusValues", ->
         isReturn: true
 
     # add another parcel
-    orderChanged.deliveries[0].parcels.push parcel
+    orderChanged.shippingInfo.deliveries[0].parcels.push parcel
 
     delta = @utils.diff(@order, orderChanged)
     update = @utils.actionsMapDeliveries(delta, orderChanged)
