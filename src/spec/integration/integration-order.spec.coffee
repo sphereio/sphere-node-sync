@@ -145,8 +145,6 @@ describe "Integration test", ->
       console.error body unless response.statusCode is 200
       orderUpdated = JSON.parse(body)
 
-      console.log "orderUpdated #{JSON.stringify orderUpdated, null, ' '}"
-
       expect(orderUpdated).toBeDefined()
       expect(_.size orderUpdated.shippingInfo.deliveries).toBe 1
 
