@@ -8,7 +8,7 @@ order = require '../../models/order.json'
 # Increase timeout
 jasmine.getEnv().defaultTimeoutInterval = 10000
 
-describe 'Integration test', ->
+describe "Integration test", ->
 
   beforeEach (done) ->
     @sync = new OrderSync
@@ -17,13 +17,23 @@ describe 'Integration test', ->
         levelStream: 'error'
         levelFile: 'error'
 
-    createResourcePromise(@sync._rest, '/product-types', productTypeMock())
-      .then (productType) =>
-        @productType = productType
-        createResourcePromise(@sync._rest, '/products', productMock(productType))
+    # get a tax category required for setting up shippingInfo (simply returning first found)
+    createResourcePromise(@sync._rest, '/tax-categories', taxCategoryMock())
+      .then (taxCategory) =>
+        @taxCategory = taxCategory
+        createResourcePromise(@sync._rest, '/zones', zoneMock())
+    .then (zone) =>
+      @zone = zone
+      createResourcePromise(@sync._rest, '/shipping-methods', shippingMethodMock(@zone, @taxCategory))
+    .then (shippingMethod) =>
+      @shippingMethod = shippingMethod
+      createResourcePromise(@sync._rest, '/product-types', productTypeMock())
+    .then (productType) =>
+      @productType = productType
+      createResourcePromise(@sync._rest, '/products', productMock(productType))
     .then (product) =>
       @product = product
-      createResourcePromise(@sync._rest, '/orders/import', orderMock(product))
+      createResourcePromise(@sync._rest, '/orders/import', orderMock(@shippingMethod, product, @taxCategory))
     .then (order) =>
       @order = order
       done()
@@ -119,9 +129,69 @@ describe 'Integration test', ->
         expect(orderUpdated2.returnInfo[0].items[0].paymentState).toEqual orderNew2.returnInfo[0].items[0].paymentState
         done()
 
+  it "should sync delivery items", (done) ->
+
+    orderNew = JSON.parse(JSON.stringify(@order))
+
+    # add one delivery item
+    orderNew.shippingInfo.deliveries = [
+      items: [{
+         id: orderNew.lineItems[0].id
+         quantity: 1
+      }]]
+
+    @sync.buildActions(orderNew, @order).update (error, response, body) ->
+      expect(response.statusCode).toBe 200
+      console.error body unless response.statusCode is 200
+      orderUpdated = JSON.parse(body)
+
+      console.log "orderUpdated #{JSON.stringify orderUpdated, null, ' '}"
+
+      expect(orderUpdated).toBeDefined()
+      expect(_.size orderUpdated.shippingInfo.deliveries).toBe 1
+
+      done()
+
 ###
 helper methods
 ###
+
+shippingMethodMock = (zone, taxCategory) ->
+  unique = new Date().getTime()
+  shippingMethod =
+    name: "S-#{unique}"
+    zoneRates: [{
+      zone:
+        typeId: 'zone'
+        id: zone.id
+        shippingRates: [{
+          price:
+            currencyCode: 'EUR'
+            centAmount: 99
+          }]
+      }]
+    isDefault: false
+    taxCategory:
+      typeId: 'tax-category'
+      id: taxCategory.id
+
+
+zoneMock = ->
+  unique = new Date().getTime()
+  zone =
+    name: "Z-#{unique}"
+
+taxCategoryMock = ->
+  unique = new Date().getTime()
+  taxCategory =
+    name: "TC-#{unique}"
+    rates: [{
+        name: "5%",
+        amount: 0.05,
+        includedInPrice: false,
+        country: "DE",
+        id: "jvzkDxzl"
+      }]
 
 productTypeMock = ->
   unique = new Date().getTime()
@@ -142,7 +212,7 @@ productMock = (productType) ->
     masterVariant:
       sku: "sku-#{unique}"
 
-orderMock = (product) ->
+orderMock = (shippingMethod, product, taxCategory) ->
   unique = new Date().getTime()
   order =
     id: "order-#{unique}"
@@ -171,6 +241,33 @@ orderMock = (product) ->
       currencyCode: 'EUR'
       centAmount: 999
     returnInfo: []
+    shippingInfo:
+      shippingMethodName: 'UPS'
+      price:
+        currencyCode: 'EUR'
+        centAmount: 99
+      shippingRate:
+        price:
+          currencyCode: 'EUR'
+          centAmount: 99
+      taxRate: _.first taxCategory.rates
+      taxCategory:
+        typeId: 'tax-category'
+        id: taxCategory.id
+      shippingMethod:
+        typeId: 'shipping-method'
+        id: shippingMethod.id
+
+promisifyGet = (rest, url) ->
+  deferred = Q.defer()
+  rest.GET url, (error, response, body) ->
+    if response.statusCode is 200
+      deferred.resolve JSON.parse(body)
+    else if error
+      deferred.reject new Error(error)
+    else
+      deferred.reject new Error(body)
+  deferred.promise
 
 createResourcePromise = (rest, url, body) ->
   deferred = Q.defer()

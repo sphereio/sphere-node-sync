@@ -36,7 +36,7 @@ class OrderUtils extends Utils
   ###
   actionsMapDeliveries: (diff, old_obj) ->
     actions = []
-    deliveriesDiffs = diff['deliveries']
+    deliveriesDiffs = diff.shippingInfo.deliveries if diff.shippingInfo
     if deliveriesDiffs
       # iterate over returnInfo instances
       _.each _.keys(deliveriesDiffs), (deliveryIndex) ->
@@ -62,8 +62,8 @@ class OrderUtils extends Utils
                   parcel = _.last parcelDiff
                   action =
                     action: 'addParcelToDelivery'
-                    measurements: old_obj.deliveries[deliveryIndex].parcels[parcelIndex].measurements
-                    trackingData: old_obj.deliveries[deliveryIndex].parcels[parcelIndex].trackingData
+                    measurements: old_obj.shippingInfo.deliveries[deliveryIndex].parcels[parcelIndex].measurements
+                    trackingData: old_obj.shippingInfo.deliveries[deliveryIndex].parcels[parcelIndex].trackingData
                   _.each _.keys(parcel), (key) ->
                     action[key] = parcel[key]
                   actions.push action
