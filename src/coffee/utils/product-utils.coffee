@@ -86,6 +86,12 @@ class ProductUtils extends Utils
       actions.push action if action
     actions
 
+  actionsMapReferences: (diff, new_obj) ->
+    references = [ 'tax', 'categories' ]
+    actions = []
+
+    actions
+
   actionsMapPrices: (diff, old_obj, new_obj) ->
     actions = []
     # masterVariant
@@ -181,6 +187,30 @@ class ProductUtils extends Utils
     # Ensure we have each action only once per product. Use string representation of object to allow `===` on array objects
     _.unique actions, (action) -> JSON.stringify action
 
+  actionsMapVariantImages = (images, old_variant, new_variant) ->
+    actions = []
+    _.each images, (img, k) ->
+      if k.match /^\d+$/
+        actions.push buildRemoveImageAction old_variant, old_variant.images[k]
+        actions.push buildAddExternalImageAction old_variant, new_variant.images[k]
+    actions
+
+  actionsMapImages: (diff, old_obj, new_obj) ->
+    actions = []
+    # masterVariant
+    masterVariant = diff.masterVariant
+    if masterVariant
+      mActions = actionsMapVariantImages masterVariant.images, old_obj.masterVariant, new_obj.masterVariant
+      actions = actions.concat mActions
+
+    # variants
+    if diff.variants
+      _.each diff.variants, (variant, i) ->
+        vActions = actionsMapVariantImages variant.images, old_obj.variants[i], new_obj.variants[i]
+        actions = actions.concat vActions
+
+    actions
+
 ###
 Exports object
 ###
@@ -204,6 +234,7 @@ actionsList = ->
       action: "setDescription"
       key: "description"
     }
+    # TODO: meta attributes
   ]
 
 buildRemovePriceAction = (variant, index) ->
@@ -225,6 +256,24 @@ buildAddPriceAction = (variant, index) ->
       variantId: variant.id
       price: price
   action
+
+buildAddExternalImageAction = (variant, image) ->
+  if image
+    action =
+      action: 'addExternalImage'
+      variantId: variant.id
+      image: image
+  action
+
+buildRemoveImageAction = (variant, image) ->
+  if image
+    action =
+      action: 'removeImage'
+      variantId: variant.id
+      imageUrl: image.url
+      staged: true
+  action
+
 
 buildSetAttributeAction = (diffed_value, variant, index, sameForAllAttributeNames) ->
   attribute = variant.attributes[index]

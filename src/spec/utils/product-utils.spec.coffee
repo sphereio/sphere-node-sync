@@ -29,6 +29,12 @@ OLD_PRODUCT =
         {value: {currencyCode: "EUR", centAmount: 2100}, country: "US"},
         {value: {currencyCode: "EUR", centAmount: 2200}, customerGroup: {id: "59c64f80-6472-474e-b5be-dc57b45b2faf", typeId: "customer-group"}}
       ]
+    },
+    {
+      id: 3
+      prices: [
+        {value: {currencyCode: "YEN", centAmount: 7777}},
+      ]
     }
   ]
 NEW_PRODUCT =
@@ -53,6 +59,12 @@ NEW_PRODUCT =
         {value: {currencyCode: "EUR", centAmount: 100}},
         {value: {currencyCode: "EUR", centAmount: 2000}},
         {value: {currencyCode: "EUR", centAmount: 2200}, customerGroup: {id: "59c64f80-6472-474e-b5be-dc57b45b2faf", typeId: "customer-group"}}
+      ]
+    },
+    {
+      id: 4
+      prices: [
+        {value: {currencyCode: "EUR", centAmount: 999}},
       ]
     }
   ]
@@ -292,6 +304,64 @@ NEW_SET_ATTRIBUTES =
     }
   ]
 
+###
+Match images
+###
+OLD_IMAGE_PRODUCT =
+  id: "123"
+  masterVariant:
+    id: 1
+    images: []
+  variants: [
+    {
+      id: 2
+      images: [
+        { url: "//example.com/image.png", label: 'foo', dimensions: { x: 1024, y: 768 } }
+      ]
+    },
+    {
+      id: 3
+      images: [
+        { url: "//example.com/image.png", label: 'foo', dimensions: { x: 1024, y: 768 } }
+        { url: "//example.com/image.png", label: 'foo', dimensions: { x: 1024, y: 768 } }
+        { url: "//example.com/image.png", label: 'foo', dimensions: { x: 1024, y: 768 } }
+      ]
+    },
+    {
+      id: 4
+      images: [
+        { url: "//example.com/old.png", label: 'foo', dimensions: { x: 1024, y: 768 } }
+      ]
+    }
+  ]
+NEW_IMAGE_PRODUCT =
+  id: "123"
+  masterVariant:
+    id: 1
+    images: []
+  variants: [
+    {
+      id: 2
+      images: [
+        { url: "//example.com/image.png", label: 'foo', dimensions: { x: 1024, y: 768 } }
+      ]
+    },
+    {
+      id: 3
+      images: [
+        { url: "//example.com/image.png", label: 'CHANGED', dimensions: { x: 1024, y: 768 } }
+        { url: "//example.com/image.png", label: 'foo', dimensions: { x: 400, y: 300 } }
+        { url: "//example.com/CHANGED.jpg", label: 'foo', dimensions: { x: 400, y: 300 } }
+      ]
+    },
+    {
+      id: 5
+      images: [
+        { url: "//example.com/new.png", label: 'foo', dimensions: { x: 1024, y: 768 } }
+      ]
+    }
+  ]
+
 
 describe "ProductUtils.diff", ->
   beforeEach ->
@@ -358,7 +428,9 @@ describe "ProductUtils.diff", ->
               country: ['US', 0, 0]
             _t: 'a'
             _3: [{value: {currencyCode: 'EUR', centAmount: 2200 }, customerGroup: {id: '59c64f80-6472-474e-b5be-dc57b45b2faf', typeId: 'customer-group'}, _id: 3}, 0, 0]
+        1: [ { id: 4, prices: [ { value: { currencyCode: 'EUR', centAmount: 999 }, _id: 0 } ] } ]
         _t: 'a'
+        _1: [ { id: 3, prices: [ { value: { currencyCode: 'YEN', centAmount: 7777 }, _id: 0 } ] }, 0, 0 ]
     expect(delta).toEqual expected_delta
 
   it "should diff different attribute types", ->
@@ -395,6 +467,10 @@ describe "ProductUtils.diff", ->
 describe "ProductUtils.actionsMapAttributes", ->
   beforeEach ->
     @utils = new ProductUtils
+
+
+  it 'should build prices actions', ->
+    # TODO!!!
 
   it "should build attribute actions", ->
     delta = @utils.diff(OLD_ATTRIBUTES, NEW_ATTRIBUTES)
@@ -488,4 +564,18 @@ describe "ProductUtils.actionsMapAttributes", ->
         { action: 'setAttribute', variantId: 3, name: 'colors' }
         { action: 'setAttribute', variantId: 4, name: 'colors', value: [ 'gray' ] }
       ]
+    expect(update).toEqual expected_update
+
+  it 'should build actions for images', ->
+    delta = @utils.diff OLD_IMAGE_PRODUCT, NEW_IMAGE_PRODUCT
+    update = @utils.actionsMapImages delta, OLD_IMAGE_PRODUCT, NEW_IMAGE_PRODUCT
+    expected_update = [
+      { action: 'removeImage', variantId: 3, imageUrl: '//example.com/image.png', staged: true }
+      { action: 'addExternalImage', variantId: 3, image: { url: '//example.com/image.png', label: 'CHANGED', dimensions: { x: 1024, y: 768 } } }
+      { action: 'removeImage', variantId: 3, imageUrl: '//example.com/image.png', staged: true }
+      { action: 'addExternalImage', variantId: 3, image: { url: '//example.com/image.png', label: 'foo', dimensions: { x: 400, y: 300 } } }
+      { action: 'removeImage', variantId: 3, imageUrl: '//example.com/image.png', staged: true }
+      { action: 'addExternalImage', variantId: 3, image: { url: '//example.com/CHANGED.jpg', label: 'foo', dimensions: { x: 400, y: 300 } } }
+      # TODO: We miss image additions and deletions here!
+    ]
     expect(update).toEqual expected_update
