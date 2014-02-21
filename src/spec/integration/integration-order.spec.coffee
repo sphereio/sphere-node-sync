@@ -186,17 +186,40 @@ describe "Integration test", ->
         }
       }]
 
-      # update returnInfo status
-      @sync.buildActions(orderNew2, orderUpdated).update (error, response, body) ->
+      # sync first parcel
+      @sync.buildActions(orderNew2, orderUpdated).update (error, response, body) =>
         
         expect(response.statusCode).toBe 200
         console.error body unless response.statusCode is 200
         orderUpdated2 = JSON.parse(body)
 
-        expect(orderUpdated2).toBeDefined()
-        parcels = _.first(orderUpdated2.shippingInfo.deliveries).parcels
-        expect(_.size(parcels)).toBe 1
-        done()
+        orderNew3 = JSON.parse(JSON.stringify(orderUpdated2))
+
+        # add a parcel item
+        orderNew3.shippingInfo.deliveries[0].parcels.push
+          measurements:
+            heightInMillimeter: 200
+            lengthInMillimeter: 200
+            widthInMillimeter: 200
+            weightInGram: 200
+          trackingData:
+            trackingId: '1Z6185W16894827591'
+            carrier: 'UPS'
+            provider: 'shipcloud.io'
+            providerTransaction: '549796981774cd802e9636ded5608bfa1ecce9ad'
+            isReturn: true
+
+        # sync a second parcel
+        @sync.buildActions(orderNew3, orderUpdated2).update (error, response, body) ->
+          
+          expect(response.statusCode).toBe 200
+          console.error body unless response.statusCode is 200
+          orderUpdated3 = JSON.parse(body)
+
+          expect(orderUpdated3).toBeDefined()
+          parcels = _.first(orderUpdated3.shippingInfo.deliveries).parcels
+          expect(_.size(parcels)).toBe 2
+          done()
 
 ###
 helper methods

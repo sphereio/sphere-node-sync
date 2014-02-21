@@ -250,6 +250,7 @@ describe 'OrderUtils.actionsMapStatusValues', ->
     orderChanged = JSON.parse(JSON.stringify(@order))
 
     parcel =
+      id: uniqueId 'pc'
       measurements:
         heightInMillimeter: 200
         lengthInMillimeter: 200
