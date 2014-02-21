@@ -7,6 +7,7 @@ helper = require("../helper")
 Product Utils class
 ###
 class ProductUtils extends Utils
+
   diff: (old_obj, new_obj) ->
     # patch 'prices' to have an identifier in order for the diff
     # to be able to match nested objects in arrays
@@ -189,10 +190,16 @@ class ProductUtils extends Utils
 
   actionsMapVariantImages = (images, old_variant, new_variant) ->
     actions = []
-    _.each images, (img, k) ->
-      if k.match /^\d+$/
-        actions.push buildRemoveImageAction old_variant, old_variant.images[k]
-        actions.push buildAddExternalImageAction old_variant, new_variant.images[k]
+    _.each images, (img, key) ->
+      if key.match /^\d+$/
+        action = buildRemoveImageAction old_variant, old_variant.images[key]
+        actions.push action if action
+        action = buildAddExternalImageAction old_variant, new_variant.images[key]
+        actions.push action if action
+      if key.match /^\_\d+$/
+        index = key.substring(1)
+        action = buildRemoveImageAction old_variant, old_variant.images[index]
+        actions.push action if action
     actions
 
   actionsMapImages: (diff, old_obj, new_obj) ->
