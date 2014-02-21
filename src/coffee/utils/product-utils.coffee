@@ -29,21 +29,24 @@ class ProductUtils extends Utils
     patchPrices(old_obj)
     patchPrices(new_obj)
 
+    isEnum = (value) ->
+      _.has(value, 'key') and _.has(value, 'label')
+
     # setting an lenum via the API support only to set the key of the enum.
     # Thus we delete the original value (containing key and label) and set
     # the key as value at the attribute.
     # This way (l)enum attributes are handled the same way as text attributes.
     patchEnum = (attribute) ->
       return if _.isUndefined(attribute.value) or _.isNull(attribute.value)
-      if _.has(attribute.value, 'key') and _.has(attribute.value, 'label')
+      if isEnum attribute.value
         v = attribute.value.key
         delete attribute.value
         attribute.value = v
       else if _.isArray(attribute.value)
         for val, index in attribute.value
-          if _.has(val, 'key') and _.has(val, 'label')
+          if isEnum val
             attribute.value[index] = val.key
-          else # if we can't find key and label it isn't an (l)enum set and we can simply stop
+          else # if we can't find key and label it isn't an (l)enum set and we can stop immediately
             return
 
     patchEnums = (obj) ->
