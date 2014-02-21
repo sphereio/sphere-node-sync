@@ -79,39 +79,42 @@ class OrderUtils extends Utils
   ###
   actionsMapReturnInfo: (diff, old_obj) ->
     actions = []
-    returnInfoDiffs = diff['returnInfo']
-    if returnInfoDiffs
+    returnInfoDeltas = diff['returnInfo']
+    if returnInfoDeltas
       # iterate over returnInfo instances
-      _.each _.keys(returnInfoDiffs), (returnInfoIndex) ->
-        if returnInfoIndex isnt '_t'
-          returnInfoDiff = returnInfoDiffs[returnInfoIndex]
-          if _.isArray returnInfoDiff
-            # returnInfo was added
-            returnInfo = _.last returnInfoDiff
+      _.chain returnInfoDeltas
+        .filter (item, key) -> key isnt '_t'
+        .map (returnInfoDelta, returnInfoDeltaKey) ->
+          if _.isArray returnInfoDelta
+            # get last added item
+            returnInfo = _.last returnInfoDelta
             action =
               action: 'addReturnInfo'
-            _.each _.keys(returnInfo), (key) ->
-              action[key] = returnInfo[key]
+            _.each returnInfo, (value, key) ->
+              action[key] = value
             actions.push action
 
             # TODO: split into multiple actions (addReturnInfo + setReturnShipmentState/setReturnPaymentState)
             #   in case shipmentState/paymentState already transitioned to a non-initial state
           else
-            returnInfo = returnInfoDiff
-            # iterate over returnInfo items instances
-            _.each _.keys(returnInfo.items), (returnInfoItemIndex) ->
-              if returnInfoItemIndex isnt '_t'
-                returnInfoItem = returnInfo.items[returnInfoItemIndex]
+            returnInfo = returnInfoDelta
+            # iterate over returnItem instances
+            actions = _.chain returnInfo.items
+              .filter (item, key) -> key isnt '_t'
+              .map (item, itemKey) ->
                 # iterate over all returnInfo status actions
-                _.each actionsListReturnInfoState(), (actionDefinition) ->
-                  returnItemState = returnInfoItem[actionDefinition.key]
-                  if returnItemState
-                    action = {}
-                    action['action'] = actionDefinition.action
-                    action['returnItemId'] = old_obj.returnInfo[returnInfoIndex].items[returnInfoItemIndex].id
-                    action[actionDefinition.key] = helper.getDeltaValue returnItemState
-                    actions.push action
-    actions
+                _.chain actionsListReturnInfoState()
+                  .filter (actionDefinition) -> _.has(item, actionDefinition.key)
+                  .map (actionDefinition) ->
+                    action =
+                      action: actionDefinition.action
+                      returnItemId: old_obj.returnInfo[returnInfoDeltaKey].items[itemKey].id
+                    action[actionDefinition.key] = helper.getDeltaValue item[actionDefinition.key]
+                    action
+                  .value()
+              .value()
+       .value()
+    _.flatten actions
 
 ###
 Exports object
