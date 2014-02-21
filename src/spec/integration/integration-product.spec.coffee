@@ -210,4 +210,6 @@ describe "Integration test between projects", ->
         done()
       else
         done()
-    ).fail (err) -> triggerFail [err]
+    ).fail (err) ->
+      console.log "Error: %j", err
+      triggerFail [err]
