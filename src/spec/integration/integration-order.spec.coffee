@@ -150,6 +150,54 @@ describe "Integration test", ->
 
       done()
 
+  it "should sync parcel items of a delivery", (done) ->
+
+    orderNew = JSON.parse(JSON.stringify(@order))
+
+    # add one delivery item
+    orderNew.shippingInfo.deliveries = [
+      items: [{
+         id: orderNew.lineItems[0].id
+         quantity: 1
+      }]]
+
+    @sync.buildActions(orderNew, @order).update (error, response, body) =>
+      expect(response.statusCode).toBe 200
+      console.error body unless response.statusCode is 200
+      orderUpdated = JSON.parse(body)
+
+      orderNew2 = JSON.parse(JSON.stringify(orderUpdated))
+
+
+      # add a parcel item
+      orderNew2.shippingInfo.deliveries[0].parcels = [{
+        measurements: {
+          heightInMillimeter: 200
+          lengthInMillimeter: 200
+          widthInMillimeter: 200
+          weightInGram: 200
+        },
+        trackingData: {
+          trackingId: '1Z6185W16894827591'
+          carrier: 'UPS'
+          provider: 'shipcloud.io'
+          providerTransaction: '549796981774cd802e9636ded5608bfa1ecce9ad'
+          isReturn: true
+        }
+      }]
+
+      # update returnInfo status
+      @sync.buildActions(orderNew2, orderUpdated).update (error, response, body) ->
+        
+        expect(response.statusCode).toBe 200
+        console.error body unless response.statusCode is 200
+        orderUpdated2 = JSON.parse(body)
+
+        expect(orderUpdated2).toBeDefined()
+        parcels = _.first(orderUpdated2.shippingInfo.deliveries).parcels
+        expect(_.size(parcels)).toBe 1
+        done()
+
 ###
 helper methods
 ###

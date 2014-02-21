@@ -62,8 +62,7 @@ class OrderUtils extends Utils
                   parcel = _.last parcelDiff
                   action =
                     action: 'addParcelToDelivery'
-                    measurements: old_obj.shippingInfo.deliveries[deliveryIndex].parcels[parcelIndex].measurements
-                    trackingData: old_obj.shippingInfo.deliveries[deliveryIndex].parcels[parcelIndex].trackingData
+                    deliveryId: old_obj.shippingInfo.deliveries[deliveryIndex].id
                   _.each _.keys(parcel), (key) ->
                     action[key] = parcel[key]
                   actions.push action
