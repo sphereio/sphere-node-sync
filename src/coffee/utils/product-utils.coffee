@@ -11,18 +11,21 @@ class ProductUtils extends Utils
   REGEX_NUMBER = new RegExp /^\d+$/
   REGEX_UNDERSCORE_NUMBER = new RegExp /^\_\d+$/
 
+  allVariants = (product) ->
+    product.masterVariant or= {}
+    product.variants or= []
+    [product.masterVariant].concat product.variants
+
   diff: (old_obj, new_obj) ->
     # patch 'prices' to have an identifier in order for the diff
     # to be able to match nested objects in arrays
     # e.g.: prices: [ { _id: x, value: {} } ]
     patchPrices = (obj) ->
-      if obj.masterVariant
-        if obj.masterVariant.prices and obj.masterVariant.prices.length > 0
-          _.each obj.masterVariant.prices, (p, i) -> p._id = i
-      if obj.variants and obj.variants.length > 0
-        _.each obj.variants, (v) ->
-          if v.prices and v.prices.length > 0
-            _.each v.prices, (p, i) -> p._id = i
+      _.each allVariants(obj), (variant) ->
+        if variant.prices
+          _.each variant.prices, (price, index) ->
+            price._id = index
+
     patchPrices(old_obj)
     patchPrices(new_obj)
 
@@ -44,15 +47,10 @@ class ProductUtils extends Utils
             return
 
     patchEnums = (obj) ->
-      if obj.masterVariant
-        if obj.masterVariant.attributes
-          _.each obj.masterVariant.attributes, (attrib, index) ->
+      _.each allVariants(obj), (variant) ->
+        if variant.attributes
+          _.each variant.attributes, (attrib, index) ->
             patchEnum attrib
-      if obj.variants
-        _.each obj.variants, (variant) ->
-          if variant.attributes
-            _.each variant.attributes, (attrib, index) ->
-              patchEnum attrib
 
     patchEnums(old_obj)
     patchEnums(new_obj)
