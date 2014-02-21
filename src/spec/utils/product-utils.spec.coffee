@@ -657,18 +657,18 @@ describe "ProductUtils.actionsMapAttributes", ->
   describe '#actionsMapReferences', ->
     beforeEach ->
       @OLD_REFERENCE =
-        id: "123"
+        id: '123'
         taxCategory:
           typeId: 'tax-category'
           id: 'tax-de'
 
       @NEW_REFERENCE =
-        id: "123"
+        id: '123'
         taxCategory:
           typeId: 'tax-category'
           id: 'tax-us'
 
-    it 'should build actions to change tax-category', ->
+    it 'should build action to change tax-category', ->
       delta = @utils.diff @OLD_REFERENCE, @NEW_REFERENCE
       update = @utils.actionsMapReferences delta, @OLD_REFERENCE, @NEW_REFERENCE
       expected_update = [
@@ -676,7 +676,7 @@ describe "ProductUtils.actionsMapAttributes", ->
       ]
       expect(update).toEqual expected_update
 
-    it 'should build actions to delete tax-category', ->
+    it 'should build action to delete tax-category', ->
       delete @NEW_REFERENCE.taxCategory
       delta = @utils.diff @OLD_REFERENCE, @NEW_REFERENCE
       update = @utils.actionsMapReferences delta, @OLD_REFERENCE, @NEW_REFERENCE
@@ -685,11 +685,36 @@ describe "ProductUtils.actionsMapAttributes", ->
       ]
       expect(update).toEqual expected_update
 
-    it 'should build actions to add tax-category', ->
+    it 'should build action to add tax-category', ->
       delete @OLD_REFERENCE.taxCategory
       delta = @utils.diff @OLD_REFERENCE, @NEW_REFERENCE
       update = @utils.actionsMapReferences delta, @OLD_REFERENCE, @NEW_REFERENCE
       expected_update = [
         { action: 'setTaxCategory', taxCategory: { typeId: 'tax-category', id: 'tax-us' } }
+      ]
+      expect(update).toEqual expected_update
+
+  describe '#actionsMapReferences', ->
+    beforeEach ->
+      @OLD_REFERENCE =
+        id: '123'
+        categories: [
+          { typeId: 'category', id: 'cat1' }
+          { typeId: 'category', id: 'cat2' }
+        ]
+
+      @NEW_REFERENCE =
+        id: '123'
+        categories: [
+          { typeId: 'category', id: 'cat1' }
+          { typeId: 'category', id: 'cat3' }
+        ]
+
+    it 'should build actions to change category', ->
+      delta = @utils.diff @OLD_REFERENCE, @NEW_REFERENCE
+      update = @utils.actionsMapReferences delta, @OLD_REFERENCE, @NEW_REFERENCE
+      expected_update = [
+        { action: 'removeFromCategory', category: { typeId: 'category', id: 'cat2' } }
+        { action: 'addToCategory', category: { typeId: 'category', id: 'cat3' } }
       ]
       expect(update).toEqual expected_update

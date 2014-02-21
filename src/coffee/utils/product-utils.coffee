@@ -125,7 +125,18 @@ class ProductUtils extends Utils
           taxCategory: new_obj.taxCategory
         actions.push action
 
-    actions
+    if diff.categories
+      _.each diff.categories, (category) ->
+        if _.isArray category
+          action =
+            category: category[0]
+          if _.size(category) is 3
+            action.action = 'removeFromCategory'
+          else if _.size(category) is 1
+            action.action = 'addToCategory'
+          actions.push action
+
+    _.sortBy actions, (a) -> a.action is 'addToCategory'
 
   actionsMapPrices: (diff, old_obj, new_obj) ->
     actions = []
