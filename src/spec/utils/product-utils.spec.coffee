@@ -653,3 +653,43 @@ describe "ProductUtils.actionsMapAttributes", ->
       { action: 'addExternalImage', variantId: 5, image: { url: '//example.com/new.png', label: 'foo', dimensions: { x: 1024, y: 768 } } }
     ]
     expect(update).toEqual expected_update
+
+  describe '#actionsMapReferences', ->
+    beforeEach ->
+      @OLD_REFERENCE =
+        id: "123"
+        taxCategory:
+          typeId: 'tax-category'
+          id: 'tax-de'
+
+      @NEW_REFERENCE =
+        id: "123"
+        taxCategory:
+          typeId: 'tax-category'
+          id: 'tax-us'
+
+    it 'should build actions to change tax-category', ->
+      delta = @utils.diff @OLD_REFERENCE, @NEW_REFERENCE
+      update = @utils.actionsMapReferences delta, @OLD_REFERENCE, @NEW_REFERENCE
+      expected_update = [
+        { action: 'setTaxCategory', taxCategory: { typeId: 'tax-category', id: 'tax-us' } }
+      ]
+      expect(update).toEqual expected_update
+
+    it 'should build actions to delete tax-category', ->
+      delete @NEW_REFERENCE.taxCategory
+      delta = @utils.diff @OLD_REFERENCE, @NEW_REFERENCE
+      update = @utils.actionsMapReferences delta, @OLD_REFERENCE, @NEW_REFERENCE
+      expected_update = [
+        { action: 'setTaxCategory' }
+      ]
+      expect(update).toEqual expected_update
+
+    it 'should build actions to add tax-category', ->
+      delete @OLD_REFERENCE.taxCategory
+      delta = @utils.diff @OLD_REFERENCE, @NEW_REFERENCE
+      update = @utils.actionsMapReferences delta, @OLD_REFERENCE, @NEW_REFERENCE
+      expected_update = [
+        { action: 'setTaxCategory', taxCategory: { typeId: 'tax-category', id: 'tax-us' } }
+      ]
+      expect(update).toEqual expected_update

@@ -111,9 +111,19 @@ class ProductUtils extends Utils
 
     actions
 
-  actionsMapReferences: (diff, new_obj) ->
-    references = [ 'tax', 'categories' ]
+  actionsMapReferences: (diff, old_obj, new_obj) ->
     actions = []
+    if diff.taxCategory
+      if _.isArray diff.taxCategory
+        action =
+          action: 'setTaxCategory'
+        action.taxCategory = helper.getDeltaValue diff.taxCategory
+        actions.push action
+      else
+        action =
+          action: 'setTaxCategory'
+          taxCategory: new_obj.taxCategory
+        actions.push action
 
     actions
 
