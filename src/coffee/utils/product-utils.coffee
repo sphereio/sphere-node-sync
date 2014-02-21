@@ -8,6 +8,9 @@ Product Utils class
 ###
 class ProductUtils extends Utils
 
+  REGEX_NUMBER = new RegExp /^\d+$/
+  REGEX_UNDERSCORE_NUMBER = new RegExp /^\_\d+$/
+
   diff: (old_obj, new_obj) ->
     # patch 'prices' to have an identifier in order for the diff
     # to be able to match nested objects in arrays
@@ -100,10 +103,10 @@ class ProductUtils extends Utils
       prices = diff.masterVariant.prices
       if prices
         _.each prices, (value, key) ->
-          if key.match(/^\d$/g)
+          if REGEX_NUMBER.test key
             # key is index of new price
             index = key
-          else if key.match(/^\_\d$/g)
+          else if REGEX_UNDERSCORE_NUMBER.test key
             # key is index of old price
             index = key.substring(1)
 
@@ -119,10 +122,10 @@ class ProductUtils extends Utils
         prices = variant.prices
         if prices
           _.each prices, (value, key) ->
-            if key.match(/^\d$/g)
+            if REGEX_NUMBER.test key
               # key is index of new price
               index = key
-            else if key.match(/^\_\d$/g)
+            else if REGEX_UNDERSCORE_NUMBER.test key
               # key is index of old price
               index = key.substring(1)
 
@@ -140,7 +143,7 @@ class ProductUtils extends Utils
     actions = []
     if attributes
       _.each attributes, (value, key) ->
-        if key.match(/^\d$/g)
+        if REGEX_NUMBER.test key
           if _.isArray value
             v = helper.getDeltaValue(value)
             id = variant.id
@@ -151,7 +154,7 @@ class ProductUtils extends Utils
             index = key
             setAction = buildSetAttributeAction(value.value, variant, index, sameForAllAttributeNames)
             actions.push setAction if setAction
-        else if key.match(/^\_\d$/g)
+        else if REGEX_UNDERSCORE_NUMBER.test key
           if _.isArray value
             v = helper.getDeltaValue(value)
             unless v
@@ -191,12 +194,12 @@ class ProductUtils extends Utils
   actionsMapVariantImages = (images, old_variant, new_variant) ->
     actions = []
     _.each images, (img, key) ->
-      if key.match /^\d+$/
+      if REGEX_NUMBER.test key
         action = buildRemoveImageAction old_variant, old_variant.images[key]
         actions.push action if action
         action = buildAddExternalImageAction old_variant, new_variant.images[key]
         actions.push action if action
-      if key.match /^\_\d+$/
+      if REGEX_UNDERSCORE_NUMBER.test key
         index = key.substring(1)
         action = buildRemoveImageAction old_variant, old_variant.images[index]
         actions.push action if action
