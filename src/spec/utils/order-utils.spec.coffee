@@ -66,7 +66,6 @@ order =
         quantity: 1
       }]
       parcels: [{
-        id: uniqueId 'p'
         measurements: {
           heightInMillimeter: 200
           lengthInMillimeter: 200
@@ -256,7 +255,6 @@ describe "OrderUtils.actionsMapStatusValues", ->
     orderChanged = JSON.parse(JSON.stringify(@order))
 
     parcel =
-      id: uniqueId 'p'
       measurements:
         heightInMillimeter: 200
         lengthInMillimeter: 200
@@ -277,5 +275,6 @@ describe "OrderUtils.actionsMapStatusValues", ->
 
     expectedUpdate = JSON.parse(JSON.stringify(parcel))
     expectedUpdate.action = 'addParcelToDelivery'
+    expectedUpdate.deliveryId = orderChanged.shippingInfo.deliveries[0].id
 
     expect(update).toEqual [expectedUpdate]
