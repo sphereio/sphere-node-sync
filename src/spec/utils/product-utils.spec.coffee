@@ -15,29 +15,31 @@ OLD_PRODUCT =
   masterVariant:
     id: 1
     prices: [
-      {value: {currencyCode: "EUR", centAmount: 100}},
-      {value: {currencyCode: "EUR", centAmount: 1000}},
-      {value: {currencyCode: "EUR", centAmount: 1100}, country: "DE"},
-      {value: {currencyCode: "EUR", centAmount: 1200}, customerGroup: {id: "984a64de-24a4-42c0-868b-da7abfe1c5f6", typeId: "customer-group"}}
+      { value: { currencyCode: "EUR", centAmount: 1 } }
+      { value: { currencyCode: "EUR", centAmount: 7 } }
     ]
   variants: [
     {
       id: 2
       prices: [
-        {value: {currencyCode: "EUR", centAmount: 100}},
-        {value: {currencyCode: "EUR", centAmount: 2000}},
-        {value: {currencyCode: "EUR", centAmount: 2100}, country: "US"},
-        {value: {currencyCode: "EUR", centAmount: 2200}, customerGroup: {id: "59c64f80-6472-474e-b5be-dc57b45b2faf", typeId: "customer-group"}}
+        { value: { currencyCode: "USD", centAmount: 3 } }
       ]
     },
     {
       id: 3
       prices: [
-        {value: {currencyCode: "YEN", centAmount: 7777}},
+        { value: { currencyCode: "EUR", centAmount: 2100 }, country: 'DE' }
+        { value: { currencyCode: "EUR", centAmount: 2200 }, customerGroup: { id: "123", typeId: "customer-group" } }
       ]
     },
     {
       id: 4
+      prices: [
+        { value: { currencyCode: "YEN", centAmount: 7777 } }
+      ]
+    },
+    {
+      id: 5
       prices: []
     }
   ]
@@ -52,27 +54,31 @@ NEW_PRODUCT =
   masterVariant:
     id: 1
     prices: [
-      {value: {currencyCode: "EUR", centAmount: 100}},
-      {value: {currencyCode: "EUR", centAmount: 3800}}, # change
-      {value: {currencyCode: "EUR", centAmount: 1100}, country: "IT"} # change
+      { value: { currencyCode: "EUR", centAmount: 2 } }
+      { value: { currencyCode: "USD", centAmount: 7 } }
     ]
   variants: [
     {
       id: 2
       prices: [
-        {value: {currencyCode: "EUR", centAmount: 100}},
-        {value: {currencyCode: "EUR", centAmount: 2000}},
-        {value: {currencyCode: "EUR", centAmount: 2200}, customerGroup: {id: "59c64f80-6472-474e-b5be-dc57b45b2faf", typeId: "customer-group"}}
+        { value: { currencyCode: "USD", centAmount: 3 } }
       ]
     },
     {
       id: 3
-      prices: []
+      prices: [
+        { value: { currencyCode: "EUR", centAmount: 2100 }, country: 'CH' }
+        { value: { currencyCode: "EUR", centAmount: 2200 }, customerGroup: { id: "987", typeId: "customer-group" } }
+      ]
     },
     {
       id: 4
+      prices: []
+    },
+    {
+      id: 5
       prices: [
-        {value: {currencyCode: "EUR", centAmount: 999}},
+        { value: { currencyCode: "EUR", centAmount: 999 } }
       ]
     }
   ]
@@ -431,24 +437,27 @@ describe "ProductUtils.diff", ->
       description: [en: "Sample description", 0, 0] # deleted
       masterVariant:
         prices:
-          1: { value: { centAmount: [ 1000, 3800 ] } }
-          2: { country: ['DE', 'IT'] }
+          0:
+            value:
+              centAmount: [ 1, 2 ]
+          1:
+            value:
+              currencyCode: ['EUR', 'USD']
           _t: 'a'
-          _3: [{value: {currencyCode: 'EUR', centAmount: 1200 }, customerGroup: {id: '984a64de-24a4-42c0-868b-da7abfe1c5f6', typeId: 'customer-group'}, _id: 3}, 0, 0]
       variants:
-        0:
-          prices:
-            2:
-              value: { centAmount: [ 2100, 2200 ] },
-              customerGroup: [{id: '59c64f80-6472-474e-b5be-dc57b45b2faf', typeId: 'customer-group'}],
-              country: ['US', 0, 0]
-            _t: 'a'
-            _3: [{value: {currencyCode: 'EUR', centAmount: 2200 }, customerGroup: {id: '59c64f80-6472-474e-b5be-dc57b45b2faf', typeId: 'customer-group'}, _id: 3}, 0, 0]
         1:
+          prices:
+            0:
+              country: [ 'DE', 'CH' ]
+            1:
+              customerGroup:
+                id: ['123', '987']
+            _t: 'a'
+        2:
           prices:
             _t: 'a'
             _0: [ { value: { currencyCode: 'YEN', centAmount: 7777 }, _id: 0 }, 0, 0 ]
-        2:
+        3:
           prices:
             0: [ { value: { currencyCode: 'EUR', centAmount: 999 }, _id: 0 } ]
             _t: 'a'
@@ -492,7 +501,21 @@ describe "ProductUtils.actionsMapAttributes", ->
 
 
   it 'should build prices actions', ->
-    # TODO!!!
+    delta = @utils.diff OLD_PRODUCT, NEW_PRODUCT
+    update = @utils.actionsMapPrices delta, OLD_PRODUCT, NEW_PRODUCT
+    expected_update = [
+      { action: 'removePrice', variantId: 1, price: { value: { currencyCode: 'EUR', centAmount: 1 } } }
+      { action: 'removePrice', variantId: 1, price: { value: { currencyCode: 'EUR', centAmount: 7 } } }
+      { action: 'removePrice', variantId: 3, price: { value: { currencyCode: 'EUR', centAmount: 2100 }, country: 'DE' } }
+      { action: 'removePrice', variantId: 3, price: { value: { currencyCode: 'EUR', centAmount: 2200 }, customerGroup: { id: '123', typeId: 'customer-group' } } }
+      { action: 'removePrice', variantId: 4, price: { value: { currencyCode: 'YEN', centAmount: 7777 } } }
+      { action: 'addPrice', variantId: 1, price: { value: { currencyCode: 'EUR', centAmount: 2 } } }
+      { action: 'addPrice', variantId: 1, price: { value: { currencyCode: 'USD', centAmount: 7 } } }
+      { action: 'addPrice', variantId: 3, price: { value: { currencyCode: 'EUR', centAmount: 2100 }, country: 'CH' } }
+      { action: 'addPrice', variantId: 3, price: { value: { currencyCode: 'EUR', centAmount: 2200 }, customerGroup: { id: '987', typeId: 'customer-group' } } }
+      { action: 'addPrice', variantId: 5, price: { value: { currencyCode: 'EUR', centAmount: 999 } } }
+    ]
+    expect(update).toEqual expected_update
 
   it "should build attribute actions", ->
     delta = @utils.diff(OLD_ATTRIBUTES, NEW_ATTRIBUTES)
