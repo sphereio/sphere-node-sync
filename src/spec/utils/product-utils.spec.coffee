@@ -83,6 +83,26 @@ NEW_PRODUCT =
     }
   ]
 
+OLD_VARIANT =
+  id: "123"
+  masterVariant:
+    id: 1
+  variants: [
+    { id: 2 }
+    { id: 3, attributes: { name: 'foo', value: 'bar' } }
+    { id: 4, sku: 'v4' }
+  ]
+
+NEW_VARIANT =
+  id: "123"
+  masterVariant:
+    id: 1
+  variants: [
+    { id: 2 }
+    { id: 3, attributes: { name: 'foo', value: 'CHANGED' } }
+    { id: 5, sku: 'v5' }
+  ]
+
 ###
 Match all different attributes types
 ###
@@ -499,6 +519,14 @@ describe "ProductUtils.actionsMapAttributes", ->
   beforeEach ->
     @utils = new ProductUtils
 
+  it 'should build variant actions', ->
+    delta = @utils.diff OLD_VARIANT, NEW_VARIANT
+    update = @utils.actionsMapVariants delta, OLD_VARIANT, NEW_VARIANT
+    expected_update = [
+      { action: 'addVariant', sku: 'v5' }
+      { action: 'removeVariant', id: 4 }
+    ]
+    expect(update).toEqual expected_update
 
   it 'should build prices actions', ->
     delta = @utils.diff OLD_PRODUCT, NEW_PRODUCT
@@ -615,10 +643,10 @@ describe "ProductUtils.actionsMapAttributes", ->
     delta = @utils.diff OLD_IMAGE_PRODUCT, NEW_IMAGE_PRODUCT
     update = @utils.actionsMapImages delta, OLD_IMAGE_PRODUCT, NEW_IMAGE_PRODUCT
     expected_update = [
-      { action: 'removeImage', variantId: 3, imageUrl: '//example.com/image.png', staged: true }
-      { action: 'removeImage', variantId: 3, imageUrl: '//example.com/image.png', staged: true }
-      { action: 'removeImage', variantId: 3, imageUrl: '//example.com/image.png', staged: true }
-      { action: 'removeImage', variantId: 4, imageUrl: '//example.com/old.png', staged: true }
+      { action: 'removeImage', variantId: 3, imageUrl: '//example.com/image.png' }
+      { action: 'removeImage', variantId: 3, imageUrl: '//example.com/image.png' }
+      { action: 'removeImage', variantId: 3, imageUrl: '//example.com/image.png' }
+      { action: 'removeImage', variantId: 4, imageUrl: '//example.com/old.png' }
       { action: 'addExternalImage', variantId: 3, image: { url: '//example.com/image.png', label: 'CHANGED', dimensions: { x: 1024, y: 768 } } }
       { action: 'addExternalImage', variantId: 3, image: { url: '//example.com/image.png', label: 'foo', dimensions: { x: 400, y: 300 } } }
       { action: 'addExternalImage', variantId: 3, image: { url: '//example.com/CHANGED.jpg', label: 'foo', dimensions: { x: 400, y: 300 } } }

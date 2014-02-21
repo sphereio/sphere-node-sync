@@ -90,6 +90,26 @@ class ProductUtils extends Utils
             a
       actions.push action if action
     actions
+    
+  actionsMapVariants: (diff, old_obj, new_obj) ->
+    actions = []
+    if diff.variants
+      _.each diff.variants, (variant, key) ->
+        if REGEX_NUMBER.test(key) and _.isArray(variant)
+          newVariant = new_obj.variants[key]
+          action =
+            action: 'addVariant'
+          action.sku = newVariant.sku if newVariant.sku
+          action.prices = newVariant.prices if newVariant.prices
+          action.attributes = newVariant.attributes if newVariant.attributes
+          actions.push action
+        else if REGEX_UNDERSCORE_NUMBER.test(key) and _.isArray(variant)
+          action =
+            action: 'removeVariant'
+            id: variant[0].id
+          actions.push action
+
+    actions
 
   actionsMapReferences: (diff, new_obj) ->
     references = [ 'tax', 'categories' ]
@@ -283,7 +303,6 @@ buildRemoveImageAction = (variant, image) ->
       action: 'removeImage'
       variantId: variant.id
       imageUrl: image.url
-      staged: true
   action
 
 
