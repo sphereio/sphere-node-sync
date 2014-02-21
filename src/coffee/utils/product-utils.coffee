@@ -135,7 +135,7 @@ class ProductUtils extends Utils
               actions.push addAction if addAction
 
     # this will sort the actions ranked in asc order (first 'remove' then 'add')
-    _.sortBy actions, (a) -> a.action is "addPrice"
+    _.sortBy actions, (a) -> a.action is 'addPrice'
 
   actionsMapVariantAttributes = (attributes, variant, sameForAllAttributeNames) ->
     actions = []
@@ -217,7 +217,8 @@ class ProductUtils extends Utils
         vActions = actionsMapVariantImages variant.images, old_obj.variants[i], new_obj.variants[i]
         actions = actions.concat vActions
 
-    actions
+    # this will sort the actions ranked in asc order (first 'remove' then 'add')
+    _.sortBy actions, (a) -> a.action is 'addExternalImage'
 
 ###
 Exports object

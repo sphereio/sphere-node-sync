@@ -593,12 +593,12 @@ describe "ProductUtils.actionsMapAttributes", ->
     update = @utils.actionsMapImages delta, OLD_IMAGE_PRODUCT, NEW_IMAGE_PRODUCT
     expected_update = [
       { action: 'removeImage', variantId: 3, imageUrl: '//example.com/image.png', staged: true }
-      { action: 'addExternalImage', variantId: 3, image: { url: '//example.com/image.png', label: 'CHANGED', dimensions: { x: 1024, y: 768 } } }
       { action: 'removeImage', variantId: 3, imageUrl: '//example.com/image.png', staged: true }
-      { action: 'addExternalImage', variantId: 3, image: { url: '//example.com/image.png', label: 'foo', dimensions: { x: 400, y: 300 } } }
       { action: 'removeImage', variantId: 3, imageUrl: '//example.com/image.png', staged: true }
-      { action: 'addExternalImage', variantId: 3, image: { url: '//example.com/CHANGED.jpg', label: 'foo', dimensions: { x: 400, y: 300 } } }
       { action: 'removeImage', variantId: 4, imageUrl: '//example.com/old.png', staged: true }
+      { action: 'addExternalImage', variantId: 3, image: { url: '//example.com/image.png', label: 'CHANGED', dimensions: { x: 1024, y: 768 } } }
+      { action: 'addExternalImage', variantId: 3, image: { url: '//example.com/image.png', label: 'foo', dimensions: { x: 400, y: 300 } } }
+      { action: 'addExternalImage', variantId: 3, image: { url: '//example.com/CHANGED.jpg', label: 'foo', dimensions: { x: 400, y: 300 } } }
       { action: 'addExternalImage', variantId: 5, image: { url: '//example.com/new.png', label: 'foo', dimensions: { x: 1024, y: 768 } } }
     ]
     expect(update).toEqual expected_update
