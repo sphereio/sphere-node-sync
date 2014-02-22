@@ -1,7 +1,6 @@
 _ = require('underscore')._
 Q = require 'q'
 {Rest, OAuth2, Logger} = require 'sphere-node-connect'
-SphereClient = require 'sphere-node-client'
 ProductSync = require '../../lib/sync/product-sync'
 Config = require('../../config').config
 product = require '../../models/product.json'
@@ -20,13 +19,24 @@ getProductFromStaged = (product) ->
 
 describe 'Integration test', ->
 
+  createResourcePromise = (rest, url, body) ->
+    deferred = Q.defer()
+    rest.POST url, JSON.stringify(body), (error, response, body) ->
+      if response.statusCode is 201
+        deferred.resolve body
+      else if error
+        deferred.reject new Error(error)
+      else
+        deferred.reject new Error(body)
+    deferred.promise
+
   beforeEach (done) ->
     @sync = new ProductSync
       config: Config.prod
       logConfig:
         levelStream: 'error'
         levelFile: 'error'
-    @sphereClient = new SphereClient config: Config.prod
+    @rest = @sync._rest
 
     @unique = new Date().getTime()
     pt =
@@ -47,17 +57,20 @@ describe 'Integration test', ->
         prices: []
         images: []
 
-    @sphereClient.productTypes.save(pt).then (productType) =>
+    createResourcePromise(@rest, '/product-types', pt)
+    .then (productType) =>
       @newProduct.productType.id = productType.id
-      @sphereClient.products.save(@newProduct).then (product) =>
-        @oldProduct = getProductFromStaged product
-        @newProduct.id = product.id
-        done()
-
-    .fail (msg) ->
-      console.log msg
-      expect(true).toBe false
+      createResourcePromise(@rest, '/products', @newProduct)
+    .then (product) =>
+      @oldProduct = product.masterData.staged
+      @oldProduct.productType = product.productType # set product type to staged subset
+      # set id for matching and version for update
+      @oldProduct.id = product.id
+      @oldProduct.version = product.version
+      @newProduct.id = product.id
       done()
+    .fail (msg) ->
+      done(msg)
 
 
   it 'should not update minimum product', (done) ->
@@ -82,7 +95,8 @@ describe 'Integration test', ->
       rates: []
 
     # addition
-    @sphereClient.taxCategories.save(tax).then (taxCategory) =>
+    createResourcePromise(@rest, '/tax-categories', tax)
+    .then (taxCategory) =>
       @newProduct.taxCategory =
         typeId: 'tax-category'
         id: taxCategory.id
@@ -97,7 +111,8 @@ describe 'Integration test', ->
         tax =
           name: "myTax2-#{@unique}"
           rates: []
-        @sphereClient.taxCategories.save(tax).then (taxCategory2) =>
+        createResourcePromise(@rest, '/tax-categories', tax)
+        .then (taxCategory2) =>
           @newProduct.taxCategory.id = taxCategory2.id
           @oldProduct = getProductFromStaged b
           data = @sync.buildActions @newProduct, @oldProduct
@@ -116,11 +131,10 @@ describe 'Integration test', ->
               expect(r.statusCode).toBe 200
               expect(b.taxCategory).toBeUndefined()
               done()
-
+        .fail (msg) ->
+          done(msg)
     .fail (msg) ->
-      console.log msg
-      expect(true).toBe false
-      done()
+      done(msg)
 
   it 'should add, change and remove image', (done) ->
     @newProduct.masterVariant.images = [
@@ -157,7 +171,6 @@ describe 'Integration test', ->
 describe 'Integration test between projects', ->
 
   beforeEach (done) ->
-    @logger = new Logger()
     getAuthToken = (config) ->
       d = Q.defer()
       oa = new OAuth2
@@ -192,7 +205,7 @@ describe 'Integration test between projects', ->
           levelStream: 'error'
           levelFile: 'error'
       done()
-    ).fail (err) -> throw new Error(err)
+    ).fail (err) -> done(err)
 
   afterEach ->
     @restStaging = null
@@ -200,9 +213,6 @@ describe 'Integration test between projects', ->
     @sync = null
 
   it 'should sync products with same SKU', (done) ->
-    triggerFail = (e)=>
-      @logger.error e
-      done('Error when syncing SKU (see ./sphere-node-connect-debug.log)')
 
     getProducts = (rest) ->
       deferred = Q.defer()
@@ -238,16 +248,17 @@ describe 'Integration test between projects', ->
         deferred.reject e
       deferred.promise
 
-    getProducts(@restProd).then((products)=>
+    getProducts(@restProd)
+    .then (products) =>
       # sync prod -> staging
-      searches = _.map products, (prodProd)=>
+      searches = _.map products, (prodProd) =>
         sku = prodProd.masterVariant.sku
         searchProduct(@restStaging, sku, prodProd)
       # 'allSettled' waits for all of the promises to either be fulfilled or rejected
       Q.allSettled searches
-    ).then((responses)=>
+    .then (responses) =>
       updates = []
-      _.each responses, (response)=>
+      _.each responses, (response) =>
         # 'results' is an array of result objects like
         # {state: "fulfilled", value: resolvedValue}
         # {state: "rejected", reason: rejectedError}
@@ -258,7 +269,7 @@ describe 'Integration test between projects', ->
           if stagingProd
             updates.push syncProducts(@sync, resolver.product, stagingProd)
       Q.allSettled updates
-    ).then((results) ->
+    .then (results) ->
       errors = []
       _.each results, (result) ->
         if result.state is 'fulfilled'
@@ -266,10 +277,8 @@ describe 'Integration test between projects', ->
         else
           errors.push result.reason
       if errors.length > 0
-        triggerFail errors
-        done()
+        done(errors)
       else
         done()
-    ).fail (err) ->
-      console.log "Error: %j", errors
-      triggerFail [err]
+    .fail (err) ->
+      done(err)
