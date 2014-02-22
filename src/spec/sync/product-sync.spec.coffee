@@ -66,7 +66,11 @@ describe 'ProductSync', ->
     expect(sync._actions).not.toBeDefined()
 
   it 'should initialize with options', ->
-    sync = new ProductSync config: Config
+    sync = new ProductSync
+      config: Config
+      logConfig:
+        levelStream: 'error'
+        levelFile: 'error'
     expect(sync).toBeDefined()
     expect(sync._rest).toBeDefined()
     expect(sync._rest._options.config).toEqual Config
@@ -79,7 +83,11 @@ describe 'ProductSync', ->
     it "should throw error if no '#{key}' is defined", ->
       opt = _.clone(Config)
       delete opt[key]
-      sync = -> new ProductSync config: opt
+      sync = -> new ProductSync
+        config: opt
+        logConfig:
+          levelStream: 'error'
+          levelFile: 'error'
       expect(sync).toThrow new Error("Missing '#{key}'")
 
 
@@ -114,7 +122,11 @@ describe 'ProductSync.buildActions', ->
 describe 'ProductSync.update', ->
 
   beforeEach ->
-    @sync = new ProductSync config: Config
+    @sync = new ProductSync
+      config: Config
+      logConfig:
+        levelStream: 'error'
+        levelFile: 'error'
 
   afterEach ->
     @sync = null

@@ -10,7 +10,11 @@ describe 'InventorySync', ->
     expect(sync._actions).not.toBeDefined()
 
   it 'should initialize with options', ->
-    sync = new InventorySync config: Config
+    sync = new InventorySync
+      config: Config
+      logConfig:
+        levelStream: 'error'
+        levelFile: 'error'
     expect(sync).toBeDefined()
     expect(sync._rest).toBeDefined()
     expect(sync._rest._options.config).toEqual Config
@@ -23,7 +27,11 @@ describe 'InventorySync', ->
     it "should throw error if no '#{key}' is defined", ->
       opt = _.clone(Config)
       delete opt[key]
-      sync = -> new InventorySync config: opt
+      sync = -> new InventorySync
+        config: opt
+        logConfig:
+          levelStream: 'error'
+          levelFile: 'error'
       expect(sync).toThrow new Error("Missing '#{key}'")
 
 describe '#buildActions', ->
@@ -109,7 +117,11 @@ describe '#buildActions', ->
 describe '#update', ->
 
   beforeEach ->
-    @sync = new InventorySync config: Config
+    @sync = new InventorySync
+      config: Config
+      logConfig:
+        levelStream: 'error'
+        levelFile: 'error'
 
   it 'should send update request', (done) ->
     spyOn(@sync._rest, 'POST').andCallFake((path, payload, callback) -> callback(null, null, {id: '123'}))

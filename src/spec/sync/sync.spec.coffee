@@ -20,7 +20,11 @@ describe 'Sync', ->
     expect(sync._actions).not.toBeDefined()
 
   it 'should initialize with options', ->
-    sync = new Sync config: Config
+    sync = new Sync
+      config: Config
+      logConfig:
+        levelStream: 'error'
+        levelFile: 'error'
     expect(sync).toBeDefined()
     expect(sync._rest).toBeDefined()
     expect(sync._rest._options.config).toEqual Config
@@ -33,7 +37,11 @@ describe 'Sync', ->
     it "should throw error if no '#{key}' is defined", ->
       opt = _.clone(Config)
       delete opt[key]
-      sync = -> new Sync config: opt
+      sync = -> new Sync
+        config: opt
+        logConfig:
+          levelStream: 'error'
+          levelFile: 'error'
       expect(sync).toThrow new Error("Missing '#{key}'")
 
 
@@ -76,7 +84,11 @@ describe 'Sync.get', ->
 describe 'Sync.update', ->
 
   beforeEach ->
-    @sync = new Sync config: Config
+    @sync = new Sync
+      config: Config
+      logConfig:
+        levelStream: 'error'
+        levelFile: 'error'
 
   afterEach ->
     @sync = null

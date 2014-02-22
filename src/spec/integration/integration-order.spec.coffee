@@ -12,7 +12,11 @@ jasmine.getEnv().defaultTimeoutInterval = 10000
 describe 'Integration test', ->
 
   beforeEach (done) ->
-    @sync = new OrderSync config: Config.staging
+    @sync = new OrderSync
+      config: Config.staging
+      logConfig:
+        levelStream: 'error'
+        levelFile: 'error'
 
     createResourcePromise(@sync._rest, '/product-types', productTypeMock())
       .then (productType) =>

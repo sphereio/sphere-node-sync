@@ -21,7 +21,11 @@ getProductFromStaged = (product) ->
 describe 'Integration test', ->
 
   beforeEach (done) ->
-    @sync = new ProductSync config: Config.prod
+    @sync = new ProductSync
+      config: Config.prod
+      logConfig:
+        levelStream: 'error'
+        levelFile: 'error'
     @sphereClient = new SphereClient config: Config.prod
 
     @unique = new Date().getTime()
@@ -156,7 +160,11 @@ describe 'Integration test between projects', ->
     @logger = new Logger()
     getAuthToken = (config) ->
       d = Q.defer()
-      oa = new OAuth2 config: config
+      oa = new OAuth2
+        config: config
+        logConfig:
+          levelStream: 'error'
+          levelFile: 'error'
       oa.getAccessToken (error, response, body) ->
         if body
           optionsApi = _.clone(config)
@@ -168,9 +176,21 @@ describe 'Integration test between projects', ->
 
     allAuthTokens = Q.all [getAuthToken(Config.staging), getAuthToken(Config.prod)]
     allAuthTokens.spread((staging, prod)=>
-      @restStaging = new Rest config: staging
-      @restProd = new Rest config: prod
-      @sync = new ProductSync config: staging
+      @restStaging = new Rest
+        config: staging
+        logConfig:
+          levelStream: 'error'
+          levelFile: 'error'
+      @restProd = new Rest
+        config: prod
+        logConfig:
+          levelStream: 'error'
+          levelFile: 'error'
+      @sync = new ProductSync
+        config: staging
+        logConfig:
+          levelStream: 'error'
+          levelFile: 'error'
       done()
     ).fail (err) -> throw new Error(err)
 

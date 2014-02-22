@@ -10,7 +10,11 @@ describe 'InventoryUpdater', ->
     expect(updater).toBeDefined()
 
   it 'should initialize with options', ->
-    updater = new InventoryUpdater config: Config
+    updater = new InventoryUpdater
+      config: Config
+      logConfig:
+        levelStream: 'error'
+        levelFile: 'error'
     expect(updater).toBeDefined()
 
   xit 'should throw error if no credentials are given', ->
@@ -38,7 +42,11 @@ describe '#createEntry', ->
 
 describe '#ensureChannelByKey', ->
   beforeEach ->
-    @updater = new InventoryUpdater config: Config
+    @updater = new InventoryUpdater
+      config: Config
+      logConfig:
+        levelStream: 'error'
+        levelFile: 'error'
 
   it 'should return a promise', ->
     promise = @updater.ensureChannelByKey(@updater.rest, 'foo')
@@ -97,7 +105,11 @@ describe '#ensureChannelByKey', ->
 
 describe '#allInventoryEntries', ->
   beforeEach ->
-    @updater = new InventoryUpdater config: Config
+    @updater = new InventoryUpdater
+      config: Config
+      logConfig:
+        levelStream: 'error'
+        levelFile: 'error'
 
   it 'should return a promise', ->
     promise = @updater.allInventoryEntries(@updater.rest)
@@ -130,7 +142,11 @@ describe '#allInventoryEntries', ->
 
 describe '#initMatcher', ->
   beforeEach ->
-    @updater = new InventoryUpdater config: Config
+    @updater = new InventoryUpdater
+      config: Config
+      logConfig:
+        levelStream: 'error'
+        levelFile: 'error'
 
   it 'should return a promise', ->
     promise = @updater.initMatcher()
@@ -156,7 +172,11 @@ describe '#initMatcher', ->
 
 describe '#match', ->
   beforeEach ->
-    @updater = new InventoryUpdater config: Config
+    @updater = new InventoryUpdater
+      config: Config
+      logConfig:
+        levelStream: 'error'
+        levelFile: 'error'
 
   it 'should return entry based on sku', ->
     @updater.existingInventoryEntries = [{ id: 'channel123', sku: 'foo' }]
@@ -198,7 +218,11 @@ describe '#match', ->
 
 describe '#update', ->
   beforeEach ->
-    @updater = new InventoryUpdater config: Config
+    @updater = new InventoryUpdater
+      config: Config
+      logConfig:
+        levelStream: 'error'
+        levelFile: 'error'
 
   it 'should return a promise', ->
     spyOn(@updater.sync, 'buildActions').andReturn(@updater.sync)
@@ -242,7 +266,11 @@ describe '#update', ->
 
 describe '#create', ->
   beforeEach ->
-    @updater = new InventoryUpdater config: Config
+    @updater = new InventoryUpdater
+      config: Config
+      logConfig:
+        levelStream: 'error'
+        levelFile: 'error'
 
   it 'should return a promise', ->
     spyOn(@updater.rest, 'POST')
@@ -274,7 +302,11 @@ describe '#create', ->
 
 describe '#createOrUpdate', ->
   beforeEach ->
-    @updater = new InventoryUpdater config: Config
+    @updater = new InventoryUpdater
+      config: Config
+      logConfig:
+        levelStream: 'error'
+        levelFile: 'error'
 
   it 'should return if there are no inventory entries', ->
     spyOn(@updater, 'returnResult')

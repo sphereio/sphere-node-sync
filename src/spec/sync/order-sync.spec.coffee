@@ -24,7 +24,11 @@ describe 'OrderSync', ->
     expect(sync._actions).not.toBeDefined()
 
   it 'should initialize with options', ->
-    sync = new OrderSync config: Config
+    sync = new OrderSync
+      config: Config
+      logConfig:
+        levelStream: 'error'
+        levelFile: 'error'
     expect(sync).toBeDefined()
     expect(sync._rest).toBeDefined()
     expect(sync._rest._options.config).toEqual Config
@@ -37,7 +41,11 @@ describe 'OrderSync', ->
     it "should throw error if no '#{key}' is defined", ->
       opt = _.clone(Config)
       delete opt[key]
-      sync = -> new OrderSync config: opt
+      sync = -> new OrderSync
+        config: opt
+        logConfig:
+          levelStream: 'error'
+          levelFile: 'error'
       expect(sync).toThrow new Error("Missing '#{key}'")
 
 
@@ -64,7 +72,11 @@ describe 'OrderSync.buildActions', ->
 describe 'OrderSync.update', ->
 
   beforeEach ->
-    @sync = new OrderSync config: Config
+    @sync = new OrderSync
+      config: Config
+      logConfig:
+        levelStream: 'error'
+        levelFile: 'error'
 
   afterEach ->
     @sync = null

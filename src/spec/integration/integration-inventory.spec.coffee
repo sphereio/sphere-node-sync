@@ -11,7 +11,11 @@ jasmine.getEnv().defaultTimeoutInterval = 10000
 describe 'Integration test', ->
 
   beforeEach (done) ->
-    @sync = new InventorySync config: Config.staging
+    @sync = new InventorySync
+      config: Config.staging
+      logConfig:
+        levelStream: 'error'
+        levelFile: 'error'
     del = (id) =>
       deferred = Q.defer()
       @sync._rest.DELETE "/inventory/#{id}", (error, response, body) ->
