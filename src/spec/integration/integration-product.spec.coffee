@@ -9,6 +9,16 @@ product = require("../../models/product.json")
 # Increase timeout
 jasmine.getEnv().defaultTimeoutInterval = 10000
 
+getProductFromStaged = (product) ->
+  p = product.masterData.staged
+  # set product type to staged subset
+  p.productType = product.productType
+  # set id for matching and version for update
+  p.id = product.id
+  p.version = product.version
+  p
+
+
 describe "Integration test", ->
 
   beforeEach (done) ->
@@ -37,11 +47,7 @@ describe "Integration test", ->
     @sphereClient.productTypes.save(pt).then (productType) =>
       @newProduct.productType.id = productType.id
       @sphereClient.products.save(@newProduct).then (product) =>
-        @oldProduct = product.masterData.staged
-        @oldProduct.productType = product.productType # set product type to staged subset
-        # set id for matching and version for update
-        @oldProduct.id = product.id
-        @oldProduct.version = product.version
+        @oldProduct = getProductFromStaged product
         @newProduct.id = product.id
         done()
 
@@ -90,14 +96,7 @@ describe "Integration test", ->
           rates: []
         @sphereClient.taxCategories.save(tax).then (taxCategory2) =>
           @newProduct.taxCategory.id = taxCategory2.id
-
-          # TODO: provide method to extract compare data from products endpoint
-          @oldProduct = b.masterData.staged
-          @oldProduct.productType = b.productType # set product type to staged subset
-          # set id for matching and version for update
-          @oldProduct.id = b.id
-          @oldProduct.version = b.version
-
+          @oldProduct = getProductFromStaged b
           data = @sync.buildActions @newProduct, @oldProduct
           data.update (e, r, b) =>
             expect(r.statusCode).toBe 200
@@ -106,8 +105,8 @@ describe "Integration test", ->
             expect(b.taxCategory.id).toBe taxCategory2.id
 
     # deletion
+            @oldProduct = getProductFromStaged b
             @newProduct.taxCategory = null
-            @oldProduct.version = b.version
 
             data = @sync.buildActions @newProduct, @oldProduct
             data.update (e, r, b) ->
@@ -120,6 +119,37 @@ describe "Integration test", ->
       expect(true).toBe false
       done()
 
+  it 'should add, change and remove image', (done) ->
+    @newProduct.masterVariant.images = [
+      { url: '//example.com/image.png', dimensions: { h: 0, w: 0 } }
+    ]
+
+    # addition
+    data = @sync.buildActions @newProduct, @oldProduct
+    data.update (e, r, b) =>
+      expect(r.statusCode).toBe 200
+      expect(_.size b.masterData.staged.masterVariant.images).toBe 1
+      expect(b.masterData.staged.masterVariant.images[0].url).toBe '//example.com/image.png'
+
+    # change
+      @oldProduct = getProductFromStaged b
+      @newProduct.masterVariant.images = [
+        { url: '//example.com/CHANGED.png', dimensions: { h: 0, w: 0 } }
+      ]
+      data = @sync.buildActions @newProduct, @oldProduct
+      data.update (e, r, b) =>
+        expect(r.statusCode).toBe 200
+        expect(_.size b.masterData.staged.masterVariant.images).toBe 1
+        expect(b.masterData.staged.masterVariant.images[0].url).toBe '//example.com/CHANGED.png'
+
+    # deletion
+        @oldProduct = getProductFromStaged b
+        @newProduct.masterVariant.images = []
+        data = @sync.buildActions @newProduct, @oldProduct
+        data.update (e, r, b) ->
+          expect(r.statusCode).toBe 200
+          expect(_.size b.masterData.staged.masterVariant.images).toBe 0
+          done()
 
 describe "Integration test between projects", ->
 
