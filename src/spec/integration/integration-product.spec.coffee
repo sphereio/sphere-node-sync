@@ -132,9 +132,9 @@ describe 'Integration test', ->
               expect(b.taxCategory).toBeUndefined()
               done()
         .fail (msg) ->
-          done(msg)
+          done(JSON.stringify(msg))
     .fail (msg) ->
-      done(msg)
+      done(JSON.stringify(msg))
 
   it 'should add, change and remove image', (done) ->
     @newProduct.masterVariant.images = [
@@ -277,8 +277,8 @@ describe 'Integration test between projects', ->
         else
           errors.push result.reason
       if errors.length > 0
-        done(errors)
+        done(JSON.stringify(errors))
       else
         done()
     .fail (err) ->
-      done(err)
+      done(JSON.stringify(err))
