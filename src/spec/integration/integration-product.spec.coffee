@@ -1,7 +1,6 @@
 _ = require("underscore")._
 Q = require("q")
-Rest = require("sphere-node-connect").Rest
-OAuth2 = require("sphere-node-connect").OAuth2
+{Rest, OAuth2, Logger} = require("sphere-node-connect")
 SphereClient = require 'sphere-node-client'
 ProductSync = require("../../lib/sync/product-sync")
 Config = require('../../config').config
@@ -84,7 +83,7 @@ describe "Integration test", ->
         expect(b.taxCategory).toBeDefined()
         expect(b.taxCategory.typeId).toBe 'tax-category'
         expect(b.taxCategory.id).toBe taxCategory.id
-    
+
     # change
         tax =
           name: "myTax2-#{@unique}"
@@ -105,7 +104,7 @@ describe "Integration test", ->
             expect(b.taxCategory).toBeDefined()
             expect(b.taxCategory.typeId).toBe 'tax-category'
             expect(b.taxCategory.id).toBe taxCategory2.id
-    
+
     # deletion
             @newProduct.taxCategory = null
             @oldProduct.version = b.version
@@ -125,6 +124,7 @@ describe "Integration test", ->
 describe "Integration test between projects", ->
 
   beforeEach (done) ->
+    @logger = new Logger()
     getAuthToken = (config) ->
       d = Q.defer()
       oa = new OAuth2 config: config
@@ -151,7 +151,9 @@ describe "Integration test between projects", ->
     @sync = null
 
   it "should sync products with same SKU", (done) ->
-    triggerFail = (e)=> @fail new Error e.join("\n")
+    triggerFail = (e)=>
+      @logger.error e
+      done('Error when syncing SKU (see ./sphere-node-connect-debug.log)')
 
     getProducts = (rest) ->
       deferred = Q.defer()
