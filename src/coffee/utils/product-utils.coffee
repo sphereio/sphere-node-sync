@@ -241,7 +241,7 @@ class ProductUtils extends Utils
         actions.push action if action
         action = buildAddExternalImageAction old_variant, new_variant.images[key]
         actions.push action if action
-      if REGEX_UNDERSCORE_NUMBER.test key
+      else if REGEX_UNDERSCORE_NUMBER.test key
         index = key.substring(1)
         action = buildRemoveImageAction old_variant, old_variant.images[index]
         actions.push action if action
