@@ -177,6 +177,7 @@ describe "Integration test between projects", ->
       deferred.promise
 
     syncProducts = (sync, new_product, old_product) ->
+      new_product.categories = [] # categories can not be transformed by Id to another project.
       deferred = Q.defer()
       try
         sync.buildActions(new_product, old_product).update (e, r, b) ->
