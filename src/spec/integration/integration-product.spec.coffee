@@ -16,7 +16,7 @@ describe "Integration test", ->
     @sync = new ProductSync config: Config.prod
     @sphereClient = new SphereClient config: Config.prod
 
-    unique = new Date().getTime()
+    @unique = new Date().getTime()
     pt =
       name: 'myType'
       description: 'foo'
@@ -24,7 +24,7 @@ describe "Integration test", ->
       name:
         en: 'Foo'
       slug:
-        en: "foo-#{unique}"
+        en: "foo-#{@unique}"
       productType:
         typeId: 'product-type'
       # without all these default the syncer does not work!
@@ -66,6 +66,59 @@ describe "Integration test", ->
       expect(r.statusCode).toBe 200
       expect(b.masterData.staged.name.en).toBe "Hello"
       expect(b.masterData.staged.name.de).toBe "Hallo"
+      done()
+
+  it 'should add, update and delete tax category', (done) ->
+    tax =
+      name: "myTax-#{@unique}"
+      rates: []
+
+    # addition
+    @sphereClient.taxCategories.save(tax).then (taxCategory) =>
+      @newProduct.taxCategory =
+        typeId: 'tax-category'
+        id: taxCategory.id
+      data = @sync.buildActions @newProduct, @oldProduct
+      data.update (e, r, b) =>
+        expect(r.statusCode).toBe 200
+        expect(b.taxCategory).toBeDefined()
+        expect(b.taxCategory.typeId).toBe 'tax-category'
+        expect(b.taxCategory.id).toBe taxCategory.id
+    
+    # change
+        tax =
+          name: "myTax2-#{@unique}"
+          rates: []
+        @sphereClient.taxCategories.save(tax).then (taxCategory2) =>
+          @newProduct.taxCategory.id = taxCategory2.id
+
+          # TODO: provide method to extract compare data from products endpoint
+          @oldProduct = b.masterData.staged
+          @oldProduct.productType = b.productType # set product type to staged subset
+          # set id for matching and version for update
+          @oldProduct.id = b.id
+          @oldProduct.version = b.version
+
+          data = @sync.buildActions @newProduct, @oldProduct
+          data.update (e, r, b) =>
+            expect(r.statusCode).toBe 200
+            expect(b.taxCategory).toBeDefined()
+            expect(b.taxCategory.typeId).toBe 'tax-category'
+            expect(b.taxCategory.id).toBe taxCategory2.id
+    
+    # deletion
+            @newProduct.taxCategory = null
+            @oldProduct.version = b.version
+
+            data = @sync.buildActions @newProduct, @oldProduct
+            data.update (e, r, b) ->
+              expect(r.statusCode).toBe 200
+              expect(b.taxCategory).toBeUndefined()
+              done()
+
+    .fail (msg) ->
+      console.log msg
+      expect(true).toBe false
       done()
 
 
