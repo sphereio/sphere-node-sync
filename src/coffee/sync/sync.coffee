@@ -1,19 +1,24 @@
-_ = require("underscore")._
-Rest = require("sphere-node-connect").Rest
-Utils = require("../utils/utils")
+_ = require('underscore')._
+{Rest} = require 'sphere-node-connect'
+Logger = require '../logger'
+Utils = require '../utils/utils'
 
 ###
 Base Sync class
 ###
 class Sync
   constructor: (opts = {}) ->
+    @_logger = new Logger opts.logConfig
+
     unless _.isEmpty opts
       config = opts.config
       throw new Error("Missing credentials") unless config
       throw new Error("Missing 'client_id'") unless config.client_id
       throw new Error("Missing 'client_secret'") unless config.client_secret
       throw new Error("Missing 'project_key'") unless config.project_key
-      @_rest = new Rest opts
+      @_rest = new Rest _.extend opts,
+        logConfig:
+          logger: @_logger
 
     @_data = {}
     @_utils = new Utils
