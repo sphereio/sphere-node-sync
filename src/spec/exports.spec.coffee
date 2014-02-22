@@ -1,21 +1,18 @@
-ProductSync = require('../lib/main').ProductSync
-OrderSync = require('../lib/main').OrderSync
-InventorySync = require('../lib/main').InventorySync
-InventoryUpdater = require('../lib/main').InventoryUpdater
-CommonUpdater = require('../lib/main').CommonUpdater
+{ProductSync, OrderSync, InventorySync, InventoryUpdater, CommonUpdater} = require '../lib/main'
 
-describe "exports", ->
-  it "ProductSync", ->
+describe 'exports', ->
+
+  it 'ProductSync', ->
     expect(ProductSync).toBeDefined()
 
-  it "OrderSync", ->
+  it 'OrderSync', ->
     expect(OrderSync).toBeDefined()
 
-  it "InventorySync", ->
+  it 'InventorySync', ->
     expect(InventorySync).toBeDefined()
 
-  it "InventoryUpdater", ->
+  it 'InventoryUpdater', ->
     expect(InventoryUpdater).toBeDefined()
 
-  it "CommonUpdater", ->
+  it 'CommonUpdater', ->
     expect(CommonUpdater).toBeDefined()

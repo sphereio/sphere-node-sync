@@ -1,5 +1,5 @@
-_ = require("underscore")._
-jsondiffpatch = require("jsondiffpatch")
+_ = require('underscore')._
+jsondiffpatch = require 'jsondiffpatch'
 
 ###
 Base Utils class

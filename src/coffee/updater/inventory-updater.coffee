@@ -1,7 +1,7 @@
 _ = require('underscore')._
-Q = require('q')
-CommonUpdater = require('./common-updater')
-InventorySync = require('../sync/inventory-sync')
+Q = require 'q'
+CommonUpdater = require './common-updater'
+InventorySync = require '../sync/inventory-sync'
 
 ###
 (abstract) Inventory Updater class
@@ -16,7 +16,6 @@ class InventoryUpdater extends CommonUpdater
     @sync = new InventorySync opts
     @rest = @sync._rest
     @existingInventoryEntries = {}
-    @
 
   createInventoryEntry: (sku, quantity, expectedDelivery, channelId) ->
     entry =

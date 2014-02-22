@@ -1,16 +1,13 @@
-_ = require("underscore")._
-Rest = require("sphere-node-connect").Rest
-Sync = require("../sync/sync")
-helper = require("../helper")
+_ = require('underscore')._
+{Rest} = require 'sphere-node-connect'
+Sync = require '../sync/sync'
+helper = require '../helper'
 
 ###
 Inventory Sync class.
   Ensures that quantityOnStock and expectedDelivery is in sync.
 ###
 class InventorySync extends Sync
-  constructor: (opts = {}) ->
-    super(opts)
-    @
 
   _doMapActions: (diff, new_obj, old_obj) ->
     actions = []

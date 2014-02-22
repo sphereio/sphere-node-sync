@@ -1,6 +1,6 @@
-_ = require("underscore")._
+_ = require('underscore')._
 _.mixin deepClone: (obj) -> JSON.parse(JSON.stringify(obj))
-OrderUtils = require("../../lib/utils/order-utils")
+OrderUtils = require '../../lib/utils/order-utils'
 
 uniqueId = (prefix = '') ->
   "#{prefix}#{new Date().getTime()}"
@@ -9,10 +9,10 @@ uniqueId = (prefix = '') ->
 Match different order statuses
 ###
 ORDER =
-  id: "123"
-  orderState: "Open"
-  paymentState: "Pending"
-  shipmentState: "Pending"
+  id: '123'
+  orderState: 'Open'
+  paymentState: 'Pending'
+  shipmentState: 'Pending'
   lineItems: [
     productId: uniqueId 'p'
     name:
@@ -34,7 +34,7 @@ ORDER =
     currencyCode: 'EUR'
     centAmount: 999
   returnInfo: [
-    returnTrackingId: "bla blubb"
+    returnTrackingId: 'bla blubb'
     returnDate: new Date().toISOString()
     items: [
       {
@@ -64,7 +64,7 @@ ORDER =
     ]
   ]
 
-describe "OrderUtils.actionsMapStatusValues", ->
+describe 'OrderUtils.actionsMapStatusValues', ->
   beforeEach ->
     @utils = new OrderUtils
     @order = _.deepClone ORDER
@@ -73,25 +73,25 @@ describe "OrderUtils.actionsMapStatusValues", ->
     @utils = null
     @order = null
 
-  it "should return required actions for syncing status", ->
+  it 'should return required actions for syncing status', ->
     orderChanged = _.deepClone @order
-    orderChanged.orderState = "Complete"
-    orderChanged.paymentState = "Paid"
-    orderChanged.shipmentState = "Ready"
+    orderChanged.orderState = 'Complete'
+    orderChanged.paymentState = 'Paid'
+    orderChanged.shipmentState = 'Ready'
 
     delta = @utils.diff(@order, orderChanged)
     update = @utils.actionsMapStatusValues(delta, orderChanged)
 
     expected_update =
       [
-        { action: "changeOrderState", orderState: orderChanged.orderState }
-        { action: "changePaymentState", paymentState: orderChanged.paymentState }
-        { action: "changeShipmentState", shipmentState: orderChanged.shipmentState }
+        { action: 'changeOrderState', orderState: orderChanged.orderState }
+        { action: 'changePaymentState', paymentState: orderChanged.paymentState }
+        { action: 'changeShipmentState', shipmentState: orderChanged.shipmentState }
       ]
     expect(update).toEqual expected_update
 
 
-  it "should return required actions for syncing returnInfo", ->
+  it 'should return required actions for syncing returnInfo', ->
     @order = _.deepClone ORDER
     orderChanged = _.deepClone ORDER
 
@@ -102,36 +102,36 @@ describe "OrderUtils.actionsMapStatusValues", ->
     update = @utils.actionsMapReturnInfo(delta, orderChanged)
 
     action = _.deepClone orderChanged.returnInfo[0]
-    action["action"] = "addReturnInfo"
+    action['action'] = 'addReturnInfo'
 
     expect(update).toEqual [action]
 
-  it "should return required action for syncing shipmentState (returnInfo)", ->
+  it 'should return required action for syncing shipmentState (returnInfo)', ->
     orderChanged = _.deepClone @order
-    orderChanged.returnInfo[0].items[0].shipmentState = "Returned"
-    orderChanged.returnInfo[0].items[1].shipmentState = "Unusable"
+    orderChanged.returnInfo[0].items[0].shipmentState = 'Returned'
+    orderChanged.returnInfo[0].items[1].shipmentState = 'Unusable'
 
     delta = @utils.diff(@order, orderChanged)
     update = @utils.actionsMapReturnInfo(delta, orderChanged)
     expectedUpdate =
       [
         {
-          action: "setReturnShipmentState"
+          action: 'setReturnShipmentState'
           returnItemId: orderChanged.returnInfo[0].items[0].id
           shipmentState: orderChanged.returnInfo[0].items[0].shipmentState
         }
         {
-          action: "setReturnShipmentState"
+          action: 'setReturnShipmentState'
           returnItemId: orderChanged.returnInfo[0].items[1].id
           shipmentState: orderChanged.returnInfo[0].items[1].shipmentState
         }
       ]
     expect(update).toEqual expectedUpdate
 
-  it "should return required action for syncing paymentState (returnInfo)", ->
+  it 'should return required action for syncing paymentState (returnInfo)', ->
     orderChanged = _.deepClone @order
-    orderChanged.returnInfo[0].items[0].paymentState = "Refunded"
-    orderChanged.returnInfo[0].items[1].paymentState = "NotRefunded"
+    orderChanged.returnInfo[0].items[0].paymentState = 'Refunded'
+    orderChanged.returnInfo[0].items[1].paymentState = 'NotRefunded'
 
     delta = @utils.diff(@order, orderChanged)
 
@@ -139,24 +139,24 @@ describe "OrderUtils.actionsMapStatusValues", ->
     expectedUpdate =
       [
         {
-          action: "setReturnPaymentState"
+          action: 'setReturnPaymentState'
           returnItemId: orderChanged.returnInfo[0].items[0].id
           paymentState: orderChanged.returnInfo[0].items[0].paymentState
         }
         {
-          action: "setReturnPaymentState"
+          action: 'setReturnPaymentState'
           returnItemId: orderChanged.returnInfo[0].items[1].id
           paymentState: orderChanged.returnInfo[0].items[1].paymentState
         }
       ]
     expect(update).toEqual expectedUpdate
 
-  it "should return required actions for syncing returnInfo and shipmentState", ->
+  it 'should return required actions for syncing returnInfo and shipmentState', ->
     orderChanged = _.deepClone @order
 
     # add a 2nd returnInfo
     orderChanged.returnInfo.push
-      returnTrackingId: "bla blubb"
+      returnTrackingId: 'bla blubb'
       returnDate: new Date().toISOString()
       items: [{
         id: uniqueId 'ri'
@@ -184,24 +184,24 @@ describe "OrderUtils.actionsMapStatusValues", ->
       }]
 
     # change shipment status of existing returnInfo
-    orderChanged.returnInfo[0].items[0].shipmentState = "Returned"
-    orderChanged.returnInfo[0].items[1].shipmentState = "Unusable"
+    orderChanged.returnInfo[0].items[0].shipmentState = 'Returned'
+    orderChanged.returnInfo[0].items[1].shipmentState = 'Unusable'
 
     delta = @utils.diff(@order, orderChanged)
     update = @utils.actionsMapReturnInfo(delta, orderChanged)
 
     addAction = _.deepClone orderChanged.returnInfo[1]
-    addAction["action"] = "addReturnInfo"
+    addAction['action'] = 'addReturnInfo'
 
     expectedUpdate =
       [
         {
-          action: "setReturnShipmentState"
+          action: 'setReturnShipmentState'
           returnItemId: orderChanged.returnInfo[0].items[0].id
           shipmentState: orderChanged.returnInfo[0].items[0].shipmentState
         }
         {
-          action: "setReturnShipmentState"
+          action: 'setReturnShipmentState'
           returnItemId: orderChanged.returnInfo[0].items[1].id
           shipmentState: orderChanged.returnInfo[0].items[1].shipmentState
         }

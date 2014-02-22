@@ -1,7 +1,7 @@
 _ = require('underscore')._
-jsondiffpatch = require('jsondiffpatch')
-Utils = require('./utils')
-helper = require('../helper')
+jsondiffpatch = require 'jsondiffpatch'
+Utils = require './utils'
+helper = require '../helper'
 
 ###
 Order Utils class
@@ -34,9 +34,7 @@ class OrderUtils extends Utils
   @param {object} old_obj Order to be updated.
   @return list with actions
   ###
-  actionsMapDeliveries: (diff, old_obj) ->
-    actions = []
-
+  actionsMapDeliveries: (diff, old_obj) -> actions = []
 
   ###
   Create list of actions for syncing returnInfo items and returnInfo status values.
@@ -45,7 +43,6 @@ class OrderUtils extends Utils
   @return list with actions
   ###
   actionsMapReturnInfo: (diff, old_obj) ->
-
     actions = []
     returnInfoDiffs = diff['returnInfo']
     if returnInfoDiffs

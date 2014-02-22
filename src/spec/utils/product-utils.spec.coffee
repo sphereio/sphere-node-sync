@@ -1,41 +1,41 @@
-ProductUtils = require("../../lib/utils/product-utils")
+ProductUtils = require '../../lib/utils/product-utils'
 
 ###
 Match different product attributes and variant prices
 ###
 OLD_PRODUCT =
-  id: "123"
+  id: '123'
   name:
-    en: "SAPPHIRE"
-    de: "Hoo"
+    en: 'SAPPHIRE'
+    de: 'Hoo'
   slug:
-    en: "sapphire1366126441922"
+    en: 'sapphire1366126441922'
   description:
-    en: "Sample description"
+    en: 'Sample description'
   masterVariant:
     id: 1
     prices: [
-      { value: { currencyCode: "EUR", centAmount: 1 } }
-      { value: { currencyCode: "EUR", centAmount: 7 } }
+      { value: { currencyCode: 'EUR', centAmount: 1 } }
+      { value: { currencyCode: 'EUR', centAmount: 7 } }
     ]
   variants: [
     {
       id: 2
       prices: [
-        { value: { currencyCode: "USD", centAmount: 3 } }
+        { value: { currencyCode: 'USD', centAmount: 3 } }
       ]
     },
     {
       id: 3
       prices: [
-        { value: { currencyCode: "EUR", centAmount: 2100 }, country: 'DE' }
-        { value: { currencyCode: "EUR", centAmount: 2200 }, customerGroup: { id: "123", typeId: "customer-group" } }
+        { value: { currencyCode: 'EUR', centAmount: 2100 }, country: 'DE' }
+        { value: { currencyCode: 'EUR', centAmount: 2200 }, customerGroup: { id: '123', typeId: 'customer-group' } }
       ]
     },
     {
       id: 4
       prices: [
-        { value: { currencyCode: "YEN", centAmount: 7777 } }
+        { value: { currencyCode: 'YEN', centAmount: 7777 } }
       ]
     },
     {
@@ -44,31 +44,31 @@ OLD_PRODUCT =
     }
   ]
 NEW_PRODUCT =
-  id: "123"
+  id: '123'
   name:
-    en: "Foo"
-    it: "Boo"
+    en: 'Foo'
+    it: 'Boo'
   slug:
-    en: "foo"
-    it: "boo"
+    en: 'foo'
+    it: 'boo'
   masterVariant:
     id: 1
     prices: [
-      { value: { currencyCode: "EUR", centAmount: 2 } }
-      { value: { currencyCode: "USD", centAmount: 7 } }
+      { value: { currencyCode: 'EUR', centAmount: 2 } }
+      { value: { currencyCode: 'USD', centAmount: 7 } }
     ]
   variants: [
     {
       id: 2
       prices: [
-        { value: { currencyCode: "USD", centAmount: 3 } }
+        { value: { currencyCode: 'USD', centAmount: 3 } }
       ]
     },
     {
       id: 3
       prices: [
-        { value: { currencyCode: "EUR", centAmount: 2100 }, country: 'CH' }
-        { value: { currencyCode: "EUR", centAmount: 2200 }, customerGroup: { id: "987", typeId: "customer-group" } }
+        { value: { currencyCode: 'EUR', centAmount: 2100 }, country: 'CH' }
+        { value: { currencyCode: 'EUR', centAmount: 2200 }, customerGroup: { id: '987', typeId: 'customer-group' } }
       ]
     },
     {
@@ -78,13 +78,13 @@ NEW_PRODUCT =
     {
       id: 5
       prices: [
-        { value: { currencyCode: "EUR", centAmount: 999 } }
+        { value: { currencyCode: 'EUR', centAmount: 999 } }
       ]
     }
   ]
 
 OLD_VARIANT =
-  id: "123"
+  id: '123'
   masterVariant:
     id: 1
   variants: [
@@ -94,7 +94,7 @@ OLD_VARIANT =
   ]
 
 NEW_VARIANT =
-  id: "123"
+  id: '123'
   masterVariant:
     id: 1
   variants: [
@@ -107,30 +107,30 @@ NEW_VARIANT =
 Match all different attributes types
 ###
 OLD_ALL_ATTRIBUTES =
-  id: "123"
+  id: '123'
   masterVariant:
     id: 1
     attributes: [
-      { name: "foo", value: "bar" } # text
-      { name: "dog", value: {en: "Dog", de: "Hund"} } # ltext
-      { name: "num", value: 50 } # number
-      { name: "count", value: { label: "One", key: "one" } } # enum
-      { name: "size", value: { label: {en: "Size"}, key: "medium" } } # lenum
-      { name: "color", value: { label: {en: "Color"}, key: "red" } } # lenum
-      { name: "cost", value: { centAmount: 990, currencyCode: "EUR" } } # money
+      { name: 'foo', value: 'bar' } # text
+      { name: 'dog', value: {en: 'Dog', de: 'Hund'} } # ltext
+      { name: 'num', value: 50 } # number
+      { name: 'count', value: { label: 'One', key: 'one' } } # enum
+      { name: 'size', value: { label: {en: 'Size'}, key: 'medium' } } # lenum
+      { name: 'color', value: { label: {en: 'Color'}, key: 'red' } } # lenum
+      { name: 'cost', value: { centAmount: 990, currencyCode: 'EUR' } } # money
     ]
 NEW_ALL_ATTRIBUTES =
-  id: "123"
+  id: '123'
   masterVariant:
     id: 1
     attributes: [
-      { name: "foo", value: "qux" } # text
-      { name: "dog", value: {en: "Doggy", it: "Cane"} } # ltext
-      { name: "num", value: 100 } # number
-      { name: "count", value: "two" } # enum
-      { name: "size", value: "small" } # lenum
-      { name: "color", value: "blue" } # lenum
-      { name: "cost", value: { centAmount: 550, currencyCode: "EUR" } } # money
+      { name: 'foo', value: 'qux' } # text
+      { name: 'dog', value: {en: 'Doggy', it: 'Cane'} } # ltext
+      { name: 'num', value: 100 } # number
+      { name: 'count', value: 'two' } # enum
+      { name: 'size', value: 'small' } # lenum
+      { name: 'color', value: 'blue' } # lenum
+      { name: 'cost', value: { centAmount: 550, currencyCode: 'EUR' } } # money
     ]
 
 ###
@@ -141,9 +141,9 @@ EXISTING_ENUM_ATTRIBUTES =
   masterVariant:
     id: 1
     attributes: [
-      { name: 'count', value: { label: "My Key", key: 'myKey' } } # enum
-      { name: 'size', value: { label: { en: "Size" }, key: "big" } } # lenum
-      { name: 'color', value: { label: { de: "Farbe" }, key: "red" } } # lenum
+      { name: 'count', value: { label: 'My Key', key: 'myKey' } } # enum
+      { name: 'size', value: { label: { en: 'Size' }, key: 'big' } } # lenum
+      { name: 'color', value: { label: { de: 'Farbe' }, key: 'red' } } # lenum
     ]
 NEW_ENUM_ATTRIBUTES =
   id: 'enum-101'
@@ -159,25 +159,25 @@ NEW_ENUM_ATTRIBUTES =
 Match different attributes on variant level
 ###
 OLD_ATTRIBUTES =
-  id: "123"
+  id: '123'
   masterVariant:
     id: 1
     attributes: [
-      { name: "uid", value: "20063672" },
-      { name: "length", value: 160 },
-      { name: "wide", value: 85 },
-      { name: "bulkygoods", value: { label: "Ja", key: "YES" } },
-      { name: "ean", value: "20063672" }
+      { name: 'uid', value: '20063672' },
+      { name: 'length', value: 160 },
+      { name: 'wide', value: 85 },
+      { name: 'bulkygoods', value: { label: 'Ja', key: 'YES' } },
+      { name: 'ean', value: '20063672' }
     ]
   variants: [
     {
       id: 2
       attributes: [
-        { name: "uid", value: "20063672" },
-        { name: "length", value: 160 },
-        { name: "wide", value: 85 },
-        { name: "bulkygoods", value: { label: "Ja", key: "YES" } },
-        { name: "ean", value: "20063672" }
+        { name: 'uid', value: '20063672' },
+        { name: 'length', value: 160 },
+        { name: 'wide', value: 85 },
+        { name: 'bulkygoods', value: { label: 'Ja', key: 'YES' } },
+        { name: 'ean', value: '20063672' }
       ]
     },
     {
@@ -187,40 +187,40 @@ OLD_ATTRIBUTES =
     {
       id: 4
       attributes: [
-        { name: "uid", value: "1234567" },
-        { name: "length", value: 123 },
-        { name: "bulkygoods", value: { label: "Si", key: "SI" } }
+        { name: 'uid', value: '1234567' },
+        { name: 'length', value: 123 },
+        { name: 'bulkygoods', value: { label: 'Si', key: 'SI' } }
       ]
     }
   ]
 NEW_ATTRIBUTES =
-  id: "123"
+  id: '123'
   masterVariant:
     id: 1
     attributes: [
-      { name: "uid", value: "20063675" },
-      { name: "length", value: 160 },
-      { name: "wide", value: 10 },
-      { name: "bulkygoods", value: "NO" },
-      { name: "ean", value: "20063672" }
+      { name: 'uid', value: '20063675' },
+      { name: 'length', value: 160 },
+      { name: 'wide', value: 10 },
+      { name: 'bulkygoods', value: 'NO' },
+      { name: 'ean', value: '20063672' }
     ]
   variants: [
     {
       id: 2
       attributes: [
-        { name: "uid", value: "20055572" },
-        { name: "length", value: 333 },
-        { name: "wide", value: 33 },
-        { name: "bulkygoods", value: "YES" },
-        { name: "ean", value: "20063672" }
+        { name: 'uid', value: '20055572' },
+        { name: 'length', value: 333 },
+        { name: 'wide', value: 33 },
+        { name: 'bulkygoods', value: 'YES' },
+        { name: 'ean', value: '20063672' }
       ]
     },
     {
       id: 3
       attributes: [
-        { name: "uid", value: "00001" },
-        { name: "length", value: 500 },
-        { name: "bulkygoods", value: "SI" }
+        { name: 'uid', value: '00001' },
+        { name: 'length', value: 500 },
+        { name: 'bulkygoods', value: 'SI' }
       ]
     },
     {
@@ -233,46 +233,46 @@ NEW_ATTRIBUTES =
 Match different attributes that have the `SameForAll` constraint
 ###
 OLD_SAME_FOR_ALL_ATTRIBUTES =
-  id: "123"
+  id: '123'
   masterVariant:
     id: 1
     attributes: [
-      { name: "brand", value: "Awesome Shoes" }
+      { name: 'brand', value: 'Awesome Shoes' }
     ]
   variants: [
     {
       id: 2
       attributes: [
-        { name: "brand", value: "Awesome Shoes" },
+        { name: 'brand', value: 'Awesome Shoes' },
       ]
     },
     {
       id: 3
       attributes: [
-        { name: "brand", value: "Awesome Shoes" },
+        { name: 'brand', value: 'Awesome Shoes' },
       ]
     }
   ]
 
 
 NEW_SAME_FOR_ALL_ATTRIBUTES =
-  id: "123"
+  id: '123'
   masterVariant:
     id: 1
     attributes: [
-      { name: "brand", value: "Cool Shirts" }
+      { name: 'brand', value: 'Cool Shirts' }
     ]
   variants: [
     {
       id: 2
       attributes: [
-        { name: "brand", value: "Cool Shirts" },
+        { name: 'brand', value: 'Cool Shirts' },
       ]
     },
     {
       id: 3
       attributes: [
-        { name: "brand", value: "Cool Shirts" },
+        { name: 'brand', value: 'Cool Shirts' },
       ]
     }
   ]
@@ -281,11 +281,11 @@ NEW_SAME_FOR_ALL_ATTRIBUTES =
 Match different attributes that have `set` as base type
 ###
 OLD_SET_ATTRIBUTES =
-  id: "set123"
+  id: 'set123'
   masterVariant:
     id: 1
     attributes: [
-      { name: "colors", value: [
+      { name: 'colors', value: [
         { key: 'green', label: 'Green' }
         { key: 'red', label: 'Red' }
       ] }
@@ -294,7 +294,7 @@ OLD_SET_ATTRIBUTES =
     {
       id: 2
       attributes: [
-        { name: "colors", value: [
+        { name: 'colors', value: [
           { key: 'black', label: 'Black' }
           { key: 'white', label: 'White' }
         ] }
@@ -303,7 +303,7 @@ OLD_SET_ATTRIBUTES =
     {
       id: 3
       attributes: [
-        { name: "colors", value: [ { key: 'yellow', label: 'Yellow' } ] },
+        { name: 'colors', value: [ { key: 'yellow', label: 'Yellow' } ] },
       ]
     },
     {
@@ -313,17 +313,17 @@ OLD_SET_ATTRIBUTES =
   ]
 
 NEW_SET_ATTRIBUTES =
-  id: "set123"
+  id: 'set123'
   masterVariant:
     id: 1
     attributes: [
-      { name: "colors", value: [ 'pink', 'orange' ] }
+      { name: 'colors', value: [ 'pink', 'orange' ] }
     ]
   variants: [
     {
       id: 2
       attributes: [
-        { name: "colors", value: [ 'black', 'white' ] },
+        { name: 'colors', value: [ 'black', 'white' ] },
       ]
     },
     {
@@ -333,7 +333,7 @@ NEW_SET_ATTRIBUTES =
     {
       id: 4
       attributes: [
-        { name: "colors", value: [ 'gray' ] },
+        { name: 'colors', value: [ 'gray' ] },
       ]
     }
   ]
@@ -342,7 +342,7 @@ NEW_SET_ATTRIBUTES =
 Match images
 ###
 OLD_IMAGE_PRODUCT =
-  id: "123"
+  id: '123'
   masterVariant:
     id: 1
     images: []
@@ -350,21 +350,21 @@ OLD_IMAGE_PRODUCT =
     {
       id: 2
       images: [
-        { url: "//example.com/image.png", label: 'foo', dimensions: { x: 1024, y: 768 } }
+        { url: '//example.com/image.png', label: 'foo', dimensions: { x: 1024, y: 768 } }
       ]
     },
     {
       id: 3
       images: [
-        { url: "//example.com/image.png", label: 'foo', dimensions: { x: 1024, y: 768 } }
-        { url: "//example.com/image.png", label: 'foo', dimensions: { x: 1024, y: 768 } }
-        { url: "//example.com/image.png", label: 'foo', dimensions: { x: 1024, y: 768 } }
+        { url: '//example.com/image.png', label: 'foo', dimensions: { x: 1024, y: 768 } }
+        { url: '//example.com/image.png', label: 'foo', dimensions: { x: 1024, y: 768 } }
+        { url: '//example.com/image.png', label: 'foo', dimensions: { x: 1024, y: 768 } }
       ]
     },
     {
       id: 4
       images: [
-        { url: "//example.com/old.png", label: 'foo', dimensions: { x: 1024, y: 768 } }
+        { url: '//example.com/old.png', label: 'foo', dimensions: { x: 1024, y: 768 } }
       ]
     },
     {
@@ -373,7 +373,7 @@ OLD_IMAGE_PRODUCT =
     }
   ]
 NEW_IMAGE_PRODUCT =
-  id: "123"
+  id: '123'
   masterVariant:
     id: 1
     images: []
@@ -381,15 +381,15 @@ NEW_IMAGE_PRODUCT =
     {
       id: 2
       images: [
-        { url: "//example.com/image.png", label: 'foo', dimensions: { x: 1024, y: 768 } }
+        { url: '//example.com/image.png', label: 'foo', dimensions: { x: 1024, y: 768 } }
       ]
     },
     {
       id: 3
       images: [
-        { url: "//example.com/image.png", label: 'CHANGED', dimensions: { x: 1024, y: 768 } }
-        { url: "//example.com/image.png", label: 'foo', dimensions: { x: 400, y: 300 } }
-        { url: "//example.com/CHANGED.jpg", label: 'foo', dimensions: { x: 400, y: 300 } }
+        { url: '//example.com/image.png', label: 'CHANGED', dimensions: { x: 1024, y: 768 } }
+        { url: '//example.com/image.png', label: 'foo', dimensions: { x: 400, y: 300 } }
+        { url: '//example.com/CHANGED.jpg', label: 'foo', dimensions: { x: 400, y: 300 } }
       ]
     },
     {
@@ -399,62 +399,62 @@ NEW_IMAGE_PRODUCT =
     {
       id: 5
       images: [
-        { url: "//example.com/new.png", label: 'foo', dimensions: { x: 1024, y: 768 } }
+        { url: '//example.com/new.png', label: 'foo', dimensions: { x: 1024, y: 768 } }
       ]
     }
   ]
 
 
-describe "ProductUtils.diff", ->
+describe 'ProductUtils.diff', ->
   beforeEach ->
     @utils = new ProductUtils
 
-  it "should diff nothing", ->
-    delta = @utils.diff({id: "123"}, {id: "123"})
+  it 'should diff nothing', ->
+    delta = @utils.diff({id: '123'}, {id: '123'})
     expect(delta).not.toBeDefined()
 
-  it "should diff basic attributes (name, slug, description)", ->
+  it 'should diff basic attributes (name, slug, description)', ->
     OLD =
-      id: "123"
+      id: '123'
       name:
-        en: "Foo"
-        de: "Hoo"
+        en: 'Foo'
+        de: 'Hoo'
       slug:
-        en: "foo"
+        en: 'foo'
       description:
-        en: "Sample"
+        en: 'Sample'
     NEW =
-      id: "123"
+      id: '123'
       name:
-        en: "Boo"
+        en: 'Boo'
       slug:
-        en: "boo"
+        en: 'boo'
       description:
-        en: "Sample"
-        it: "Esempio"
+        en: 'Sample'
+        it: 'Esempio'
 
     delta = @utils.diff(OLD, NEW)
     expected_delta =
       name:
-        en: ["Foo", "Boo"]
-        de: ["Hoo", 0, 0 ]
+        en: ['Foo', 'Boo']
+        de: ['Hoo', 0, 0 ]
       slug:
-        en: ["foo", "boo"]
+        en: ['foo', 'boo']
       description:
-        it: ["Esempio"]
+        it: ['Esempio']
     expect(delta).toEqual expected_delta
 
-  it "should diff missing attribute", ->
+  it 'should diff missing attribute', ->
     delta = @utils.diff(OLD_PRODUCT, NEW_PRODUCT)
     expected_delta =
       name:
-        en: ["SAPPHIRE", "Foo"] # changed
-        de: ["Hoo", 0, 0 ]
-        it: ["Boo"]
+        en: ['SAPPHIRE', 'Foo'] # changed
+        de: ['Hoo', 0, 0 ]
+        it: ['Boo']
       slug:
-        en: ["sapphire1366126441922", "foo"]
-        it: ["boo"]
-      description: [en: "Sample description", 0, 0] # deleted
+        en: ['sapphire1366126441922', 'foo']
+        it: ['boo']
+      description: [en: 'Sample description', 0, 0] # deleted
       masterVariant:
         prices:
           0:
@@ -484,23 +484,23 @@ describe "ProductUtils.diff", ->
         _t: 'a'
     expect(delta).toEqual expected_delta
 
-  it "should diff different attribute types", ->
+  it 'should diff different attribute types', ->
     delta = @utils.diff(OLD_ALL_ATTRIBUTES, NEW_ALL_ATTRIBUTES)
     expected_delta =
       masterVariant:
         attributes:
-          0: { value: ["bar", "qux"] }
+          0: { value: ['bar', 'qux'] }
           1:
             value:
-              en: ["Dog", "Doggy"]
-              it: ["Cane"]
-              de: ["Hund", 0, 0]
+              en: ['Dog', 'Doggy']
+              it: ['Cane']
+              de: ['Hund', 0, 0]
           2: { value: [50, 100] }
-          3: { value: ["one", "two"] }
-          4: { value: ["medium", "small"] }
-          5: { value: ["red", "blue"] }
+          3: { value: ['one', 'two'] }
+          4: { value: ['medium', 'small'] }
+          5: { value: ['red', 'blue'] }
           6: { value: { centAmount: [990, 550] } }
-          _t: "a"
+          _t: 'a'
 
     expect(delta).toEqual expected_delta
 
@@ -509,13 +509,13 @@ describe "ProductUtils.diff", ->
     expected_delta =
       masterVariant:
         attributes:
-          1: { value: ["big","small"] }
-          _t: "a"
-          _2: [ { name: "color", value: "red"}, 0, 0 ]
+          1: { value: ['big','small'] }
+          _t: 'a'
+          _2: [ { name: 'color', value: 'red'}, 0, 0 ]
 
     expect(delta).toEqual expected_delta
 
-describe "ProductUtils.actionsMapAttributes", ->
+describe 'ProductUtils.actionsMapAttributes', ->
   beforeEach ->
     @utils = new ProductUtils
 
@@ -545,71 +545,71 @@ describe "ProductUtils.actionsMapAttributes", ->
     ]
     expect(update).toEqual expected_update
 
-  it "should build attribute actions", ->
+  it 'should build attribute actions', ->
     delta = @utils.diff(OLD_ATTRIBUTES, NEW_ATTRIBUTES)
     expected_delta =
       masterVariant:
         attributes:
-          0: { value: ["20063672", "20063675"] }
+          0: { value: ['20063672', '20063675'] }
           2: { value: [85, 10] }
-          3: { value: ["YES", "NO"] }
-          _t: "a"
+          3: { value: ['YES', 'NO'] }
+          _t: 'a'
       variants:
         0:
           attributes:
-            0: { value: ["20063672", "20055572"] }
+            0: { value: ['20063672', '20055572'] }
             1: { value: [160, 333] }
             2: { value: [85, 33] }
-            _t: "a"
+            _t: 'a'
         1:
           attributes:
-            0: [ { name: "uid", value: "00001" } ]
-            1: [ { name: "length", value: 500 } ]
-            2: [ { name: "bulkygoods", value: "SI"} ]
-            _t: "a"
+            0: [ { name: 'uid', value: '00001' } ]
+            1: [ { name: 'length', value: 500 } ]
+            2: [ { name: 'bulkygoods', value: 'SI'} ]
+            _t: 'a'
         2:
           attributes:
-            _t: "a"
-            _0: [ { name: "uid", value: "1234567" }, 0, 0 ]
-            _1: [ { name: "length", value: 123 }, 0, 0 ]
-            _2: [ { name: "bulkygoods", value: "SI" }, 0, 0 ]
-        _t: "a"
+            _t: 'a'
+            _0: [ { name: 'uid', value: '1234567' }, 0, 0 ]
+            _1: [ { name: 'length', value: 123 }, 0, 0 ]
+            _2: [ { name: 'bulkygoods', value: 'SI' }, 0, 0 ]
+        _t: 'a'
     expect(delta).toEqual expected_delta
 
     update = @utils.actionsMapAttributes(delta, NEW_ATTRIBUTES)
     expected_update =
       [
-        { action: "setAttribute", variantId: 1, name: "uid", value: "20063675" }
-        { action: "setAttribute", variantId: 1, name: "wide", value: 10 }
-        { action: "setAttribute", variantId: 1, name: "bulkygoods", value: "NO" }
-        { action: "setAttribute", variantId: 2, name: "uid", value: "20055572" }
-        { action: "setAttribute", variantId: 2, name: "length", value: 333 }
-        { action: "setAttribute", variantId: 2, name: "wide", value: 33 }
-        { action: "setAttribute", variantId: 3, name: "uid", value: "00001" }
-        { action: "setAttribute", variantId: 3, name: "length", value: 500 }
-        { action: "setAttribute", variantId: 3, name: "bulkygoods", value: "SI" }
-        { action: "setAttribute", variantId: 4, name: "uid", value: undefined }
-        { action: "setAttribute", variantId: 4, name: "length", value: undefined }
-        { action: "setAttribute", variantId: 4, name: "bulkygoods", value: undefined }
+        { action: 'setAttribute', variantId: 1, name: 'uid', value: '20063675' }
+        { action: 'setAttribute', variantId: 1, name: 'wide', value: 10 }
+        { action: 'setAttribute', variantId: 1, name: 'bulkygoods', value: 'NO' }
+        { action: 'setAttribute', variantId: 2, name: 'uid', value: '20055572' }
+        { action: 'setAttribute', variantId: 2, name: 'length', value: 333 }
+        { action: 'setAttribute', variantId: 2, name: 'wide', value: 33 }
+        { action: 'setAttribute', variantId: 3, name: 'uid', value: '00001' }
+        { action: 'setAttribute', variantId: 3, name: 'length', value: 500 }
+        { action: 'setAttribute', variantId: 3, name: 'bulkygoods', value: 'SI' }
+        { action: 'setAttribute', variantId: 4, name: 'uid', value: undefined }
+        { action: 'setAttribute', variantId: 4, name: 'length', value: undefined }
+        { action: 'setAttribute', variantId: 4, name: 'bulkygoods', value: undefined }
       ]
     expect(update).toEqual expected_update
 
-  it "should build attribute actions for all types", ->
+  it 'should build attribute actions for all types', ->
     delta = @utils.diff(OLD_ALL_ATTRIBUTES, NEW_ALL_ATTRIBUTES)
     update = @utils.actionsMapAttributes(delta, NEW_ALL_ATTRIBUTES)
     expected_update =
       [
-        { action: "setAttribute", variantId: 1, name: "foo", value: "qux" }
-        { action: "setAttribute", variantId: 1, name: "dog", value: {en: "Doggy", it: "Cane", de: undefined} }
-        { action: "setAttribute", variantId: 1, name: "num", value: 100 }
-        { action: "setAttribute", variantId: 1, name: "count", value: "two" }
-        { action: "setAttribute", variantId: 1, name: "size", value: "small" }
-        { action: "setAttribute", variantId: 1, name: "color", value: "blue" }
-        { action: "setAttribute", variantId: 1, name: "cost", value: { centAmount: 550, currencyCode: "EUR" } }
+        { action: 'setAttribute', variantId: 1, name: 'foo', value: 'qux' }
+        { action: 'setAttribute', variantId: 1, name: 'dog', value: {en: 'Doggy', it: 'Cane', de: undefined} }
+        { action: 'setAttribute', variantId: 1, name: 'num', value: 100 }
+        { action: 'setAttribute', variantId: 1, name: 'count', value: 'two' }
+        { action: 'setAttribute', variantId: 1, name: 'size', value: 'small' }
+        { action: 'setAttribute', variantId: 1, name: 'color', value: 'blue' }
+        { action: 'setAttribute', variantId: 1, name: 'cost', value: { centAmount: 550, currencyCode: 'EUR' } }
       ]
     expect(update).toEqual expected_update
 
-  it "should build attribute especially for (l)enum", ->
+  it 'should build attribute especially for (l)enum', ->
     delta = @utils.diff EXISTING_ENUM_ATTRIBUTES, NEW_ENUM_ATTRIBUTES
     update = @utils.actionsMapAttributes delta, NEW_ENUM_ATTRIBUTES
     expected_update =
@@ -619,7 +619,7 @@ describe "ProductUtils.actionsMapAttributes", ->
       ]
     expect(update).toEqual expected_update
 
-  it "should build setAttributeInAllVariants actions", ->
+  it 'should build setAttributeInAllVariants actions', ->
     delta = @utils.diff OLD_SAME_FOR_ALL_ATTRIBUTES, NEW_SAME_FOR_ALL_ATTRIBUTES
     update = @utils.actionsMapAttributes delta, NEW_SAME_FOR_ALL_ATTRIBUTES, ['brand']
     expected_update =

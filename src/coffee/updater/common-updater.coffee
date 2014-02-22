@@ -13,14 +13,12 @@ class CommonUpdater
     if options.logentries_token
       @log = logentries.logger token: options.logentries_token
     @showProgressBar = options.show_progress
-    @
 
   initProgressBar: (title, size) ->
     if @showProgressBar
       @bar = new ProgressBar "#{title} [:bar] :current/:total (= :percent) done", { width: 80, total: size }
 
-  tickProgress: ->
-    @bar.tick() if @bar
+  tickProgress: -> @bar.tick() if @bar
 
   returnResult: (isPositive, message, callback) ->
     @bar.terminate() if @bar
@@ -34,7 +32,7 @@ class CommonUpdater
           summary[msg] = summary[msg] + 1
         message = summary
     retVal =
-      component: this.constructor.name
+      component: @constructor.name
       status: isPositive
       message: message
     if @log

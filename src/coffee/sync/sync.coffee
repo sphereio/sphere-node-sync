@@ -12,17 +12,16 @@ class Sync
 
     unless _.isEmpty opts
       config = opts.config
-      throw new Error("Missing credentials") unless config
-      throw new Error("Missing 'client_id'") unless config.client_id
-      throw new Error("Missing 'client_secret'") unless config.client_secret
-      throw new Error("Missing 'project_key'") unless config.project_key
+      throw new Error('Missing credentials') unless config
+      throw new Error('Missing \'client_id\'') unless config.client_id
+      throw new Error('Missing \'client_secret\'') unless config.client_secret
+      throw new Error('Missing \'project_key\'') unless config.project_key
       @_rest = new Rest _.extend opts,
         logConfig:
           logger: @_logger
 
     @_data = {}
     @_utils = new Utils
-    @
 
   buildActions: (new_obj, old_obj) ->
     # diff 'em
@@ -37,12 +36,13 @@ class Sync
     @_data =
       update: update
       updateId: old_obj.id
-    @
+    this
 
-  get: (key = "update") -> @_data[key]
+  get: (key = 'update') -> @_data[key]
 
   update: (callback) ->
-    throw new Error("Cannot update: the Rest connector wasn't instantiated (probabily because of missing credentials)") unless @_rest
+    unless @_rest
+      throw new Error('Cannot update: the Rest connector wasn\'t instantiated (probabily because of missing credentials)')
     unless _.isEmpty @_data.update
       @_doUpdate(callback)
     else

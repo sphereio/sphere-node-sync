@@ -1,7 +1,7 @@
-_ = require("underscore")._
-Rest = require("sphere-node-connect").Rest
-Sync = require("../sync/sync")
-ProductUtils = require("../utils/product-utils")
+_ = require('underscore')._
+{Rest} = require 'sphere-node-connect'
+Sync = require '../sync/sync'
+ProductUtils = require '../utils/product-utils'
 
 ###
 Product Sync class
@@ -11,7 +11,6 @@ class ProductSync extends Sync
     super(opts)
     # Override base utils
     @_utils = new ProductUtils
-    @
 
   buildActions: (new_obj, old_obj, sameForAllAttributeNames = []) ->
     @sameForAllAttributeNames = sameForAllAttributeNames

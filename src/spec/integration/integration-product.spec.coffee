@@ -1,10 +1,10 @@
-_ = require("underscore")._
-Q = require("q")
-{Rest, OAuth2, Logger} = require("sphere-node-connect")
+_ = require('underscore')._
+Q = require 'q'
+{Rest, OAuth2, Logger} = require 'sphere-node-connect'
 SphereClient = require 'sphere-node-client'
-ProductSync = require("../../lib/sync/product-sync")
+ProductSync = require '../../lib/sync/product-sync'
 Config = require('../../config').config
-product = require("../../models/product.json")
+product = require '../../models/product.json'
 
 # Increase timeout
 jasmine.getEnv().defaultTimeoutInterval = 10000
@@ -18,8 +18,7 @@ getProductFromStaged = (product) ->
   p.version = product.version
   p
 
-
-describe "Integration test", ->
+describe 'Integration test', ->
 
   beforeEach (done) ->
     @sync = new ProductSync config: Config.prod
@@ -64,13 +63,13 @@ describe "Integration test", ->
       done()
 
   it 'should update name', (done) ->
-    @newProduct.name.en = "Hello"
-    @newProduct.name.de = "Hallo"
+    @newProduct.name.en = 'Hello'
+    @newProduct.name.de = 'Hallo'
     data = @sync.buildActions @newProduct, @oldProduct
     data.update (e, r, b) ->
       expect(r.statusCode).toBe 200
-      expect(b.masterData.staged.name.en).toBe "Hello"
-      expect(b.masterData.staged.name.de).toBe "Hallo"
+      expect(b.masterData.staged.name.en).toBe 'Hello'
+      expect(b.masterData.staged.name.de).toBe 'Hallo'
       done()
 
   it 'should add, update and delete tax category', (done) ->
@@ -151,7 +150,7 @@ describe "Integration test", ->
           expect(_.size b.masterData.staged.masterVariant.images).toBe 0
           done()
 
-describe "Integration test between projects", ->
+describe 'Integration test between projects', ->
 
   beforeEach (done) ->
     @logger = new Logger()
@@ -180,14 +179,14 @@ describe "Integration test between projects", ->
     @restProd = null
     @sync = null
 
-  it "should sync products with same SKU", (done) ->
+  it 'should sync products with same SKU', (done) ->
     triggerFail = (e)=>
       @logger.error e
       done('Error when syncing SKU (see ./sphere-node-connect-debug.log)')
 
     getProducts = (rest) ->
       deferred = Q.defer()
-      rest.GET "/product-projections?staged=true", (error, response, body) ->
+      rest.GET '/product-projections?staged=true', (error, response, body) ->
         if response.statusCode is 200
           deferred.resolve body.results
         else
@@ -232,7 +231,7 @@ describe "Integration test between projects", ->
         # 'results' is an array of result objects like
         # {state: "fulfilled", value: resolvedValue}
         # {state: "rejected", reason: rejectedError}
-        if response.state is "fulfilled"
+        if response.state is 'fulfilled'
           resolver = response.value
           stagingProd = _.first(resolver.results)
           # sync only if product is found on staging
@@ -242,7 +241,7 @@ describe "Integration test between projects", ->
     ).then((results) ->
       errors = []
       _.each results, (result) ->
-        if result.state is "fulfilled"
+        if result.state is 'fulfilled'
           expect(result.value).toBe true
         else
           errors.push result.reason

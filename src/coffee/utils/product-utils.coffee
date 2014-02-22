@@ -1,7 +1,8 @@
-_ = require("underscore")._
-jsondiffpatch = require("jsondiffpatch")
-Utils = require("./utils")
-helper = require("../helper")
+_ = require('underscore')._
+_.mixin deepClone: (obj) -> JSON.parse(JSON.stringify(obj))
+jsondiffpatch = require 'jsondiffpatch'
+Utils = require './utils'
+helper = require '../helper'
 
 ###
 Product Utils class
@@ -12,9 +13,10 @@ class ProductUtils extends Utils
   REGEX_UNDERSCORE_NUMBER = new RegExp /^\_\d+$/
 
   allVariants = (product) ->
-    product.masterVariant or= {}
-    product.variants or= []
-    [product.masterVariant].concat product.variants
+    {masterVariant, variants} = _.defaults product,
+      masterVariant: {}
+      variants: []
+    _.union [masterVariant], variants
 
   diff: (old_obj, new_obj) ->
     # patch 'prices' to have an identifier in order for the diff
@@ -29,8 +31,7 @@ class ProductUtils extends Utils
     patchPrices(old_obj)
     patchPrices(new_obj)
 
-    isEnum = (value) ->
-      _.has(value, 'key') and _.has(value, 'label')
+    isEnum = (value) -> _.has(value, 'key') and _.has(value, 'label')
 
     # setting an lenum via the API support only to set the key of the enum.
     # Thus we delete the original value (containing key and label) and set
@@ -67,7 +68,7 @@ class ProductUtils extends Utils
     _.each actionsList(), (item) ->
       key = item.key
       action = switch key
-        when "name", "slug", "description"
+        when 'name', 'slug', 'description'
           obj = diff[key]
           if obj
             updated = {}
@@ -79,7 +80,7 @@ class ProductUtils extends Utils
                 value = helper.getDeltaValue(obj[k])
                 updated[k] = value
             # extend values of original object so that the new value is saved
-            old = _.clone old_obj[key]
+            old = _.deepClone old_obj[key]
             _.extend old, updated
             a =
               action: item.action
@@ -90,7 +91,7 @@ class ProductUtils extends Utils
             a
       actions.push action if action
     actions
-    
+
   actionsMapVariants: (diff, old_obj, new_obj) ->
     actions = []
     if diff.variants
@@ -276,16 +277,16 @@ module.exports = ProductUtils
 actionsList = ->
   [
     {
-      action: "changeName"
-      key: "name"
+      action: 'changeName'
+      key: 'name'
     },
     {
-      action: "changeSlug"
-      key: "slug"
+      action: 'changeSlug'
+      key: 'slug'
     },
     {
-      action: "setDescription"
-      key: "description"
+      action: 'setDescription'
+      key: 'description'
     }
     # TODO: meta attributes
   ]
@@ -295,7 +296,7 @@ buildRemovePriceAction = (variant, index) ->
   if price
     delete price._id
     action =
-      action: "removePrice"
+      action: 'removePrice'
       variantId: variant.id
       price: price
   action
@@ -305,7 +306,7 @@ buildAddPriceAction = (variant, index) ->
   if price
     delete price._id
     action =
-      action: "addPrice"
+      action: 'addPrice'
       variantId: variant.id
       price: price
   action
@@ -331,7 +332,7 @@ buildSetAttributeAction = (diffed_value, variant, index, sameForAllAttributeName
   attribute = variant.attributes[index]
   if attribute
     action =
-      action: "setAttribute"
+      action: 'setAttribute'
       variantId: variant.id
       name: attribute.name
 

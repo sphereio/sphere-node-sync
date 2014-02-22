@@ -1,13 +1,13 @@
-_ = require("underscore")._
-Utils = require("../../lib/utils/utils")
+_ = require('underscore')._
+Utils = require '../../lib/utils/utils'
 
-describe "Utils", ->
+describe 'Utils', ->
 
-  it "should initialize", ->
+  it 'should initialize', ->
     utils = new Utils
     expect(utils).toBeDefined()
 
-describe "Utils.diff", ->
+describe 'Utils.diff', ->
 
   beforeEach ->
     @utils = new Utils
@@ -15,6 +15,6 @@ describe "Utils.diff", ->
   afterEach ->
     @utils = null
 
-  it "should return diffed object", ->
-    d = @utils.diff({foo: "bar"}, {foo: "baz"})
-    expect(d).toEqual foo: ["bar", "baz"]
+  it 'should return diffed object', ->
+    d = @utils.diff({foo: 'bar'}, {foo: 'baz'})
+    expect(d).toEqual foo: ['bar', 'baz']

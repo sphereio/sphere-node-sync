@@ -1,14 +1,14 @@
-_ = require("underscore")._
-Q = require('q')
-InventorySync = require("../../lib/sync/inventory-sync")
+_ = require('underscore')._
+Q = require 'q'
+{Rest} = require 'sphere-node-connect'
+InventorySync = require '../../lib/sync/inventory-sync'
 Config = require('../../config').config
-order = require("../../models/order.json")
-Rest = require("sphere-node-connect").Rest
+order = require '../../models/order.json'
 
 # Increase timeout
 jasmine.getEnv().defaultTimeoutInterval = 10000
 
-describe "Integration test", ->
+describe 'Integration test', ->
 
   beforeEach (done) ->
     @sync = new InventorySync config: Config.staging
@@ -38,14 +38,14 @@ describe "Integration test", ->
         console.log err
         expect(false).toBe true
 
-  it "should update inventory entry", (done) ->
+  it 'should update inventory entry', (done) ->
     ie =
       sku: '123'
       quantityOnStock: 3
     ieChanged =
       sku: '123'
       quantityOnStock: 7
-    @sync._rest.POST "/inventory", JSON.stringify(ie), (error, response, body) =>
+    @sync._rest.POST '/inventory', JSON.stringify(ie), (error, response, body) =>
       expect(error).toBeNull()
       expect(response.statusCode).toBe 201
       @sync.buildActions(ieChanged, body).update (error, response, body) ->
@@ -54,7 +54,7 @@ describe "Integration test", ->
         expect(body.quantityOnStock).toBe 7
         done()
 
-  it "should add expectedDelivery date", (done) ->
+  it 'should add expectedDelivery date', (done) ->
     ie =
       sku: 'x1'
       quantityOnStock: 3
@@ -62,7 +62,7 @@ describe "Integration test", ->
       sku: 'x1'
       quantityOnStock: 7
       expectedDelivery: '2000-01-01T01:01:01'
-    @sync._rest.POST "/inventory", JSON.stringify(ie), (error, response, body) =>
+    @sync._rest.POST '/inventory', JSON.stringify(ie), (error, response, body) =>
       expect(error).toBeNull()
       expect(response.statusCode).toBe 201
       @sync.buildActions(ieChanged, body).update (error, response, body) ->
@@ -72,7 +72,7 @@ describe "Integration test", ->
         expect(body.expectedDelivery).toBe '2000-01-01T01:01:01.000Z'
         done()
 
-  it "should update expectedDelivery date", (done) ->
+  it 'should update expectedDelivery date', (done) ->
     ie =
       sku: 'x2'
       quantityOnStock: 3
@@ -81,7 +81,7 @@ describe "Integration test", ->
       sku: 'x2'
       quantityOnStock: 3
       expectedDelivery: '2000-01-01T01:01:01.000Z'
-    @sync._rest.POST "/inventory", JSON.stringify(ie), (error, response, body) =>
+    @sync._rest.POST '/inventory', JSON.stringify(ie), (error, response, body) =>
       expect(error).toBeNull()
       expect(response.statusCode).toBe 201
       @sync.buildActions(ieChanged, body).update (error, response, body) ->
@@ -91,7 +91,7 @@ describe "Integration test", ->
         expect(body.expectedDelivery).toBe '2000-01-01T01:01:01.000Z'
         done()
 
-  it "should remove expectedDelivery date", (done) ->
+  it 'should remove expectedDelivery date', (done) ->
     ie =
       sku: 'x3'
       quantityOnStock: 3
@@ -99,7 +99,7 @@ describe "Integration test", ->
     ieChanged =
       sku: 'x3'
       quantityOnStock: 3
-    @sync._rest.POST "/inventory", JSON.stringify(ie), (error, response, body) =>
+    @sync._rest.POST '/inventory', JSON.stringify(ie), (error, response, body) =>
       expect(error).toBeNull()
       expect(response.statusCode).toBe 201
       @sync.buildActions(ieChanged, body).update (error, response, body) ->

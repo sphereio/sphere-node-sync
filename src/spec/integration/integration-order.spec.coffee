@@ -1,15 +1,15 @@
-_ = require("underscore")._
+_ = require('underscore')._
 _.mixin deepClone: (obj) -> JSON.parse(JSON.stringify(obj))
-Q = require('q')
-Rest = require("sphere-node-connect").Rest
-OrderSync = require("../../lib/sync/order-sync")
+Q = require 'q'
+{Rest} = require 'sphere-node-connect'
+OrderSync = require '../../lib/sync/order-sync'
 Config = require('../../config').config
-order = require("../../models/order.json")
+order = require '../../models/order.json'
 
 # Increase timeout
 jasmine.getEnv().defaultTimeoutInterval = 10000
 
-describe "Integration test", ->
+describe 'Integration test', ->
 
   beforeEach (done) ->
     @sync = new OrderSync config: Config.staging
@@ -42,12 +42,12 @@ describe "Integration test", ->
       @productType = null
       @order = null
 
-  it "should update an order", (done) ->
+  it 'should update an order', (done) ->
     orderNew = _.deepClone @order
 
-    orderNew.orderState = "Complete"
-    orderNew.paymentState = "Paid"
-    orderNew.shipmentState = "Ready"
+    orderNew.orderState = 'Complete'
+    orderNew.paymentState = 'Paid'
+    orderNew.shipmentState = 'Ready'
 
     @sync.buildActions(orderNew, @order).update (error, response, body) ->
       expect(response.statusCode).toBe 200
@@ -59,7 +59,7 @@ describe "Integration test", ->
       expect(orderUpdated.shipmentState).toBe orderNew.shipmentState
       done()
 
-  it "should sync returnInfo", (done) ->
+  it 'should sync returnInfo', (done) ->
     orderNew = _.deepClone @order
 
     orderNew.returnInfo.push
@@ -81,11 +81,11 @@ describe "Integration test", ->
 
       done()
 
-  it "should sync returnInfo status", (done) ->
+  it 'should sync returnInfo status', (done) ->
     orderNew = _.deepClone @order
 
     orderNew.returnInfo.push
-      returnTrackingId: "bla blubb"
+      returnTrackingId: 'bla blubb'
       returnDate: new Date()
       items: [{
         quantity: 1

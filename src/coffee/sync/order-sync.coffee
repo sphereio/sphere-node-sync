@@ -1,7 +1,7 @@
-_ = require("underscore")._
-Rest = require("sphere-node-connect").Rest
-Sync = require("../sync/sync")
-OrderUtils = require("../utils/order-utils")
+_ = require('underscore')._
+{Rest} = require 'sphere-node-connect'
+Sync = require '../sync/sync'
+OrderUtils = require '../utils/order-utils'
 
 ###
 Order Sync class
@@ -11,7 +11,6 @@ class OrderSync extends Sync
     super(opts)
     # Override base utils
     @_utils = new OrderUtils
-    @
 
   _doMapActions: (diff, new_obj, old_obj) ->
     actionsStatus = @_utils.actionsMapStatusValues(diff, old_obj)
