@@ -2,6 +2,7 @@ _ = require("underscore")._
 Q = require("q")
 Rest = require("sphere-node-connect").Rest
 OAuth2 = require("sphere-node-connect").OAuth2
+SphereClient = require 'sphere-node-client'
 ProductSync = require("../../lib/sync/product-sync")
 Config = require('../../config').config
 product = require("../../models/product.json")
@@ -9,109 +10,63 @@ product = require("../../models/product.json")
 # Increase timeout
 jasmine.getEnv().defaultTimeoutInterval = 10000
 
-# TODO do not rely on existing data: import/delete for a test case
-xdescribe "Integration test", ->
-  PRODUCT_ID = "79339393-6f12-4caf-b357-12b51b89bbcc"
+describe "Integration test", ->
 
-  beforeEach ->
+  beforeEach (done) ->
     @sync = new ProductSync config: Config.prod
+    @sphereClient = new SphereClient config: Config.prod
 
-  afterEach ->
-    @sync = null
-
-  it "should get products", (done) ->
-    @sync._rest.GET "/product-projections/#{PRODUCT_ID}?staged=true", (error, response, body) ->
-      expect(response.statusCode).toBe 200
-      expect(body).toBeDefined()
-      expect(body.id).PRODUCT_ID
-      done()
-
-  it "should return 404 if product is not found", (done) ->
-    @sync._rest.GET "/product-projections/123", (error, response, body) ->
-      expect(response.statusCode).toBe 404
-      done()
-
-  it "should update a product", (done) ->
-    timestamp = new Date().getTime()
-    NEW_PRODUCT =
-      id: product.id
-      name: product.name
-      description: product.description
+    unique = new Date().getTime()
+    pt =
+      name: 'myType'
+      description: 'foo'
+    @newProduct =
+      name:
+        en: 'Foo'
       slug:
-        en: "integration-sync-#{timestamp}"
-    callMe = (e, r, b) ->
-      expect(r.statusCode).toBe 200
-      console.error b unless r.statusCode is 200
-      expect(b).toBeDefined()
-      done()
-    @sync._rest.GET "/product-projections/#{PRODUCT_ID}?staged=true", (error, response, body)=>
-      expect(response.statusCode).toBe 200
-      console.error body unless response.statusCode is 200
-      old_product = body
-      @sync.buildActions(NEW_PRODUCT, old_product).update(callMe)
-
-  it "should update a product with different prices", (done) ->
-    timestamp = new Date().getTime()
-    NEW_PRODUCT =
-      id: product.id
-      name: product.name
-      description: product.description
-      slug: product.slug
+        en: "foo-#{unique}"
+      productType:
+        typeId: 'product-type'
+      # without all these default the syncer does not work!
+      categories: []
       masterVariant:
         id: 1
-        prices: [
-          {
-            value:
-              currencyCode: "EUR"
-              centAmount: timestamp
-          },
-          {
-            value:
-              currencyCode: "EUR"
-              centAmount: timestamp
-            country: "DE"
-          }
-        ]
         attributes: []
-      variants: [
-        {
-          id: 2
-          prices: [
-            {
-              value:
-                currencyCode: "EUR"
-                centAmount: timestamp
-            },
-            {
-              value:
-                currencyCode: "EUR"
-                centAmount: 10000
-              customerGroup:
-                typeId: "customer-group"
-                id: "984a64de-24a4-42c0-868b-da7abfe1c5f6"
-            },
-            {
-              value:
-                currencyCode: "EUR"
-                centAmount: timestamp
-              customerGroup:
-                typeId: "customer-group"
-                id: "59c64f80-6472-474e-b5be-dc57b45b2faf"
-            }
-          ]
-          attributes: []
-        }
-      ]
-    callMe = (e, r, b) ->
-      expect(r.statusCode).toBe 200
-      console.error b unless r.statusCode is 200
-      expect(b).toBeDefined()
+        prices: []
+        images: []
+
+    @sphereClient.productTypes.save(pt).then (productType) =>
+      @newProduct.productType.id = productType.id
+      @sphereClient.products.save(@newProduct).then (product) =>
+        @oldProduct = product.masterData.staged
+        @oldProduct.productType = product.productType # set product type to staged subset
+        # set id for matching and version for update
+        @oldProduct.id = product.id
+        @oldProduct.version = product.version
+        @newProduct.id = product.id
+        done()
+
+    .fail (msg) ->
+      console.log msg
+      expect(true).toBe false
       done()
-    @sync._rest.GET "/product-projections/#{PRODUCT_ID}?staged=true", (error, response, body)=>
-      expect(response.statusCode).toBe 200
-      console.error body unless response.statusCode is 200
-      old_product = body
-      @sync.buildActions(NEW_PRODUCT, old_product).update(callMe)
+
+
+  it 'should not update minimum product', (done) ->
+    data = @sync.buildActions @newProduct, @oldProduct
+    data.update (e, r, b) ->
+      expect(r.statusCode).toBe 304
+      done()
+
+  it 'should update name', (done) ->
+    @newProduct.name.en = "Hello"
+    @newProduct.name.de = "Hallo"
+    data = @sync.buildActions @newProduct, @oldProduct
+    data.update (e, r, b) ->
+      expect(r.statusCode).toBe 200
+      expect(b.masterData.staged.name.en).toBe "Hello"
+      expect(b.masterData.staged.name.de).toBe "Hallo"
+      done()
 
 
 describe "Integration test between projects", ->
@@ -211,5 +166,5 @@ describe "Integration test between projects", ->
       else
         done()
     ).fail (err) ->
-      console.log "Error: %j", err
+      console.log "Error: %j", errors
       triggerFail [err]
