@@ -1,7 +1,6 @@
 _ = require('underscore')._
 _.mixin deepClone: (obj) -> JSON.parse(JSON.stringify(obj))
 Q = require 'q'
-{Rest} = require 'sphere-node-connect'
 OrderSync = require '../../lib/sync/order-sync'
 Config = require('../../config').config
 order = require '../../models/order.json'

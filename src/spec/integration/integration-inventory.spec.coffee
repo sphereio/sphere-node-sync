@@ -1,6 +1,5 @@
 _ = require('underscore')._
 Q = require 'q'
-{Rest} = require 'sphere-node-connect'
 InventorySync = require '../../lib/sync/inventory-sync'
 Config = require('../../config').config
 order = require '../../models/order.json'

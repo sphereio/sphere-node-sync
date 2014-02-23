@@ -1,6 +1,7 @@
 _ = require('underscore')._
 Q = require 'q'
-{Rest, OAuth2, Logger} = require 'sphere-node-connect'
+{Rest, OAuth2} = require 'sphere-node-connect'
+Logger = require '../../lib/logger'
 ProductSync = require '../../lib/sync/product-sync'
 Config = require('../../config').config
 product = require '../../models/product.json'
@@ -171,13 +172,16 @@ describe 'Integration test', ->
 describe 'Integration test between projects', ->
 
   beforeEach (done) ->
+    logger = new Logger
+      levelStream: 'error'
+      levelFile: 'error'
+
     getAuthToken = (config) ->
       d = Q.defer()
       oa = new OAuth2
         config: config
         logConfig:
-          levelStream: 'error'
-          levelFile: 'error'
+          logger: logger
       oa.getAccessToken (error, response, body) ->
         if body
           optionsApi = _.clone(config)
@@ -188,24 +192,22 @@ describe 'Integration test between projects', ->
       d.promise
 
     allAuthTokens = Q.all [getAuthToken(Config.staging), getAuthToken(Config.prod)]
-    allAuthTokens.spread((staging, prod)=>
+    allAuthTokens.spread (staging, prod)=>
       @restStaging = new Rest
         config: staging
         logConfig:
-          levelStream: 'error'
-          levelFile: 'error'
+          logger: logger
       @restProd = new Rest
         config: prod
         logConfig:
-          levelStream: 'error'
-          levelFile: 'error'
+          logger: logger
       @sync = new ProductSync
         config: staging
         logConfig:
           levelStream: 'error'
           levelFile: 'error'
       done()
-    ).fail (err) -> done(err)
+    .fail (err) -> done(err)
 
   afterEach ->
     @restStaging = null
