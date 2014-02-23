@@ -20,12 +20,14 @@ class Sync
         logConfig:
           logger: @_logger
 
+    @_logger.debug "New #{@constructor.name} object"
     @_data = {}
     @_utils = new Utils
 
   buildActions: (new_obj, old_obj) ->
     # diff 'em
     diff = @_utils.diff(old_obj, new_obj)
+    @_logger.debug diff, "JSON diff for #{@constructor.name} object"
     update = undefined
     if diff
       actions = @_doMapActions(diff, new_obj, old_obj)
@@ -36,6 +38,7 @@ class Sync
     @_data =
       update: update
       updateId: old_obj.id
+    @_logger.debug @_data, "Data update for #{@constructor.name} object"
     this
 
   get: (key = 'update') -> @_data[key]
