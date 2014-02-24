@@ -219,11 +219,11 @@ shippingMethodMock = (zone, taxCategory) ->
       zone:
         typeId: 'zone'
         id: zone.id
-        shippingRates: [{
-          price:
-            currencyCode: 'EUR'
-            centAmount: 99
-          }]
+      shippingRates: [{
+        price:
+          currencyCode: 'EUR'
+          centAmount: 99
+        }]
       }]
     isDefault: false
     taxCategory:
