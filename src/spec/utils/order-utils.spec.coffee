@@ -123,7 +123,7 @@ describe 'OrderUtils.actionsMapStatusValues', ->
     update = @utils.actionsMapReturnInfo(delta, orderChanged)
 
     action = _.deepClone orderChanged.returnInfo[0]
-    action['action'] = 'addReturnInfo'
+    action.action = 'addReturnInfo'
 
     expect(update).toEqual [action]
 
@@ -212,7 +212,7 @@ describe 'OrderUtils.actionsMapStatusValues', ->
     update = @utils.actionsMapReturnInfo(delta, orderChanged)
 
     addAction = _.deepClone orderChanged.returnInfo[1]
-    addAction['action'] = 'addReturnInfo'
+    addAction.action = 'addReturnInfo'
 
     expectedUpdate =
       [
@@ -231,7 +231,7 @@ describe 'OrderUtils.actionsMapStatusValues', ->
     expect(update).toEqual expectedUpdate
 
 
-  it "should return required actions for syncing deliveries", ->
+  it 'should return required actions for syncing deliveries', ->
 
     orderChanged = _.deepClone ORDER
 
@@ -242,11 +242,11 @@ describe 'OrderUtils.actionsMapStatusValues', ->
     update = @utils.actionsMapDeliveries(delta, orderChanged)
 
     action = JSON.parse(JSON.stringify(orderChanged.shippingInfo.deliveries[0]))
-    action["action"] = "addDelivery"
+    action.action = "addDelivery"
 
     expect(update).toEqual [action]
 
-  it "should return required action for syncing parcels (deliveries)", ->
+  it 'should return required action for syncing parcels (deliveries)', ->
 
     orderChanged = _.deepClone ORDER
 
@@ -270,7 +270,7 @@ describe 'OrderUtils.actionsMapStatusValues', ->
     delta = @utils.diff(@order, orderChanged)
     update = @utils.actionsMapDeliveries(delta, orderChanged)
 
-    expectedUpdate = JSON.parse(JSON.stringify(parcel))
+    expectedUpdate = _.deepClone parcel
     expectedUpdate.action = 'addParcelToDelivery'
     expectedUpdate.deliveryId = orderChanged.shippingInfo.deliveries[0].id
 
