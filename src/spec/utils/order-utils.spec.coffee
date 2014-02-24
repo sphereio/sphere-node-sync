@@ -59,7 +59,8 @@ ORDER =
       comment: 'Product too big.'
       shipmentState: 'Advised'
       paymentState: 'Initial'
-    }]}]
+    }]
+  ]
   shippingInfo:
     deliveries: [{
       id: uniqueId 'di'
@@ -81,7 +82,8 @@ ORDER =
           providerTransaction: '549796981774cd802e9636ded5608bfa1ecce9ad'
           isReturn: true
         }
-      }]}]
+      }]
+    }]
 
 describe 'OrderUtils.actionsMapStatusValues', ->
   beforeEach ->
@@ -231,8 +233,7 @@ describe 'OrderUtils.actionsMapStatusValues', ->
 
   it "should return required actions for syncing deliveries", ->
 
-    @order = JSON.parse(JSON.stringify(order))
-    orderChanged = JSON.parse(JSON.stringify(order))
+    orderChanged = _.deepClone ORDER
 
     # empty deliveries list
     @order.shippingInfo.deliveries = []
@@ -247,7 +248,7 @@ describe 'OrderUtils.actionsMapStatusValues', ->
 
   it "should return required action for syncing parcels (deliveries)", ->
 
-    orderChanged = JSON.parse(JSON.stringify(@order))
+    orderChanged = _.deepClone ORDER
 
     parcel =
       id: uniqueId 'pc'

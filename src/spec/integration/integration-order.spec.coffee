@@ -143,7 +143,7 @@ describe "Integration test", ->
     @sync.buildActions(orderNew, @order).update (error, response, body) ->
       expect(response.statusCode).toBe 200
       console.error body unless response.statusCode is 200
-      orderUpdated = JSON.parse(body)
+      orderUpdated = body
 
       expect(orderUpdated).toBeDefined()
       expect(_.size orderUpdated.shippingInfo.deliveries).toBe 1
@@ -164,7 +164,7 @@ describe "Integration test", ->
     @sync.buildActions(orderNew, @order).update (error, response, body) =>
       expect(response.statusCode).toBe 200
       console.error body unless response.statusCode is 200
-      orderUpdated = JSON.parse(body)
+      orderUpdated = body
 
       orderNew2 = JSON.parse(JSON.stringify(orderUpdated))
 
@@ -191,7 +191,7 @@ describe "Integration test", ->
         
         expect(response.statusCode).toBe 200
         console.error body unless response.statusCode is 200
-        orderUpdated2 = JSON.parse(body)
+        orderUpdated2 = body
 
         orderNew3 = JSON.parse(JSON.stringify(orderUpdated2))
 
@@ -214,7 +214,7 @@ describe "Integration test", ->
           
           expect(response.statusCode).toBe 200
           console.error body unless response.statusCode is 200
-          orderUpdated3 = JSON.parse(body)
+          orderUpdated3 = body
 
           expect(orderUpdated3).toBeDefined()
           parcels = _.first(orderUpdated3.shippingInfo.deliveries).parcels
@@ -331,7 +331,7 @@ promisifyGet = (rest, url) ->
   deferred = Q.defer()
   rest.GET url, (error, response, body) ->
     if response.statusCode is 200
-      deferred.resolve JSON.parse(body)
+      deferred.resolve body
     else if error
       deferred.reject new Error(error)
     else
