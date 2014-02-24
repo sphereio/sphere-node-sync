@@ -36,33 +36,54 @@ ORDER =
   returnInfo: [
     returnTrackingId: 'bla blubb'
     returnDate: new Date().toISOString()
-    items: [
-      {
-        id: uniqueId 'ri'
-        quantity: 11
-        lineItemId: 1
-        comment: 'Product doesnt have enough mojo.'
-        shipmentState: 'Advised'
-        paymentState: 'Initial'
-      },
-      {
-        id: uniqueId 'ri'
-        quantity: 22
-        lineItemId: 2
-        comment: 'Product too small.'
-        shipmentState: 'Advised'
-        paymentState: 'Initial'
-      },
-      {
-        id: uniqueId 'ri'
-        quantity: 33
-        lineItemId: 3
-        comment: 'Product too big.'
-        shipmentState: 'Advised'
-        paymentState: 'Initial'
-      }
-    ]
+    items: [{
+      id: uniqueId 'ri'
+      quantity: 11
+      lineItemId: 1
+      comment: 'Product doesnt have enough mojo.'
+      shipmentState: 'Advised'
+      paymentState: 'Initial'
+    }
+    {
+      id: uniqueId 'ri'
+      quantity: 22
+      lineItemId: 2
+      comment: 'Product too small.'
+      shipmentState: 'Advised'
+      paymentState: 'Initial'
+    }
+    {
+      id: uniqueId 'ri'
+      quantity: 33
+      lineItemId: 3
+      comment: 'Product too big.'
+      shipmentState: 'Advised'
+      paymentState: 'Initial'
+    }]
   ]
+  shippingInfo:
+    deliveries: [{
+      id: uniqueId 'di'
+      items: [{
+        lineItemId: 1
+        quantity: 1
+      }]
+      parcels: [{
+        measurements: {
+          heightInMillimeter: 200
+          lengthInMillimeter: 200
+          widthInMillimeter: 200
+          weightInGram: 200
+        },
+        trackingData: {
+          trackingId: '1Z6185W16894827591'
+          carrier: 'UPS'
+          provider: 'shipcloud.io'
+          providerTransaction: '549796981774cd802e9636ded5608bfa1ecce9ad'
+          isReturn: true
+        }
+      }]
+    }]
 
 describe 'OrderUtils.actionsMapStatusValues', ->
   beforeEach ->
@@ -102,7 +123,7 @@ describe 'OrderUtils.actionsMapStatusValues', ->
     update = @utils.actionsMapReturnInfo(delta, orderChanged)
 
     action = _.deepClone orderChanged.returnInfo[0]
-    action['action'] = 'addReturnInfo'
+    action.action = 'addReturnInfo'
 
     expect(update).toEqual [action]
 
@@ -191,7 +212,7 @@ describe 'OrderUtils.actionsMapStatusValues', ->
     update = @utils.actionsMapReturnInfo(delta, orderChanged)
 
     addAction = _.deepClone orderChanged.returnInfo[1]
-    addAction['action'] = 'addReturnInfo'
+    addAction.action = 'addReturnInfo'
 
     expectedUpdate =
       [
@@ -208,3 +229,49 @@ describe 'OrderUtils.actionsMapStatusValues', ->
         addAction
       ]
     expect(update).toEqual expectedUpdate
+
+
+  it 'should return required actions for syncing deliveries', ->
+
+    orderChanged = _.deepClone ORDER
+
+    # empty deliveries list
+    @order.shippingInfo.deliveries = []
+
+    delta = @utils.diff(@order, orderChanged)
+    update = @utils.actionsMapDeliveries(delta, orderChanged)
+
+    action = JSON.parse(JSON.stringify(orderChanged.shippingInfo.deliveries[0]))
+    action.action = "addDelivery"
+
+    expect(update).toEqual [action]
+
+  it 'should return required action for syncing parcels (deliveries)', ->
+
+    orderChanged = _.deepClone ORDER
+
+    parcel =
+      id: uniqueId 'pc'
+      measurements:
+        heightInMillimeter: 200
+        lengthInMillimeter: 200
+        widthInMillimeter: 200
+        weightInGram: 200
+      trackingData:
+        trackingId: '1Z6185W16894827591'
+        carrier: 'UPS'
+        provider: 'shipcloud.io'
+        providerTransaction: '549796981774cd802e9636ded5608bfa1ecce9ad'
+        isReturn: true
+
+    # add another parcel
+    orderChanged.shippingInfo.deliveries[0].parcels.push parcel
+
+    delta = @utils.diff(@order, orderChanged)
+    update = @utils.actionsMapDeliveries(delta, orderChanged)
+
+    expectedUpdate = _.deepClone parcel
+    expectedUpdate.action = 'addParcelToDelivery'
+    expectedUpdate.deliveryId = orderChanged.shippingInfo.deliveries[0].id
+
+    expect(update).toEqual [expectedUpdate]

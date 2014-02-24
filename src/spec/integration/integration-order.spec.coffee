@@ -5,10 +5,7 @@ OrderSync = require '../../lib/sync/order-sync'
 Config = require('../../config').config
 order = require '../../models/order.json'
 
-# Increase timeout
-jasmine.getEnv().defaultTimeoutInterval = 10000
-
-describe 'Integration test', ->
+describe "Integration test", ->
 
   beforeEach (done) ->
     @sync = new OrderSync
@@ -17,13 +14,23 @@ describe 'Integration test', ->
         levelStream: 'error'
         levelFile: 'error'
 
-    createResourcePromise(@sync._rest, '/product-types', productTypeMock())
-      .then (productType) =>
-        @productType = productType
-        createResourcePromise(@sync._rest, '/products', productMock(productType))
+    # get a tax category required for setting up shippingInfo (simply returning first found)
+    createResourcePromise(@sync._rest, '/tax-categories', taxCategoryMock())
+      .then (taxCategory) =>
+        @taxCategory = taxCategory
+        createResourcePromise(@sync._rest, '/zones', zoneMock())
+    .then (zone) =>
+      @zone = zone
+      createResourcePromise(@sync._rest, '/shipping-methods', shippingMethodMock(@zone, @taxCategory))
+    .then (shippingMethod) =>
+      @shippingMethod = shippingMethod
+      createResourcePromise(@sync._rest, '/product-types', productTypeMock())
+    .then (productType) =>
+      @productType = productType
+      createResourcePromise(@sync._rest, '/products', productMock(productType))
     .then (product) =>
       @product = product
-      createResourcePromise(@sync._rest, '/orders/import', orderMock(product))
+      createResourcePromise(@sync._rest, '/orders/import', orderMock(@shippingMethod, product, @taxCategory))
     .then (order) =>
       @order = order
       done()
@@ -119,9 +126,127 @@ describe 'Integration test', ->
         expect(orderUpdated2.returnInfo[0].items[0].paymentState).toEqual orderNew2.returnInfo[0].items[0].paymentState
         done()
 
+  it 'should sync delivery items', (done) ->
+
+    orderNew = JSON.parse(JSON.stringify(@order))
+
+    # add one delivery item
+    orderNew.shippingInfo.deliveries = [
+      items: [{
+         id: orderNew.lineItems[0].id
+         quantity: 1
+      }]]
+
+    @sync.buildActions(orderNew, @order).update (error, response, body) ->
+      expect(response.statusCode).toBe 200
+      console.error body unless response.statusCode is 200
+      orderUpdated = body
+
+      expect(orderUpdated).toBeDefined()
+      expect(orderUpdated.shippingInfo.deliveries.length).toBe 1
+
+      done()
+
+  it 'should sync parcel items of a delivery', (done) ->
+
+    orderNew = JSON.parse(JSON.stringify(@order))
+
+    # add one delivery item
+    orderNew.shippingInfo.deliveries = [
+      items: [{
+         id: orderNew.lineItems[0].id
+         quantity: 1
+      }]]
+
+    @sync.buildActions(orderNew, @order).update (error, response, body) =>
+      expect(response.statusCode).toBe 200
+      console.error body unless response.statusCode is 200
+      orderUpdated = body
+
+      orderNew2 = JSON.parse(JSON.stringify(orderUpdated))
+
+
+      # add a parcel item
+      orderNew2.shippingInfo.deliveries[0].parcels = [{
+        measurements: {
+          heightInMillimeter: 200
+          lengthInMillimeter: 200
+          widthInMillimeter: 200
+          weightInGram: 200
+        },
+        trackingData: {
+          trackingId: '1Z6185W16894827591'
+          carrier: 'UPS'
+          provider: 'shipcloud.io'
+          providerTransaction: '549796981774cd802e9636ded5608bfa1ecce9ad'
+          isReturn: true
+        }
+      }]
+
+      # sync first parcel
+      @sync.buildActions(orderNew2, orderUpdated).update (error, response, body) =>
+        
+        expect(response.statusCode).toBe 200
+        console.error body unless response.statusCode is 200
+        orderUpdated2 = body
+
+        orderNew3 = JSON.parse(JSON.stringify(orderUpdated2))
+
+        # add a parcel item
+        orderNew3.shippingInfo.deliveries[0].parcels.push {}
+
+        # sync a second parcel
+        @sync.buildActions(orderNew3, orderUpdated2).update (error, response, body) ->
+          
+          expect(response.statusCode).toBe 200
+          console.error body unless response.statusCode is 200
+          orderUpdated3 = body
+
+          expect(orderUpdated3).toBeDefined()
+          parcels = _.first(orderUpdated3.shippingInfo.deliveries).parcels
+          expect(parcels.length).toBe 2
+          done()
+
 ###
 helper methods
 ###
+
+shippingMethodMock = (zone, taxCategory) ->
+  unique = new Date().getTime()
+  shippingMethod =
+    name: "S-#{unique}"
+    zoneRates: [{
+      zone:
+        typeId: 'zone'
+        id: zone.id
+      shippingRates: [{
+        price:
+          currencyCode: 'EUR'
+          centAmount: 99
+        }]
+      }]
+    isDefault: false
+    taxCategory:
+      typeId: 'tax-category'
+      id: taxCategory.id
+
+
+zoneMock = ->
+  unique = new Date().getTime()
+  zone =
+    name: "Z-#{unique}"
+
+taxCategoryMock = ->
+  unique = new Date().getTime()
+  taxCategory =
+    name: "TC-#{unique}"
+    rates: [{
+        name: "5%",
+        amount: 0.05,
+        includedInPrice: false,
+        country: "DE",
+        id: "jvzkDxzl"
+      }]
 
 productTypeMock = ->
   unique = new Date().getTime()
@@ -142,7 +267,7 @@ productMock = (productType) ->
     masterVariant:
       sku: "sku-#{unique}"
 
-orderMock = (product) ->
+orderMock = (shippingMethod, product, taxCategory) ->
   unique = new Date().getTime()
   order =
     id: "order-#{unique}"
@@ -171,6 +296,22 @@ orderMock = (product) ->
       currencyCode: 'EUR'
       centAmount: 999
     returnInfo: []
+    shippingInfo:
+      shippingMethodName: 'UPS'
+      price:
+        currencyCode: 'EUR'
+        centAmount: 99
+      shippingRate:
+        price:
+          currencyCode: 'EUR'
+          centAmount: 99
+      taxRate: _.first taxCategory.rates
+      taxCategory:
+        typeId: 'tax-category'
+        id: taxCategory.id
+      shippingMethod:
+        typeId: 'shipping-method'
+        id: shippingMethod.id
 
 createResourcePromise = (rest, url, body) ->
   deferred = Q.defer()

@@ -130,6 +130,14 @@ Currently following actions are supported
 - `setReturnShipmentState` - field `shipmentState`
 - `setReturnPaymentState` - field `paymentState`
 - `addReturnInfo` - field `returnInfo`
+- `addDelivery` - field `deliveries`
+
+#### ReturnInfoSync
+- `setReturnShipmentState` - field `shipmentState`
+- `setReturnPaymentState` - field `paymentState`
+
+#### DeliverySync
+- `addParcelToDelivery` - field `parcels`
 
 ### InventorySync
 
