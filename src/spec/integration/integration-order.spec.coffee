@@ -324,17 +324,6 @@ orderMock = (shippingMethod, product, taxCategory) ->
         typeId: 'shipping-method'
         id: shippingMethod.id
 
-promisifyGet = (rest, url) ->
-  deferred = Q.defer()
-  rest.GET url, (error, response, body) ->
-    if response.statusCode is 200
-      deferred.resolve body
-    else if error
-      deferred.reject new Error(error)
-    else
-      deferred.reject new Error(body)
-  deferred.promise
-
 createResourcePromise = (rest, url, body) ->
   deferred = Q.defer()
   rest.POST url, JSON.stringify(body), (error, response, body) ->
