@@ -193,18 +193,7 @@ describe "Integration test", ->
         orderNew3 = JSON.parse(JSON.stringify(orderUpdated2))
 
         # add a parcel item
-        orderNew3.shippingInfo.deliveries[0].parcels.push
-          measurements:
-            heightInMillimeter: 200
-            lengthInMillimeter: 200
-            widthInMillimeter: 200
-            weightInGram: 200
-          trackingData:
-            trackingId: '1Z6185W16894827591'
-            carrier: 'UPS'
-            provider: 'shipcloud.io'
-            providerTransaction: '549796981774cd802e9636ded5608bfa1ecce9ad'
-            isReturn: true
+        orderNew3.shippingInfo.deliveries[0].parcels.push {}
 
         # sync a second parcel
         @sync.buildActions(orderNew3, orderUpdated2).update (error, response, body) ->
