@@ -126,7 +126,7 @@ describe "Integration test", ->
         expect(orderUpdated2.returnInfo[0].items[0].paymentState).toEqual orderNew2.returnInfo[0].items[0].paymentState
         done()
 
-  it "should sync delivery items", (done) ->
+  it 'should sync delivery items', (done) ->
 
     orderNew = JSON.parse(JSON.stringify(@order))
 
@@ -147,7 +147,7 @@ describe "Integration test", ->
 
       done()
 
-  it "should sync parcel items of a delivery", (done) ->
+  it 'should sync parcel items of a delivery', (done) ->
 
     orderNew = JSON.parse(JSON.stringify(@order))
 
