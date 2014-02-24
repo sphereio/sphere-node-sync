@@ -143,7 +143,7 @@ describe "Integration test", ->
       orderUpdated = body
 
       expect(orderUpdated).toBeDefined()
-      expect(_.size orderUpdated.shippingInfo.deliveries).toBe 1
+      expect(orderUpdated.shippingInfo.deliveries.length).toBe 1
 
       done()
 
@@ -215,7 +215,7 @@ describe "Integration test", ->
 
           expect(orderUpdated3).toBeDefined()
           parcels = _.first(orderUpdated3.shippingInfo.deliveries).parcels
-          expect(_.size(parcels)).toBe 2
+          expect(parcels.length).toBe 2
           done()
 
 ###
