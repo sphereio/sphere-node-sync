@@ -21,7 +21,7 @@ describe 'Integration test', ->
         if error
           deferred.reject error
         else
-          if response.statusCode is 200 or statusCode is 404
+          if response.statusCode is 200 or response.statusCode is 404
             deferred.resolve true
           else
             deferred.reject body
