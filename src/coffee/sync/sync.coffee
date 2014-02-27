@@ -20,7 +20,7 @@ class Sync
         logConfig:
           logger: @_logger
 
-    @_logger.debug "New #{@constructor.name} object"
+    @_logger.debug opts, "New #{@constructor.name} object"
     @_data = {}
     @_utils = new Utils
 
@@ -45,7 +45,7 @@ class Sync
 
   update: (callback) ->
     unless @_rest
-      throw new Error('Cannot update: the Rest connector wasn\'t instantiated (probabily because of missing credentials)')
+      throw new Error 'Cannot update: the Rest connector wasn\'t instantiated (probabily because of missing credentials)'
     unless _.isEmpty @_data.update
       @_doUpdate(callback)
     else
