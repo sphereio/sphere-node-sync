@@ -28,7 +28,7 @@ class InventoryUpdater extends CommonUpdater
         id: channelId
     entry
 
-  ensureChannelByKey: (rest, channelKey, channelTypesForCreation = ['InventorySupply']) ->
+  ensureChannelByKey: (rest, channelKey, channelRolesForCreation = ['InventorySupply']) ->
     deferred = Q.defer()
     query = encodeURIComponent("key=\"#{channelKey}\"")
     rest.GET "/channels?where=#{query}", (error, response, body) ->
@@ -44,8 +44,8 @@ class InventoryUpdater extends CommonUpdater
         # can't find it - let's create the channel
         channel =
           key: channelKey
-          types: channelTypesForCreation
-        rest.POST '/channels', JSON.stringify(channel), (error, response, body) ->
+          roles: channelRolesForCreation
+        rest.POST '/channels', channel, (error, response, body) ->
           if error
             deferred.reject 'Error on creating channel: ' + error
           else if response.statusCode is 201
@@ -126,7 +126,7 @@ class InventoryUpdater extends CommonUpdater
 
   create: (stock) ->
     deferred = Q.defer()
-    @rest.POST '/inventory', JSON.stringify(stock), (error, response, body) =>
+    @rest.POST '/inventory', stock, (error, response, body) =>
       @tickProgress()
       if error
         deferred.reject 'Error on creating new inventory entry: ' + error
