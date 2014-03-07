@@ -28,28 +28,30 @@ class InventoryUpdater extends CommonUpdater
         id: channelId
     entry
 
-  ensureChannelByKey: (rest, channelKey) ->
+  ensureChannelByKey: (rest, channelKey, channelTypesForCreation = ['InventorySupply']) ->
     deferred = Q.defer()
     query = encodeURIComponent("key=\"#{channelKey}\"")
     rest.GET "/channels?where=#{query}", (error, response, body) ->
+      foundChannel = false
       if error
         deferred.reject 'Error on getting channel: ' + error
-        return
-      if response.statusCode is 200
+      else if response.statusCode is 200
         channels = body.results
         if _.size(channels) is 1
           deferred.resolve channels[0]
-          return
-      # can't find it - let's create the channel
-      channel =
-        key: channelKey
-      rest.POST '/channels', JSON.stringify(channel), (error, response, body) ->
-        if error
-          deferred.reject 'Error on creating channel: ' + error
-        else if response.statusCode is 201
-          deferred.resolve body
-        else
-          deferred.reject 'Problem on creating channel: ' + body
+          foundChannel = true
+      unless foundChannel
+        # can't find it - let's create the channel
+        channel =
+          key: channelKey
+          types: channelTypesForCreation
+        rest.POST '/channels', JSON.stringify(channel), (error, response, body) ->
+          if error
+            deferred.reject 'Error on creating channel: ' + error
+          else if response.statusCode is 201
+            deferred.resolve body
+          else
+            deferred.reject 'Problem on creating channel: ' + body
     deferred.promise
 
   allInventoryEntries: (rest) ->
