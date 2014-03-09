@@ -145,6 +145,11 @@ EXISTING_ENUM_ATTRIBUTES =
       { name: 'size', value: { label: { en: 'Size' }, key: 'big' } } # lenum
       { name: 'color', value: { label: { de: 'Farbe' }, key: 'red' } } # lenum
     ]
+  variants: [
+    { id: 2, attributes: [
+      { name: 'tags', value: [ { label: { en: 'Tags1' }, key: 'tag1' } ] } # lenum
+    ]}
+  ]
 NEW_ENUM_ATTRIBUTES =
   id: 'enum-101'
   masterVariant:
@@ -154,6 +159,11 @@ NEW_ENUM_ATTRIBUTES =
       { name: 'size', value: 'small' } # lenum - changed key
       # color is removed
     ]
+  variants: [
+    { id: 2, attributes: [
+      { name: 'tags', value: [ { label: { en: 'Tags2' }, key: 'tag2' } ] } # lenum
+    ]}
+  ]
 
 ###
 Match different attributes on variant level
@@ -251,6 +261,12 @@ OLD_SAME_FOR_ALL_ATTRIBUTES =
       attributes: [
         { name: 'brand', value: 'Awesome Shoes' },
       ]
+    },
+    {
+      id: 4
+      attributes: [
+        { name: 'tags', value: [ { key: 'tag1', label: { en: 'Tag 1' } } ] },
+      ]
     }
   ]
 
@@ -273,6 +289,12 @@ NEW_SAME_FOR_ALL_ATTRIBUTES =
       id: 3
       attributes: [
         { name: 'brand', value: 'Cool Shirts' },
+      ]
+    },
+    {
+      id: 4
+      attributes: [
+        { name: 'tags', value: [ { key: 'tag2', label: { en: 'Tag 2' } } ] },
       ]
     }
   ]
@@ -509,9 +531,19 @@ describe 'ProductUtils.diff', ->
     expected_delta =
       masterVariant:
         attributes:
-          1: { value: ['big','small'] }
+          1: { value: ['big', 'small'] }
           _t: 'a'
           _2: [ { name: 'color', value: 'red'}, 0, 0 ]
+      variants:
+        0:
+          attributes:
+            0:
+              value:
+                0: [ 'tag2' ]
+                _t: 'a'
+                _0: [ 'tag1', 0, 0 ]
+            _t: 'a'
+        _t: 'a'
 
     expect(delta).toEqual expected_delta
 
@@ -616,15 +648,17 @@ describe 'ProductUtils.actionsMapAttributes', ->
       [
         { action: 'setAttribute', variantId: 1, name: 'size', value: 'small' }
         { action: 'setAttribute', variantId: 1, name: 'color' }
+        { action: 'setAttribute', variantId: 2, name: 'tags', value: [ 'tag2' ] }
       ]
     expect(update).toEqual expected_update
 
   it 'should build setAttributeInAllVariants actions', ->
     delta = @utils.diff OLD_SAME_FOR_ALL_ATTRIBUTES, NEW_SAME_FOR_ALL_ATTRIBUTES
-    update = @utils.actionsMapAttributes delta, NEW_SAME_FOR_ALL_ATTRIBUTES, ['brand']
+    update = @utils.actionsMapAttributes delta, NEW_SAME_FOR_ALL_ATTRIBUTES, ['brand', 'tags']
     expected_update =
       [
         { action: 'setAttributeInAllVariants', name: 'brand', value: 'Cool Shirts' }
+        { action: 'setAttributeInAllVariants', name: 'tags', value: [ 'tag2' ] }
       ]
     expect(update).toEqual expected_update
 

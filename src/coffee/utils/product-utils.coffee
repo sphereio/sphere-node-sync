@@ -190,7 +190,7 @@ class ProductUtils extends Utils
           if _.isArray value
             v = helper.getDeltaValue(value)
             id = variant.id
-            setAction = buildNewSetAttributeAction(id, v)
+            setAction = buildNewSetAttributeAction(id, v, sameForAllAttributeNames)
             actions.push setAction if setAction
           else
             # key is index of attribute
@@ -204,7 +204,7 @@ class ProductUtils extends Utils
               v = value[0]
               delete v.value
             id = variant.id
-            setAction = buildNewSetAttributeAction(id, v)
+            setAction = buildNewSetAttributeAction(id, v, sameForAllAttributeNames)
             actions.push setAction if setAction
           else
             index = key.substring(1)
