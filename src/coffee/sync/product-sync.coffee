@@ -23,7 +23,7 @@ class ProductSync extends Sync
     actionsAttributes = @_utils.actionsMapAttributes(diff, new_obj, @sameForAllAttributeNames)
     actionsImages = @_utils.actionsMapImages(diff, old_obj, new_obj)
     actionsVariants = @_utils.actionsMapVariants(diff, old_obj, new_obj)
-    actions = _.union actions, actionsVariants, actionsReferences, actionsPrices, actionsAttributes, actionsImages
+    actions = _.union actions, actionsReferences, actionsPrices, actionsAttributes, actionsImages, actionsVariants
     actions
 
   _doUpdate: (callback) ->
