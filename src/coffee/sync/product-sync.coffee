@@ -18,11 +18,11 @@ class ProductSync extends Sync
 
   _doMapActions: (diff, new_obj, old_obj) ->
     actions = @_utils.actionsMap(diff, old_obj)
-    actionsVariants = @_utils.actionsMapVariants(diff, old_obj, new_obj)
     actionsReferences = @_utils.actionsMapReferences(diff, old_obj, new_obj)
     actionsPrices = @_utils.actionsMapPrices(diff, old_obj, new_obj)
     actionsAttributes = @_utils.actionsMapAttributes(diff, new_obj, @sameForAllAttributeNames)
     actionsImages = @_utils.actionsMapImages(diff, old_obj, new_obj)
+    actionsVariants = @_utils.actionsMapVariants(diff, old_obj, new_obj)
     actions = _.union actions, actionsVariants, actionsReferences, actionsPrices, actionsAttributes, actionsImages
     actions
 
