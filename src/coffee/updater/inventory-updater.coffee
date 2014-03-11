@@ -54,9 +54,9 @@ class InventoryUpdater extends CommonUpdater
             deferred.reject 'Problem on creating channel: ' + body
     deferred.promise
 
-  allInventoryEntries: (rest) ->
+  allInventoryEntries: (rest, queryString = 'limit=0') ->
     deferred = Q.defer()
-    rest.GET '/inventory?limit=0', (error, response, body) ->
+    rest.GET "/inventory?#{queryString}", (error, response, body) ->
       if error
         deferred.reject 'Error on getting all inventory entries: ' + error
       else if response.statusCode isnt 200
@@ -65,9 +65,9 @@ class InventoryUpdater extends CommonUpdater
         deferred.resolve body.results
     deferred.promise
 
-  initMatcher: ->
+  initMatcher: (queryString) ->
     deferred = Q.defer()
-    @allInventoryEntries(@rest).then (existingEntries) =>
+    @allInventoryEntries(@rest, queryString).then (existingEntries) =>
       @existingInventoryEntries = existingEntries
       deferred.resolve existingEntries
     .fail (msg) ->
