@@ -199,6 +199,9 @@ class ProductUtils extends Utils
             actions.push setAction if setAction
         else if REGEX_UNDERSCORE_NUMBER.test key
           if _.isArray value
+            # ignore pure array moves! TODO: remove when moving to new version of jsondiffpath (issue #9)
+            if _.size(value) is 3 and value[2] is 3
+              return
             v = helper.getDeltaValue(value)
             unless v
               v = value[0]
@@ -330,6 +333,7 @@ buildRemoveImageAction = (variant, image) ->
 
 buildSetAttributeAction = (diffed_value, variant, index, sameForAllAttributeNames) ->
   attribute = variant.attributes[index]
+  return unless attribute
   if attribute
     action =
       action: 'setAttribute'
@@ -376,6 +380,7 @@ buildSetAttributeAction = (diffed_value, variant, index, sameForAllAttributeName
 
 buildNewSetAttributeAction = (id, el, sameForAllAttributeNames) ->
   attributeName = el.name
+  return unless attributeName
   action =
     action: "setAttribute"
     variantId: id
