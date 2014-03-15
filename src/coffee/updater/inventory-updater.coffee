@@ -1,4 +1,4 @@
-_ = require('underscore')._
+_ = require 'underscore'
 Q = require 'q'
 CommonUpdater = require './common-updater'
 InventorySync = require '../sync/inventory-sync'

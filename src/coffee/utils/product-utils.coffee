@@ -1,6 +1,5 @@
-_ = require('underscore')._
+_ = require 'underscore'
 _.mixin deepClone: (obj) -> JSON.parse(JSON.stringify(obj))
-jsondiffpatch = require 'jsondiffpatch'
 Utils = require './utils'
 helper = require '../helper'
 

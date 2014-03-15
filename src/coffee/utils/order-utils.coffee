@@ -1,5 +1,4 @@
-_ = require('underscore')._
-jsondiffpatch = require 'jsondiffpatch'
+_ = require 'underscore'
 Utils = require './utils'
 helper = require '../helper'
 

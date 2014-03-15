@@ -1,4 +1,4 @@
-_ = require('underscore')._
+_ = require 'underscore'
 {Rest} = require 'sphere-node-connect'
 Logger = require '../logger'
 Utils = require '../utils/utils'
@@ -22,7 +22,7 @@ class Sync
 
     @_logger.debug opts, "New #{@constructor.name} object"
     @_data = {}
-    @_utils = new Utils
+    @_utils = new Utils()
 
   buildActions: (new_obj, old_obj) ->
     # diff 'em

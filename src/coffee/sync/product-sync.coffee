@@ -1,4 +1,4 @@
-_ = require('underscore')._
+_ = require 'underscore'
 {Rest} = require 'sphere-node-connect'
 Sync = require '../sync/sync'
 ProductUtils = require '../utils/product-utils'
@@ -10,7 +10,7 @@ class ProductSync extends Sync
   constructor: (opts = {}) ->
     super(opts)
     # Override base utils
-    @_utils = new ProductUtils
+    @_utils = new ProductUtils()
 
   buildActions: (new_obj, old_obj, sameForAllAttributeNames = []) ->
     @sameForAllAttributeNames = sameForAllAttributeNames

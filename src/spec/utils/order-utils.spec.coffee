@@ -1,4 +1,4 @@
-_ = require('underscore')._
+_ = require 'underscore'
 _.mixin deepClone: (obj) -> JSON.parse(JSON.stringify(obj))
 OrderUtils = require '../../lib/utils/order-utils'
 
