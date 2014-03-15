@@ -7,6 +7,18 @@ Order Utils class
 ###
 class OrderUtils extends Utils
 
+  diff: (old_obj, new_obj) ->
+    # patch 'returnInfo' and 'syncInfo' to have an identifier
+    # in order for the diff to be able to match nested objects in arrays
+    # e.g.: returnInfo: [ { _id: x, items: [] } ]
+    patchOrder = (obj) ->
+      _.each obj.returnInfo, (info, index) -> info._id = index
+      _.each obj.syncInfo, (info, index) -> info._id = index
+
+    patchOrder(old_obj)
+    patchOrder(new_obj)
+    super(old_obj, new_obj)
+
   ###
   Create list of actions for syncing order status values.
   @param {object} diff Result of jsondiffpatch tool.

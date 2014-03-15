@@ -3,7 +3,8 @@ _.mixin deepClone: (obj) -> JSON.parse(JSON.stringify(obj))
 OrderUtils = require '../../lib/utils/order-utils'
 
 uniqueId = (prefix = '') ->
-  "#{prefix}#{new Date().getTime()}"
+  randomNum = -> Math.floor(Math.random()*10000) # 4-digits
+  "#{prefix}#{new Date().getTime()}-#{randomNum()}"
 
 ###
 Match different order statuses
@@ -14,6 +15,7 @@ ORDER =
   paymentState: 'Pending'
   shipmentState: 'Pending'
   lineItems: [
+    id: uniqueId 'li'
     productId: uniqueId 'p'
     name:
       de: 'foo'
@@ -69,6 +71,7 @@ ORDER =
         quantity: 1
       }]
       parcels: [{
+        id: uniqueId 'sip'
         measurements: {
           heightInMillimeter: 200
           lengthInMillimeter: 200
@@ -241,7 +244,7 @@ describe 'OrderUtils.actionsMapStatusValues', ->
     delta = @utils.diff(@order, orderChanged)
     update = @utils.actionsMapDeliveries(delta, orderChanged)
 
-    action = JSON.parse(JSON.stringify(orderChanged.shippingInfo.deliveries[0]))
+    action = _.deepClone orderChanged.shippingInfo.deliveries[0]
     action.action = "addDelivery"
 
     expect(update).toEqual [action]
