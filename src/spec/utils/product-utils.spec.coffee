@@ -506,6 +506,32 @@ describe 'ProductUtils.diff', ->
         _t: 'a'
     expect(delta).toEqual expected_delta
 
+  it 'should diff if basic attribute is undefined', ->
+    OLD =
+      id: '123'
+      name:
+        en: 'Foo'
+      slug:
+        en: 'foo'
+    NEW =
+      id: '123'
+      name:
+        de: 'Boo'
+      slug:
+        en: 'boo'
+      description:
+        en: 'Sample'
+        it: 'Esempio'
+
+    delta = @utils.diff OLD, NEW
+    update = @utils.actionsMap(delta, OLD)
+    expected_update = [
+      { action: 'changeName', name: {en: undefined, de: 'Boo'} }
+      { action: 'changeSlug', slug: {en: 'boo'} }
+      { action: 'setDescription', description: {en: 'Sample', it: 'Esempio'} }
+    ]
+    expect(update).toEqual expected_update
+
   it 'should diff different attribute types', ->
     delta = @utils.diff(OLD_ALL_ATTRIBUTES, NEW_ALL_ATTRIBUTES)
     expected_delta =

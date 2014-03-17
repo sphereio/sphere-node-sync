@@ -79,9 +79,17 @@ class ProductUtils extends Utils
               _.each keys, (k) ->
                 value = helper.getDeltaValue(obj[k])
                 updated[k] = value
-            # extend values of original object so that the new value is saved
-            old = _.deepClone old_obj[key]
-            _.extend old, updated
+
+            if old_obj[key]
+              # extend values of original object with possible new values of the diffed object
+              # e.g.:
+              #   old = {en: 'foo'}
+              #   updated = {de: 'bar', en: undefined}
+              #   => old = {en: undefined, de: 'bar'}
+              old = _.deepClone old_obj[key]
+              _.extend old, updated
+            else
+              old = updated
             a =
               action: item.action
             if updated
