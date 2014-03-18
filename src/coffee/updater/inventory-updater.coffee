@@ -1,5 +1,7 @@
-_ = require('underscore')._
 Q = require 'q'
+_ = require 'underscore'
+_.mixin require('sphere-node-utils')._u
+{Qbatch} = require 'sphere-node-utils'
 CommonUpdater = require './common-updater'
 InventorySync = require '../sync/inventory-sync'
 
@@ -51,18 +53,15 @@ class InventoryUpdater extends CommonUpdater
           else if response.statusCode is 201
             deferred.resolve body
           else
-            deferred.reject 'Problem on creating channel: ' + body
+            deferred.reject 'Error on creating channel: ' + body
     deferred.promise
 
-  allInventoryEntries: (rest, queryString = 'limit=0') ->
+  allInventoryEntries: (rest, queryString) ->
     deferred = Q.defer()
-    rest.GET "/inventory?#{queryString}", (error, response, body) ->
-      if error
-        deferred.reject 'Error on getting all inventory entries: ' + error
-      else if response.statusCode isnt 200
-        deferred.reject 'Problem on getting all inventory entries: ' + body
-      else
-        deferred.resolve body.results
+    Qbatch.paged rest, '/inventory', _.fromQueryString(queryString)
+    .then (result) -> deferred.resolve result.results
+    .progress (progress) -> deferred.notify progress
+    .fail (error) -> deferred.reject "Error on fetching all inventory entries: #{error}"
     deferred.promise
 
   initMatcher: (queryString) ->
@@ -96,18 +95,9 @@ class InventoryUpdater extends CommonUpdater
       else
         posts.push @create(entry)
 
-    @processInBatches posts, callback
-
-  processInBatches: (posts, callback, numberOfParallelRequest = 50, acc = []) =>
-    current = _.take posts, numberOfParallelRequest
-    Q.all(current).then (msg) =>
-      messages = acc.concat(msg)
-      if _.size(current) < numberOfParallelRequest
-        @returnResult true, messages, callback
-      else
-        @processInBatches _.tail(posts, numberOfParallelRequest), callback, numberOfParallelRequest, messages
-    .fail (msg) =>
-      @returnResult false, msg, callback
+    Qbatch.all(posts)
+    .then (results) => @returnResult true, results, callback
+    .fail (error) => @returnResult false, error, callback
 
   update: (entry, existingEntry) ->
     deferred = Q.defer()
@@ -121,7 +111,7 @@ class InventoryUpdater extends CommonUpdater
         else if response.statusCode is 304
           deferred.resolve 'Inventory entry update not neccessary.'
         else
-          deferred.reject 'Problem on updating existing inventory entry: ' + body
+          deferred.reject 'Error on updating existing inventory entry: ' + body
     deferred.promise
 
   create: (stock) ->
@@ -134,7 +124,7 @@ class InventoryUpdater extends CommonUpdater
         if response.statusCode is 201
           deferred.resolve 'New inventory entry created.'
         else
-          deferred.reject 'Problem on creating new inventory entry: ' + body
+          deferred.reject 'Error on creating new inventory entry: ' + body
     deferred.promise
 
 ###
