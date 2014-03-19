@@ -1,4 +1,4 @@
-_ = require('underscore')._
+_ = require 'underscore'
 CommonUpdater = require '../../lib/updater/common-updater'
 
 describe 'CommonUpdater', ->

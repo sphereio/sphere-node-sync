@@ -58,10 +58,15 @@ class InventoryUpdater extends CommonUpdater
 
   allInventoryEntries: (rest, queryString) ->
     deferred = Q.defer()
-    Qbatch.paged rest, '/inventory', _.fromQueryString(queryString)
-    .then (result) -> deferred.resolve result.results
-    .progress (progress) -> deferred.notify progress
-    .fail (error) -> deferred.reject "Error on fetching all inventory entries: #{error}"
+    rest.PAGED '/inventory?#{queryString}', (error, response, body) ->
+      if error
+        deferred.reject "Error on fetching all inventory entries: #{error}"
+      else
+        if response.statusCode is 200
+          deferred.resolve body.results
+        else
+          deferred.reject "Error on fetching all inventory entries: #{body}"
+    , (progress) -> deferred.notify progress
     deferred.promise
 
   initMatcher: (queryString) ->

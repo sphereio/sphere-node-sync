@@ -1,4 +1,4 @@
-_ = require('underscore')._
+_ = require 'underscore'
 Q = require 'q'
 InventorySync = require '../../lib/sync/inventory-sync'
 Config = require('../../config').config
@@ -27,19 +27,16 @@ describe 'Integration test', ->
             deferred.reject body
       deferred.promise
 
-    @sync._rest.GET "/inventory?limit=0", (error, response, body) ->
-      stocks = body.results
+    @sync._rest.PAGED '/inventory', (e, r, b) ->
+      stocks = b.results
       if stocks.length is 0
         done()
       dels = []
       for s in stocks
         dels.push del(s.id)
-
-      Q.all(dels).then (v) ->
-        done()
-      .fail (err) ->
-        console.log err
-        expect(false).toBe true
+      Q.all(dels)
+      .then (v) -> done()
+      .fail (error) -> done(error)
 
   it 'should update inventory entry', (done) ->
     ie =
@@ -48,7 +45,7 @@ describe 'Integration test', ->
     ieChanged =
       sku: '123'
       quantityOnStock: 7
-    @sync._rest.POST '/inventory', JSON.stringify(ie), (error, response, body) =>
+    @sync._rest.POST '/inventory', ie, (error, response, body) =>
       expect(error).toBeNull()
       expect(response.statusCode).toBe 201
       @sync.buildActions(ieChanged, body).update (error, response, body) ->
@@ -65,7 +62,7 @@ describe 'Integration test', ->
       sku: 'x1'
       quantityOnStock: 7
       expectedDelivery: '2000-01-01T01:01:01'
-    @sync._rest.POST '/inventory', JSON.stringify(ie), (error, response, body) =>
+    @sync._rest.POST '/inventory', ie, (error, response, body) =>
       expect(error).toBeNull()
       expect(response.statusCode).toBe 201
       @sync.buildActions(ieChanged, body).update (error, response, body) ->
@@ -84,7 +81,7 @@ describe 'Integration test', ->
       sku: 'x2'
       quantityOnStock: 3
       expectedDelivery: '2000-01-01T01:01:01.000Z'
-    @sync._rest.POST '/inventory', JSON.stringify(ie), (error, response, body) =>
+    @sync._rest.POST '/inventory', ie, (error, response, body) =>
       expect(error).toBeNull()
       expect(response.statusCode).toBe 201
       @sync.buildActions(ieChanged, body).update (error, response, body) ->
@@ -102,7 +99,7 @@ describe 'Integration test', ->
     ieChanged =
       sku: 'x3'
       quantityOnStock: 3
-    @sync._rest.POST '/inventory', JSON.stringify(ie), (error, response, body) =>
+    @sync._rest.POST '/inventory', ie, (error, response, body) =>
       expect(error).toBeNull()
       expect(response.statusCode).toBe 201
       @sync.buildActions(ieChanged, body).update (error, response, body) ->
