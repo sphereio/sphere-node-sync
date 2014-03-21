@@ -1,6 +1,6 @@
 # sphere-node-sync
 
-[![Build Status](https://secure.travis-ci.org/emmenko/sphere-node-sync.png?branch=master)](http://travis-ci.org/emmenko/sphere-node-sync) [![NPM version](https://badge.fury.io/js/sphere-node-sync.png)](http://badge.fury.io/js/sphere-node-sync) [![Coverage Status](https://coveralls.io/repos/emmenko/sphere-node-sync/badge.png?branch=master)](https://coveralls.io/r/emmenko/sphere-node-sync?branch=master) [![Dependency Status](https://david-dm.org/emmenko/sphere-node-sync.png?theme=shields.io)](https://david-dm.org/emmenko/sphere-node-sync) [![devDependency Status](https://david-dm.org/emmenko/sphere-node-sync/dev-status.png?theme=shields.io)](https://david-dm.org/emmenko/sphere-node-sync#info=devDependencies)
+[![Build Status](https://secure.travis-ci.org/sphereio/sphere-node-sync.png?branch=master)](http://travis-ci.org/sphereio/sphere-node-sync) [![NPM version](https://badge.fury.io/js/sphere-node-sync.png)](http://badge.fury.io/js/sphere-node-sync) [![Coverage Status](https://coveralls.io/repos/sphereio/sphere-node-sync/badge.png?branch=master)](https://coveralls.io/r/sphereio/sphere-node-sync?branch=master) [![Dependency Status](https://david-dm.org/sphereio/sphere-node-sync.png?theme=shields.io)](https://david-dm.org/sphereio/sphere-node-sync) [![devDependency Status](https://david-dm.org/sphereio/sphere-node-sync/dev-status.png?theme=shields.io)](https://david-dm.org/sphereio/sphere-node-sync#info=devDependencies)
 
 Collection of Sync components for SPHERE.IO entities
 
@@ -10,13 +10,13 @@ Collection of Sync components for SPHERE.IO entities
   * [Rest connector](#rest-connector)
   * [Error handling](#error-handling)
   * [Methods](#methods)
-    * [buildActions](#buildactions) 
+    * [buildActions](#buildactions)
     * [get](#get)
     * [update](#update)
 * [Supported Update actions](#supported-update-actions)
-  * [ProductSync](#productsync) 
-  * [OrderSync](#ordersync) 
-  * [InventorySync](#inventorysync) 
+  * [ProductSync](#productsync)
+  * [OrderSync](#ordersync)
+  * [InventorySync](#inventorysync)
 * [Updater components](#updater-components)
 * [Contributing](#contributing)
 * [Releasing](#releasing)
@@ -46,11 +46,11 @@ The module exposes many collection `Sync` objects, _resource-specific_, and it's
 
 
 ### Rest connector
-It's _recommended_ to use the `Sync` together with the [sphere-node-connect](https://github.com/emmenko/sphere-node-connect) module.
+It's _recommended_ to use the `Sync` together with the [sphere-node-connect](https://github.com/sphereio/sphere-node-connect) module.
 In fact it has a dependency to the module so that you can make requests by using the instance of the `Rest` class.
 
 ```javascript
-// https://github.com/emmenko/sphere-node-connect#documentation
+// https://github.com/sphereio/sphere-node-connect#documentation
 var sync = new Sync({}) // refer to the Rest arguments (sphere-node-connect) if you want to pass options
 
 sync._rest.GET ...
@@ -59,7 +59,7 @@ sync._rest.GET ...
 
 
 ### Error handling
-Please refer to the connector [documentation](https://github.com/emmenko/sphere-node-connect#error-handling).
+Please refer to the connector [documentation](https://github.com/sphereio/sphere-node-connect#error-handling).
 
 
 ### Methods

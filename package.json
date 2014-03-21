@@ -7,22 +7,22 @@
     "api",
     "sync"
   ],
-  "homepage": "https://github.com/emmenko/sphere-node-sync",
+  "homepage": "https://github.com/sphereio/sphere-node-sync",
   "author": {
     "name": "Nicola Molinari",
     "email": "nicola.molinari@commercetools.de"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/emmenko/sphere-node-sync.git"
+    "url": "https://github.com/sphereio/sphere-node-sync.git"
   },
   "bugs": {
-    "url": "https://github.com/emmenko/sphere-node-sync/issues"
+    "url": "https://github.com/sphereio/sphere-node-sync/issues"
   },
   "licenses": [
     {
       "type": "MIT",
-      "url": "https://github.com/emmenko/sphere-node-sync/blob/master/LICENSE-MIT"
+      "url": "https://github.com/sphereio/sphere-node-sync/blob/master/LICENSE-MIT"
     }
   ],
   "main": "./lib/main",

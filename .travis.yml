@@ -2,23 +2,22 @@ language: node_js
 node_js:
   - '0.10'
 before_script:
-  - npm config set ca ""
   - npm install -g grunt-cli
   - ./create_config.sh
 env:
   global:
-  - secure: FUKE82buqs73WVVTh5l2+PtK7zfQVA27YLwKUG37BKCbY9+X4RO326sEj4R93RzPy3ZIAZ1nbTE/LJTOJbKiRqcBDwcvGWHPPpCDN+RadcArjJuFH/5mEsMylJQmouH1m2PMmtIiag0oVcwILd0lkUjK5WPHPBGKoLlgZbakCCc=
-  - secure: Y6nhBk/ZE/rUzoM7MhIJg3W/yeU5yPT5K4sIuo5wLQPKq1cW8VT3LuqitbL9AihSdiUKdiZxcxlvNZ9PwzjezCCMDRCSfnekh5lBvQ09AV1bqv2a1GsarOkkhKSJ1lAQ/cE6O4/SU01y6clGdr8ZXiMj6qhrkggtjkaqJC6VLN8=
-  - secure: VdAseiEtxXCedXquZpOxRGkw2no3AQAzEP9VAofnyWmtnQMcLhlmHQNC3xAQ25QhEEf3/glrdC9D0NmvCUGbgbYi/f9JZgNOxxXSfHGJ+rMMagSoWudRdPw+TtW3HPKgXp76VNHVzurKNOnzd0W7VbhlwY4aaylONTunDpsQ61s=
-  - secure: VSvjmYqLDrskJoaPQzTmpAYIMBGvvZmPvnSwWWJGzlM5mfsnYsVxEVu8lqE8xnV0aautInO8s2JI6i5BnXghj78fuslrQkenNjBFHpOfK6fwx1SY/0jlLo61WncuCByrMeWdqlBUBPuOh8727bO1uBsCvrJ41UrH9Q2kRnmONZ4=
-  - secure: VPpJQe2jUeT07KLGbRRYzFDI7Q3qn2jEbfHd0ObGKjcUu2lZD9jCxYrUjJ7IKO7/qwtpCKX2682i6sA+2x+ZoIuuntWY/18z1p74XPljkJsYDWoR7Ni14gYaTf7LYN92nC42A/7UkstWDbL4fLEOKGyV/j8xQyUCv+fhcFuLBHU=
-  - secure: dhwxL+VHZiagtsNMDusqfOhV3DUssfga6Qd/evCCrtuS6Q3dmOqaQCKzG/0vdtfyf4Z9B4KPPFYGvJ17p2AhG5FdmTi/TgNBVpHLv4QhqI2f/XOBKI5gMoIf6KAn7MERWglD3KpelRl7+UU1d2+nmE4b+fAS3ppgLtV+w/VhAfk=
+    - secure: KRKTbYc7InVj55f7P8kJcJJcwuxgjXUBI2e0K4JuLazkv4N9xXeBhSbN8Hrgli3ViZtEexfbX4CqXrVcROD2Ur8visQiUzMWRZthR+zE0sbG/zc8wsy0egBYtExgtTA8Afx10hyut9pYpmgvZ55BV6a38fLTrbX/WJWO/ENRBik=
+    - secure: dhHJeY8qmi0+aIQwfqcKGtLQn0Byjvd62QvkpWstwbsOQD14Pc+vUXR5thiHl1pBndLI6APe+Ka9myx50SnoZBnrO/c9dAIuaTVI+D7g2ews+eNKP0LJJEm8qs7jAx8RgN4ozuTZiUu37YR4pXQ4W6nJX8rK7VuBRJyVutNQonA=
+    - secure: Capq7BeBRQuKifS3u/IdJr/zH9I8KrypuTdhoJHCRCKwGPAEzVqURdWltnx1TU+OdZ/lQW/ArWiLG+y74QSeMNGKoJkKsv3zTScme0JDgavPUC4rNQwMTUqPeoVAOjW5x1qikW4uIJ2bSqyUL5xJpOhElD/YkOQPuXaTEwpYOoQ=
+    - secure: Fu4L057bM28hmUhsaZ1MmZ+5iAg9Pi6uX+xc40h2tRUGmb6DZNtnXye336EH2qtZQHLHBIGyab+ok9j2UQPW4wvFE+F2/ViR8NwBGmYgCZOy8xZiIBTZPjJbHqmmldpzSV47Pzv9HVk+h2+KXIfg4vikhnky9W+TOnMrpwYDUZ0=
+    - secure: P41BCcGpYHHiqCoA6axG8q9iVQzS/iT9LkicE0gII60QrvOzouuXzift+Tljlmte05ZUaHHZ0cUxrkAsJye0tblMxkijNoL+Sjp8qjibEI9HunyB30ladKWCbAa+Cs5nb/bwP/HBkKnq3JjMPGbk+QY9D6EstwSu82ZBV/MOhMY=
+    - secure: cAPGk5a5ue0a63DXtiD0jtWanyhGo1h2mRa+oot3ex6BGrDgMynTeWgvcKr9ojoN1LEpYeAOZpY6JXuvrtZ+IbP6dsDlot8D6ODzrjRympWkGZsObiTeQLz3v9hnGnXLq3cpT2IM1tsWkRbS4GyGMTDKK1X9E7aEO66eYTQjBcg=
 notifications:
   hipchat:
     rooms:
-      - secure: B7w3WBQLHlkPB28+pd7dIZ35RjChp88L0qmDoam+mxjywCcG4ciRDCutLz3qvNC0eTi6l5vGGSBM2Z5bdQEN67ad5F3DOgPAR8a9iilcTdWnAzaAJkhiricgQa9xHLlMWEZsuYJJnYfyERaFNigmFM0as78icisVwiRKl1S3/wc=
+      - secure: guX/XFau2x7arLvJPJiNF4KuGfS/LrxRPCLYrAlClKsSfSUUfrV7T6bs6dWBl6qWnJDDwWNBFnYcGqKl+nKYMtfNnMVPst9mgL/uM+bkR9eLjMPyPZ36JL/AVoC19INZDhQDEcnOLjyL40jUXsI5UyU0PjHQPi9lK2OwV1jf5AM=
     template:
-      - '%{repository}#%{build_number} (%{author}): %{message} (<a href="%{build_url}">Details</a> <a href="%{compare_url}">Compare</a>)'
+      - '%{repository}#%{build_number} (%{author}): %{message} (<a href="%{build_url}">Details</a> / <a href="%{compare_url}">Compare</a>)'
     format: html
     on_success: change
     on_failure: always
