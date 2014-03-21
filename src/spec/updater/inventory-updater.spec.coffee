@@ -79,9 +79,18 @@ describe '#ensureChannelByKey', ->
       expect(error).toBe 'Error on getting channel: foo'
       done()
 
+  it 'should reject on problems on getting', (done) ->
+    spyOn(@updater.rest, 'GET').andCallFake((path, callback) -> callback(null, {statusCode: 400}, foo: 'bar'))
+
+    @updater.ensureChannelByKey(@updater.rest, 'bar')
+    .then (channel) -> done('Should not happen')
+    .fail (error) ->
+      expect(error).toBe 'Problem on getting channel: {\n  "foo": "bar"\n}'
+      done()
+
   it 'should create a channel if not found', (done) ->
     spyOn(@updater.rest, 'GET').andCallFake((path, callback) ->
-      callback(null, {statusCode: 404}, null))
+      callback(null, {statusCode: 200}, results: []))
     spyOn(@updater.rest, 'POST').andCallFake((path, payload, callback) ->
       callback(null, {statusCode: 201}, { foo: 'bar'}))
 
@@ -97,7 +106,7 @@ describe '#ensureChannelByKey', ->
 
   it 'should reject when error during channel creation', (done) ->
     spyOn(@updater.rest, 'GET').andCallFake((path, callback) ->
-      callback(null, {statusCode: 404}, null))
+      callback(null, {statusCode: 200}, result: []))
     spyOn(@updater.rest, 'POST').andCallFake((path, payload, callback) ->
       callback('foo', null, null))
 
@@ -109,14 +118,14 @@ describe '#ensureChannelByKey', ->
 
   it 'should reject if there was a problem during channel creation', (done) ->
     spyOn(@updater.rest, 'GET').andCallFake((path, callback) ->
-      callback(null, {statusCode: 404}, null))
+      callback(null, {statusCode: 200}, result: []))
     spyOn(@updater.rest, 'POST').andCallFake((path, payload, callback) ->
-      callback(null, {statusCode: 500}, 'foo'))
+      callback(null, {statusCode: 400}, 'foo'))
 
     @updater.ensureChannelByKey(@updater.rest, 'bar')
     .then (channel) -> done('Should not happen')
     .fail (error) ->
-      expect(error).toBe 'Error on creating channel: foo'
+      expect(error).toBe 'Problem on creating channel: "foo"'
       done()
 
 describe '#allInventoryEntries', ->
@@ -148,7 +157,7 @@ describe '#allInventoryEntries', ->
     @updater.allInventoryEntries(@updater.rest)
     .then (stocks) -> done('Should not happen')
     .fail (error) ->
-      expect(error).toBe 'Error on fetching all inventory entries: foo'
+      expect(error).toBe 'Problem on fetching all inventory entries: "foo"'
       done()
 
   it 'should reject if error', (done) ->
@@ -276,7 +285,7 @@ describe '#update', ->
     @updater.update()
     .then (result) -> done('Should not happen')
     .fail (error) ->
-      expect(error).toBe 'Error on updating existing inventory entry: foo'
+      expect(error).toBe 'Problem on updating existing inventory entry: "foo"'
       done()
 
   it 'should return message that entry was updated', (done) ->
@@ -328,7 +337,7 @@ describe '#create', ->
     @updater.create()
     .then (result) -> done('Should not happen')
     .fail (error) ->
-      expect(error).toBe 'Error on creating new inventory entry: foo'
+      expect(error).toBe 'Problem on creating new inventory entry: "foo"'
       done()
 
   it 'should return message that entry was created', (done) ->
