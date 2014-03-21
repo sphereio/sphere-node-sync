@@ -53,7 +53,8 @@ class InventoryUpdater extends CommonUpdater
           else if response.statusCode is 201
             deferred.resolve body
           else
-            deferred.reject 'Error on creating channel: ' + body
+            humanReadable = JSON.stringify body, null, 2
+            deferred.reject 'Problem on creating channel: ' + humanReadable
     deferred.promise
 
   allInventoryEntries: (rest, queryString) ->
@@ -65,7 +66,8 @@ class InventoryUpdater extends CommonUpdater
         if response.statusCode is 200
           deferred.resolve body.results
         else
-          deferred.reject "Error on fetching all inventory entries: #{body}"
+          humanReadable = JSON.stringify body, null, 2
+          deferred.reject "Problem on fetching all inventory entries: #{humanReadable}"
     , (progress) -> deferred.notify progress
     deferred.promise
 
@@ -116,7 +118,8 @@ class InventoryUpdater extends CommonUpdater
         else if response.statusCode is 304
           deferred.resolve 'Inventory entry update not neccessary.'
         else
-          deferred.reject 'Error on updating existing inventory entry: ' + body
+          humanReadable = JSON.stringify body, null, 2
+          deferred.reject 'Problem on updating existing inventory entry: ' + humanReadable
     deferred.promise
 
   create: (stock) ->
@@ -129,7 +132,8 @@ class InventoryUpdater extends CommonUpdater
         if response.statusCode is 201
           deferred.resolve 'New inventory entry created.'
         else
-          deferred.reject 'Error on creating new inventory entry: ' + body
+          humanReadable = JSON.stringify body, null, 2
+          deferred.reject 'Problem on creating new inventory entry: ' + humanReadable
     deferred.promise
 
 ###
