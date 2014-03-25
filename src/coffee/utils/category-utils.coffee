@@ -1,4 +1,4 @@
-{_} = require 'underscore'
+_ = require 'underscore'
 Utils = require './utils'
 helper = require '../helper'
 

@@ -1,4 +1,4 @@
-{_} = require 'underscore'
+_ = require 'underscore'
 CategoryUtils = require '../../lib/utils/category-utils'
 
 describe 'CategoryUtils', ->

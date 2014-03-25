@@ -1,5 +1,4 @@
-{_} = require 'underscore'
-{Rest} = require 'sphere-node-connect'
+_ = require 'underscore'
 Sync = require '../sync/sync'
 CategoryUtil = require '../utils/category-utils'
 
