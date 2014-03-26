@@ -1,4 +1,5 @@
 _ = require 'underscore'
+_.mixin deepClone: (obj) -> JSON.parse(JSON.stringify(obj))
 CategoryUtils = require '../../lib/utils/category-utils'
 
 describe 'CategoryUtils', ->
@@ -30,8 +31,10 @@ describe 'CategoryUtils', ->
           de: 'bla'
           en: 'foo'
 
-      otherCategory = _.clone category
+      otherCategory = _.deepClone category
       otherCategory.name.en = 'bar'
+      console.log "C", category
+      console.log "O", otherCategory
 
       delta = @utils.diff category, otherCategory
       console.error delta

@@ -3,7 +3,7 @@ Utils = require './utils'
 helper = require '../helper'
 
 ###
-CategoryUtils Utils class
+Category Utils class
 ###
 class CategoryUtils extends Utils
 
@@ -15,6 +15,7 @@ class CategoryUtils extends Utils
   actionsMap: (diff) ->
     console.log "DIFF", diff
     actions = []
+    return actions unless diff?
     _.each actionsList(), (item) ->
       key = item.key
       obj = diff[key]
