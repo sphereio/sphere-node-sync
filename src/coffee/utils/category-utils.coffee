@@ -12,20 +12,21 @@ class CategoryUtils extends Utils
   @param {object} diff result of jsondiffpatch tool.
   @return list with actions
   ###
-  actionsMap: (diff) ->
-    console.log "DIFF", diff
+  actionsMap: (diff, new_obj) ->
     actions = []
     return actions unless diff?
     _.each actionsList(), (item) ->
       key = item.key
       obj = diff[key]
       if obj?
-        updated = helper.getDeltaValue obj
-        action =
+        data =
           action: item.action
-        action[key] = updated
+        if _.isArray obj
+          data[key] = helper.getDeltaValue(obj)
+        else
+          data[key] = new_obj[key]
 
-      actions.push action if action?
+        actions.push data
     actions
 
 
