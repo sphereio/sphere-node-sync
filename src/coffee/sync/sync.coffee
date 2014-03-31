@@ -23,6 +23,9 @@ class Sync
     @_logger.debug opts, "New #{@constructor.name} object"
     @_data = {}
     @_utils = new Utils
+    @_syncConfig = []
+
+  config: (opts) -> @_syncConfig = opts or []
 
   buildActions: (new_obj, old_obj) ->
     # diff 'em
