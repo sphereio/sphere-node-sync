@@ -91,6 +91,30 @@ describe 'ProductSync', ->
       expect(sync).toThrow new Error("Missing '#{key}'")
 
 
+describe 'ProductSync.config', ->
+
+  beforeEach ->
+    @sync = new ProductSync
+
+  afterEach ->
+    @sync = null
+
+  it 'should build white/black-listed actions update', ->
+    opts = [
+      {type: 'base', group: 'white'}
+      {type: 'prices', group: 'black'}
+    ]
+    update = @sync.config(opts).buildActions(NEW_PRODUCT, OLD_PRODUCT).get()
+    expected_update =
+      actions: [
+        { action: 'changeName', name: {en: 'Foo', de: undefined, it: 'Boo'} }
+        { action: 'changeSlug', slug: {en: 'foo', it: 'boo'} }
+        { action: 'setDescription', description: undefined }
+      ]
+      version: OLD_PRODUCT.version
+    expect(update).toEqual expected_update
+
+
 describe 'ProductSync.buildActions', ->
 
   beforeEach ->
