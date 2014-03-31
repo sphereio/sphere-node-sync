@@ -17,19 +17,14 @@ class ProductSync extends Sync
     super new_obj, old_obj
 
   _doMapActions: (diff, new_obj, old_obj) ->
-    doAction = (type, fn) =>
-      found = _.find @_syncConfig, (c) -> c.type is type
-      switch found.group
-        when 'black' then []
-        else fn
-    actionsBase = doAction 'base', @_utils.actionsMap(diff, old_obj)
-    actionsReferences = doAction 'references', @_utils.actionsMapReferences(diff, old_obj, new_obj)
-    actionsPrices = doAction 'prices', @_utils.actionsMapPrices(diff, old_obj, new_obj)
-    actionsAttributes = doAction 'attributes', @_utils.actionsMapAttributes(diff, new_obj, @sameForAllAttributeNames)
-    actionsImages = doAction 'images', @_utils.actionsMapImages(diff, old_obj, new_obj)
-    actionsVariants = doAction 'variants', @_utils.actionsMapVariants(diff, old_obj, new_obj)
-    actions = _.union actions, actionsReferences, actionsPrices, actionsAttributes, actionsImages, actionsVariants
-    actions
+    allActions = []
+    allActions.push @_mapActionOrNot 'base', => @_utils.actionsMap(diff, old_obj)
+    allActions.push @_mapActionOrNot 'references', => @_utils.actionsMapReferences(diff, old_obj, new_obj)
+    allActions.push @_mapActionOrNot 'prices', => @_utils.actionsMapPrices(diff, old_obj, new_obj)
+    allActions.push @_mapActionOrNot 'attributes', => @_utils.actionsMapAttributes(diff, new_obj, @sameForAllAttributeNames)
+    allActions.push @_mapActionOrNot 'images', => @_utils.actionsMapImages(diff, old_obj, new_obj)
+    allActions.push @_mapActionOrNot 'variants', => @_utils.actionsMapVariants(diff, old_obj, new_obj)
+    _.flatten allActions
 
   _doUpdate: (callback) ->
     payload = JSON.stringify @_data.update

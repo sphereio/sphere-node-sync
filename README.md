@@ -80,6 +80,8 @@ options = [
   {type: 'variants', group: 'black'}
 ]
 # => this will exclude 'base' and 'variants' mapping of actions and include the rest (white group is actually implicit if not given)
+
+sync.config(options).buildActions ...
 ```
 
 > An empty list means all actions are built
@@ -155,20 +157,9 @@ Based on the instantiated resource sync (product, order, ...) there are groups o
 
 ### OrderSync
 
-- `changeOrderState` - field `orderState`
-- `changePaymentState` - field `paymentState`
-- `changeShipmentState` - field `shipmentState`
-- `setReturnShipmentState` - field `shipmentState`
-- `setReturnPaymentState` - field `paymentState`
-- `addReturnInfo` - field `returnInfo`
-- `addDelivery` - field `deliveries`
-
-#### ReturnInfoSync
-- `setReturnShipmentState` - field `shipmentState`
-- `setReturnPaymentState` - field `paymentState`
-
-#### DeliverySync
-- `addParcelToDelivery` - field `parcels`
+- `status` (orderState, paymentState, shipmentState)
+- `returnInfo` (returnInfo, shipmentState / paymentState of ReturnInfo)
+- `deliveries` (delivery, parcel)
 
 ### InventorySync
 
