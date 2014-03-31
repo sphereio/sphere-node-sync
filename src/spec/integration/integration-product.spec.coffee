@@ -1,4 +1,4 @@
-_ = require('underscore')._
+_ = require 'underscore'
 Q = require 'q'
 {Rest, OAuth2} = require 'sphere-node-connect'
 Logger = require '../../lib/logger'

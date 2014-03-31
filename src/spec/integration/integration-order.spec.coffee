@@ -1,4 +1,4 @@
-_ = require('underscore')._
+_ = require 'underscore'
 _.mixin deepClone: (obj) -> JSON.parse(JSON.stringify(obj))
 Q = require 'q'
 OrderSync = require '../../lib/sync/order-sync'
@@ -185,7 +185,7 @@ describe "Integration test", ->
 
       # sync first parcel
       @sync.buildActions(orderNew2, orderUpdated).update (error, response, body) =>
-        
+
         expect(response.statusCode).toBe 200
         console.error body unless response.statusCode is 200
         orderUpdated2 = body
@@ -197,7 +197,7 @@ describe "Integration test", ->
 
         # sync a second parcel
         @sync.buildActions(orderNew3, orderUpdated2).update (error, response, body) ->
-          
+
           expect(response.statusCode).toBe 200
           console.error body unless response.statusCode is 200
           orderUpdated3 = body

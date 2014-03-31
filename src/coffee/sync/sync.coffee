@@ -1,4 +1,4 @@
-_ = require('underscore')._
+_ = require 'underscore'
 {Rest} = require 'sphere-node-connect'
 Logger = require '../logger'
 Utils = require '../utils/utils'

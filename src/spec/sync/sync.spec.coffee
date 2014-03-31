@@ -1,4 +1,4 @@
-_ = require('underscore')._
+_ = require 'underscore'
 Sync = require '../../lib/sync/sync'
 Config = require('../../config').config.prod
 
