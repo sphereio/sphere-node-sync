@@ -41,6 +41,12 @@ class Sync
     @_logger.debug @_data, "Data update for #{@constructor.name} object"
     this
 
+  filterActions: (fn) ->
+    return this unless fn
+    filtered = _.filter @_data.update.actions, fn
+    @_data.update.actions = filtered
+    this
+
   get: (key = 'update') -> @_data[key]
 
   update: (callback) ->

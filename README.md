@@ -13,6 +13,7 @@ Collection of Sync components for SPHERE.IO entities
   * [Error handling](#error-handling)
   * [Methods](#methods)
     * [buildActions](#buildactions)
+    * [filterActions](#filteractions)
     * [get](#get)
     * [update](#update)
 * [Supported Update actions](#supported-update-actions)
@@ -79,6 +80,17 @@ buildActions = function(new_obj, old_obj) {
 ```
 The method returns a reference to the current object `Sync`, so that you can chain it with optional methods `get` and `update`.
 > The important data (actions, etc) is stored in a variable of the Sync class and accessible with `_data`.
+
+#### `filterActions`
+You can pass a custom function to filter built actions and internally update the actions payload.
+> This function should be called after the actions are built
+
+```coffeescript
+sync = new ProductSync {...}
+sync.buildActions(new_obj, old_obj).filterActions (a) -> a is 'changeName'
+# => actions payload will now contain only 'changeName' action
+```
+The method returns a reference to the current object `Sync`, so that you can chain it with optional methods `get` and `update`.
 
 #### `get`
 It's a wrapper of the `_data` object and returns one of its values given a `key`.
