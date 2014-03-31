@@ -23,6 +23,11 @@ class Sync
     @_logger.debug opts, "New #{@constructor.name} object"
     @_data = {}
     @_utils = new Utils
+    @_syncConfig = []
+
+  config: (opts) ->
+    @_syncConfig = opts or []
+    this
 
   buildActions: (new_obj, old_obj) ->
     # diff 'em
@@ -57,6 +62,14 @@ class Sync
     else
       # nothing to update
       callback(null, statusCode: 304, null)
+
+  _mapActionOrNot: (type, fn) ->
+    found = _.find @_syncConfig, (c) -> c.type is type
+    return fn() unless found
+    if found.group is 'black'
+      []
+    else
+      fn()
 
   ###
   Methods to override

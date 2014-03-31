@@ -13,10 +13,11 @@ class OrderSync extends Sync
     @_utils = new OrderUtils
 
   _doMapActions: (diff, new_obj, old_obj) ->
-    actionsStatus = @_utils.actionsMapStatusValues(diff, old_obj)
-    actionsReturnInfo = @_utils.actionsMapReturnInfo(diff, old_obj)
-    actionsDeliveries = @_utils.actionsMapDeliveries(diff, old_obj)
-    _.union actionsStatus, actionsReturnInfo, actionsDeliveries
+    allActions = []
+    allActions.push @_mapActionOrNot 'status', => @_utils.actionsMapStatusValues(diff, old_obj)
+    allActions.push @_mapActionOrNot 'returnInfo', => @_utils.actionsMapReturnInfo(diff, old_obj)
+    allActions.push @_mapActionOrNot 'deliveries', => @_utils.actionsMapDeliveries(diff, old_obj)
+    _.flatten allActions
 
   _doUpdate: (callback) ->
     payload = JSON.stringify @_data.update
