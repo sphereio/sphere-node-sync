@@ -34,6 +34,36 @@ describe 'InventorySync', ->
           levelFile: 'error'
       expect(sync).toThrow new Error("Missing '#{key}'")
 
+describe 'InventorySync.config', ->
+
+  beforeEach ->
+    @sync = new InventorySync
+
+  afterEach ->
+    @sync = null
+
+  it 'should build white/black-listed actions update', ->
+    opts = [
+      {type: 'quantity', group: 'white'}
+      {type: 'expectedDelivery', group: 'black'}
+    ]
+    newInventory =
+      id: '123'
+      quantityOnStock: 2
+      version: 1
+    oldInventory =
+      id: '123'
+      quantityOnStock: 10
+      version: 1
+    spyOn(@sync._utils, 'actionsMapExpectedDelivery').andReturn [{action: 'setExpectedDelivery', expectedDelivery: "2001-09-11T14:00:00.000Z"}]
+    update = @sync.config(opts).buildActions(newInventory, oldInventory).get()
+    expected_update =
+      actions: [
+        { action: 'removeQuantity', quantity: 8 }
+      ]
+      version: oldInventory.version
+    expect(update).toEqual expected_update
+
 describe '#buildActions', ->
 
   beforeEach ->

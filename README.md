@@ -163,9 +163,8 @@ Based on the instantiated resource sync (product, order, ...) there are groups o
 
 ### InventorySync
 
-- `addQuantity` - field `quantityOnStock` is more than before
-- `removeQuantity` - field `quantityOnStock` is less than before
-- `setExpectedDelivery` - field `expectedDelivery`
+- `quantity`
+- `expectedDelivery`
 
 
 ## Updater components
