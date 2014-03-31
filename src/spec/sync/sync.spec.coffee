@@ -62,6 +62,27 @@ describe 'Sync.buildActions', ->
     expect(update).not.toBeDefined()
 
 
+describe 'Sync.filterActions', ->
+
+  beforeEach ->
+    @sync = new Sync
+
+  afterEach ->
+    @sync = null
+
+  it 'should return reference to the object', ->
+    s = @sync.filterActions()
+    expect(s).toEqual @sync
+
+  it 'should filter built actions', ->
+    builtActions = ['foo', 'bar']
+    spyOn(@sync, '_doMapActions').andReturn builtActions
+    update = @sync.buildActions(NEW_OBJ, OLD_OBJ).filterActions (a) ->
+      a isnt 'bar'
+    .get()
+    expect(update.actions).toEqual ['foo']
+
+
 describe 'Sync.get', ->
 
   beforeEach ->
