@@ -12,11 +12,12 @@ Collection of Sync components for SPHERE.IO entities
   * [Rest connector](#rest-connector)
   * [Error handling](#error-handling)
   * [Methods](#methods)
+    * [config](#config)
     * [buildActions](#buildactions)
     * [filterActions](#filteractions)
     * [get](#get)
     * [update](#update)
-* [Supported Update actions](#supported-update-actions)
+* [Update actions groups](#update-actions-groups)
   * [ProductSync](#productsync)
   * [OrderSync](#ordersync)
   * [InventorySync](#inventorysync)
@@ -68,6 +69,20 @@ Please refer to the connector [documentation](https://github.com/sphereio/sphere
 ### Methods
 
 Following methods are accessible from the object.
+
+#### `config`
+Pass a list of [actions groups](#update-actions-groups) in order to restrict the actions that will be built
+
+```coffeescript
+options = [
+  {type: 'base', group: 'black'}
+  {type: 'prices', group: 'white'}
+  {type: 'variants', group: 'black'}
+]
+# => this will exclude 'base' and 'variants' mapping of actions and include the rest (white group is actually implicit if not given)
+```
+
+> An empty list means all actions are built
 
 #### `buildActions`
 There is basically one main method `buildActions` which expects **2 valid JSON objects**, here is the signature:
@@ -123,18 +138,20 @@ sync.buildActions(new_obj, old_obj).update(function(e, r, b){
 })
 ```
 
-## Supported Update actions
-Currently following actions are supported
+## Update actions groups
+Based on the instantiated resource sync (product, order, ...) there are groups of actions used for updates defined below.
+
+> Groups gives you the ability to configure the sync to include / exclude them when the actions are [built](#buildactions). This concept can be expressed in terms of _blacklisting_ and _whitelisting_
+
 
 ### ProductSync
 
-- `changeName` - field `name`
-- `changeSlug` - field `slug`
-- `setDescription` - field `description`
-- `removePrice` - field `prices` (all variants)
-- `addPrice` - field `prices` (all variants)
-- `setAttribute` - field `attributes` (all variants)
-- `setAttributeInAllVariants` - field `attributes` (all variants)
+- `base` (name, slug, description)
+- `references` (taxCategory, categories)
+- `prices`
+- `attributes`
+- `images`
+- `variants`
 
 ### OrderSync
 
