@@ -16,7 +16,7 @@ class ProductUtils extends Utils
     {masterVariant, variants} = _.defaults product,
       masterVariant: {}
       variants: []
-    _.union [masterVariant], variants
+    [masterVariant].concat variants
 
   diff: (old_obj, new_obj) ->
     # patch 'prices' to have an identifier in order for the diff
