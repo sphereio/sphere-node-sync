@@ -1,4 +1,4 @@
-_ = require('underscore')._
+_ = require 'underscore'
 helper = require '../lib/helper'
 
 describe 'Helper', ->
