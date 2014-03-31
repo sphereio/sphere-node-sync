@@ -82,6 +82,12 @@ describe 'Sync.filterActions', ->
     .get()
     expect(update.actions).toEqual ['foo']
 
+  it 'filter should work with no difference', ->
+    update = @sync.buildActions({}, {}).filterActions (a) ->
+      true
+    .get()
+    expect(update).toBeUndefined()
+
 
 describe 'Sync.get', ->
 

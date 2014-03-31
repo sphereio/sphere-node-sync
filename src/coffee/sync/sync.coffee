@@ -48,6 +48,7 @@ class Sync
 
   filterActions: (fn) ->
     return this unless fn
+    return this unless @_data.update
     filtered = _.filter @_data.update.actions, fn
     @_data.update.actions = filtered
     this
