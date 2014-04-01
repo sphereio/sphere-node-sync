@@ -225,9 +225,7 @@ class ProductUtils extends Utils
     actions
 
   actionForSku = (variantDiff, variant) ->
-    console.log "variantDiff %j", variantDiff
     if _.has variantDiff, 'sku'
-      console.log "HAJO %j", variantDiff
       action =
         action: 'setSKU'
         variantId: variant.id
