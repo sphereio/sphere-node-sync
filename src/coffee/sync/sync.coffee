@@ -50,7 +50,10 @@ class Sync
     return this unless fn
     return this unless @_data.update
     filtered = _.filter @_data.update.actions, fn
-    @_data.update.actions = filtered
+    if _.isEmpty filtered
+      @_data.update = undefined
+    else
+      @_data.update.actions = filtered
     this
 
   get: (key = 'update') -> @_data[key]
