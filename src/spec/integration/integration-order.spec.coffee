@@ -16,33 +16,35 @@ describe "Integration test", ->
 
     # get a tax category required for setting up shippingInfo (simply returning first found)
     @sync._client.taxCategories.save(taxCategoryMock())
-    .then (taxCategory) =>
-      @taxCategory = taxCategory
+    .then (result) =>
+      @taxCategory = result.body
       @sync._client.zones.save(zoneMock())
-    .then (zone) =>
-      @zone = zone
+    .then (result) =>
+      @zone = result.body
       @sync._client.shippingMethods.save(shippingMethodMock(@zone, @taxCategory))
-    .then (shippingMethod) =>
-      @shippingMethod = shippingMethod
+    .then (result) =>
+      @shippingMethod = result.body
       @sync._client.productTypes.save(productTypeMock())
-    .then (productType) =>
-      @productType = productType
-      @sync._client.products.save(productMock(productType))
-    .then (product) =>
-      @product = product
-      @sync._client.orders.import(orderMock(@shippingMethod, product, @taxCategory))
-    .then (order) =>
-      @order = order
+    .then (result) =>
+      @productType = result.body
+      @sync._client.products.save(productMock(@productType))
+    .then (result) =>
+      @product = result.body
+      @sync._client.orders.import(orderMock(@shippingMethod, @product, @taxCategory))
+    .then (result) =>
+      @order = result.body
       done()
-    .fail (error) -> done(error)
+    .fail (error) ->
+      console.log error
+      done(error)
 
   afterEach (done) ->
 
     # TODO: delete order (not supported by API yet)
     @sync._client.products.byId(@product.id).delete(@product.version)
-    .then (product) =>
+    .then (result) =>
       @sync._client.productTypes.byId(@productType.id).delete(@productType.version)
-    .then (productType) -> done()
+    .then (result) -> done()
     .fail (error) -> done(error)
     .fin ->
       @product = null
@@ -106,20 +108,20 @@ describe "Integration test", ->
     @sync.buildActions(orderNew, @order).update()
     .then (result) =>
       orderUpdated = result.body
-      orderNew2 = _.deepClone orderUpdated
+      @orderNew2 = _.deepClone orderUpdated
 
-      orderNew2.returnInfo[0].items[0].shipmentState = 'BackInStock'
-      orderNew2.returnInfo[0].items[0].paymentState = 'Refunded'
+      @orderNew2.returnInfo[0].items[0].shipmentState = 'BackInStock'
+      @orderNew2.returnInfo[0].items[0].paymentState = 'Refunded'
 
       # update returnInfo status
-      @sync.buildActions(orderNew2, orderUpdated).update()
-    .then (result) ->
+      @sync.buildActions(@orderNew2, orderUpdated).update()
+    .then (result) =>
       expect(result.statusCode).toBe 200
       orderUpdated2 = result.body
 
       expect(orderUpdated2).toBeDefined()
-      expect(orderUpdated2.returnInfo[0].items[0].shipmentState).toEqual orderNew2.returnInfo[0].items[0].shipmentState
-      expect(orderUpdated2.returnInfo[0].items[0].paymentState).toEqual orderNew2.returnInfo[0].items[0].paymentState
+      expect(orderUpdated2.returnInfo[0].items[0].shipmentState).toEqual @orderNew2.returnInfo[0].items[0].shipmentState
+      expect(orderUpdated2.returnInfo[0].items[0].paymentState).toEqual @orderNew2.returnInfo[0].items[0].paymentState
       done()
     .fail (error) -> done(error)
 
@@ -156,7 +158,7 @@ describe "Integration test", ->
       }]]
 
     @sync.buildActions(orderNew, @order).update()
-    .then (result) ->
+    .then (result) =>
       expect(result.statusCode).toBe 200
       orderUpdated = result.body
 
@@ -181,7 +183,7 @@ describe "Integration test", ->
 
       # sync first parcel
       @sync.buildActions(orderNew2, orderUpdated).update()
-    .then (result) ->
+    .then (result) =>
       expect(result.statusCode).toBe 200
       orderUpdated2 = result.body
 
