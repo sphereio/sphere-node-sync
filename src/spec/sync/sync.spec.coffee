@@ -45,6 +45,29 @@ describe 'Sync', ->
       expect(sync).toThrow new Error("Missing '#{key}'")
 
 
+describe 'Sync.config', ->
+
+  beforeEach ->
+    @sync = new Sync
+
+  afterEach ->
+    @sync = null
+
+  it 'should build all actions if config is not defined', ->
+    spyOn(@sync, '_doMapActions').andReturn [{foo: 'bar'}]
+    update = @sync.config().buildActions({foo: 'bar'}, {foo: 'qux', version: 1}).get()
+    expected_update =
+      actions: [
+        {foo: 'bar'}
+      ]
+      version: 1
+    expect(update).toEqual expected_update
+
+  it 'should throw if given group is not supported', ->
+    spyOn(@sync, '_doMapActions').andCallFake (type, fn) => @sync._mapActionOrNot 'base', -> [{foo: 'bar'}]
+    expect(=> @sync.config([{type: 'base', group: 'foo'}]).buildActions({foo: 'bar'}, {foo: 'qux', version: 1})).toThrow new Error 'Action group \'foo\' not supported. Please use black or white.'
+
+
 describe 'Sync.buildActions', ->
 
   beforeEach ->
