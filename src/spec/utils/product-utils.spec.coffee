@@ -91,6 +91,8 @@ OLD_VARIANT =
     { id: 2 }
     { id: 3, attributes: { name: 'foo', value: 'bar' } }
     { id: 4, sku: 'v4' }
+    { id: 6, sku: 'v6' }
+    { id: 7, sku: 'v7' }
   ]
 
 NEW_VARIANT =
@@ -98,9 +100,11 @@ NEW_VARIANT =
   masterVariant:
     id: 1
   variants: [
-    { id: 2 }
+    { id: 2, sku: 'SKUadded' }
     { id: 3, attributes: { name: 'foo', value: 'CHANGED' } }
     { id: 5, sku: 'v5' }
+    { id: 6, sku: 'SKUchanged!' }
+    { id: 7 }
   ]
 
 ###
@@ -585,6 +589,17 @@ describe 'ProductUtils.actionsMapAttributes', ->
       { action: 'removeVariant', id: 4 }
     ]
     expect(update).toEqual expected_update
+
+  it 'should create action for sku', ->
+    delta = @utils.diff OLD_VARIANT, NEW_VARIANT
+    update = @utils.actionsMapAttributes delta, OLD_VARIANT, NEW_VARIANT
+    expected_update = [
+      { action: 'setSKU', sku: 'SKUadded', variantId: 2 }
+      { action: 'setSKU', sku: 'SKUchanged!', variantId: 6 }
+      { action: 'setSKU', variantId: 7 }
+    ]
+    expect(update).toEqual expected_update
+
 
   it 'should build prices actions', ->
     delta = @utils.diff OLD_PRODUCT, NEW_PRODUCT
