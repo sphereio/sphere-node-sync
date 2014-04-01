@@ -68,12 +68,13 @@ class Sync
       callback(null, statusCode: 304, null)
 
   _mapActionOrNot: (type, fn) ->
+    return fn() if _.isEmpty @_syncConfig
     found = _.find @_syncConfig, (c) -> c.type is type
-    return fn() unless found
-    if found.group is 'black'
-      []
-    else
-      fn()
+    return [] unless found
+    switch found.group
+      when 'black' then []
+      when 'white' then fn()
+      else throw new Error "Action group '#{found.group}' not supported. Please use black or white."
 
   ###
   Methods to override
