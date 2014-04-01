@@ -82,12 +82,19 @@ describe 'Sync.filterActions', ->
     .get()
     expect(update.actions).toEqual ['foo']
 
-  it 'filter should work with no difference', ->
+  it 'should work with no difference', ->
     update = @sync.buildActions({}, {}).filterActions (a) ->
       true
     .get()
     expect(update).toBeUndefined()
 
+  it 'should set update to undefined if filter returns empty action list', ->
+    builtActions = ['some', 'action']
+    spyOn(@sync, '_doMapActions').andReturn builtActions
+    update = @sync.buildActions(NEW_OBJ, OLD_OBJ).filterActions (a) ->
+      false
+    .get()
+    expect(update).toBeUndefined()
 
 describe 'Sync.get', ->
 
