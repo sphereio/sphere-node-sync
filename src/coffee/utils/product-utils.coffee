@@ -1,5 +1,5 @@
-_ = require('underscore')._
-_.mixin deepClone: (obj) -> JSON.parse(JSON.stringify(obj))
+_ = require 'underscore'
+_.mixin require('sphere-node-utils')._u
 jsondiffpatch = require 'jsondiffpatch'
 Utils = require './utils'
 helper = require '../helper'
