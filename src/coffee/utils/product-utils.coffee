@@ -224,6 +224,15 @@ class ProductUtils extends Utils
 
     actions
 
+  actionForSku = (variantDiff, variant) ->
+    console.log "variantDiff %j", variantDiff
+    if _.has variantDiff, 'sku'
+      console.log "HAJO %j", variantDiff
+      action =
+        action: 'setSKU'
+        variantId: variant.id
+        sku: helper.getDeltaValue(variantDiff.sku)
+
   # we assume that the products have the same ProductType
   # TODO: validate ProductType between products
   actionsMapAttributes: (diff, new_obj, sameForAllAttributeNames = []) ->
@@ -231,6 +240,8 @@ class ProductUtils extends Utils
     # masterVariant
     masterVariant = diff.masterVariant
     if masterVariant
+      skuAction = actionForSku(masterVariant, new_obj.masterVariant)
+      actions.push(skuAction) if skuAction?
       attributes = masterVariant.attributes
       mActions = actionsMapVariantAttributes attributes, new_obj.masterVariant, sameForAllAttributeNames
       actions = actions.concat mActions
@@ -238,6 +249,8 @@ class ProductUtils extends Utils
     # variants
     if diff.variants
       _.each diff.variants, (variant, i) ->
+        skuAction = actionForSku(variant, new_obj.variants[i])
+        actions.push(skuAction) if skuAction?
         attributes = variant.attributes
         vActions = actionsMapVariantAttributes attributes, new_obj.variants[i], sameForAllAttributeNames
         actions = actions.concat vActions
