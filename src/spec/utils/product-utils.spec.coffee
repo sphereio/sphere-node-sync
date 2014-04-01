@@ -600,24 +600,6 @@ describe 'ProductUtils.actionsMapAttributes', ->
     ]
     expect(update).toEqual expected_update
 
-
-  it 'should build prices actions', ->
-    delta = @utils.diff OLD_PRODUCT, NEW_PRODUCT
-    update = @utils.actionsMapPrices delta, OLD_PRODUCT, NEW_PRODUCT
-    expected_update = [
-      { action: 'removePrice', variantId: 1, price: { value: { currencyCode: 'EUR', centAmount: 1 } } }
-      { action: 'removePrice', variantId: 1, price: { value: { currencyCode: 'EUR', centAmount: 7 } } }
-      { action: 'removePrice', variantId: 3, price: { value: { currencyCode: 'EUR', centAmount: 2100 }, country: 'DE' } }
-      { action: 'removePrice', variantId: 3, price: { value: { currencyCode: 'EUR', centAmount: 2200 }, customerGroup: { id: '123', typeId: 'customer-group' } } }
-      { action: 'removePrice', variantId: 4, price: { value: { currencyCode: 'YEN', centAmount: 7777 } } }
-      { action: 'addPrice', variantId: 1, price: { value: { currencyCode: 'EUR', centAmount: 2 } } }
-      { action: 'addPrice', variantId: 1, price: { value: { currencyCode: 'USD', centAmount: 7 } } }
-      { action: 'addPrice', variantId: 3, price: { value: { currencyCode: 'EUR', centAmount: 2100 }, country: 'CH' } }
-      { action: 'addPrice', variantId: 3, price: { value: { currencyCode: 'EUR', centAmount: 2200 }, customerGroup: { id: '987', typeId: 'customer-group' } } }
-      { action: 'addPrice', variantId: 5, price: { value: { currencyCode: 'EUR', centAmount: 999 } } }
-    ]
-    expect(update).toEqual expected_update
-
   it 'should build attribute actions', ->
     delta = @utils.diff(OLD_ATTRIBUTES, NEW_ATTRIBUTES)
     expected_delta =
@@ -729,67 +711,122 @@ describe 'ProductUtils.actionsMapAttributes', ->
     ]
     expect(update).toEqual expected_update
 
-  describe '#actionsMapReferences', ->
-    beforeEach ->
-      @OLD_REFERENCE =
-        id: '123'
-        taxCategory:
-          typeId: 'tax-category'
-          id: 'tax-de'
+describe 'ProductUtils.actionsMapPrices', ->
+  beforeEach ->
+    @utils = new ProductUtils
 
-      @NEW_REFERENCE =
-        id: '123'
-        taxCategory:
-          typeId: 'tax-category'
-          id: 'tax-us'
+  it 'should build prices actions', ->
+    delta = @utils.diff OLD_PRODUCT, NEW_PRODUCT
+    update = @utils.actionsMapPrices delta, OLD_PRODUCT, NEW_PRODUCT
+    expected_update = [
+      { action: 'changePrice', variantId: 1, price: { value: { currencyCode: 'EUR', centAmount: 2 } } }
+      { action: 'removePrice', variantId: 1, price: { value: { currencyCode: 'EUR', centAmount: 7 } } }
+      { action: 'removePrice', variantId: 3, price: { value: { currencyCode: 'EUR', centAmount: 2100 }, country: 'DE' } }
+      { action: 'removePrice', variantId: 3, price: { value: { currencyCode: 'EUR', centAmount: 2200 }, customerGroup: { id: '123', typeId: 'customer-group' } } }
+      { action: 'removePrice', variantId: 4, price: { value: { currencyCode: 'YEN', centAmount: 7777 } } }
+      { action: 'addPrice', variantId: 1, price: { value: { currencyCode: 'USD', centAmount: 7 } } }
+      { action: 'addPrice', variantId: 3, price: { value: { currencyCode: 'EUR', centAmount: 2100 }, country: 'CH' } }
+      { action: 'addPrice', variantId: 3, price: { value: { currencyCode: 'EUR', centAmount: 2200 }, customerGroup: { id: '987', typeId: 'customer-group' } } }
+      { action: 'addPrice', variantId: 5, price: { value: { currencyCode: 'EUR', centAmount: 999 } } }
+    ]
+    expect(update).toEqual expected_update
 
-    it 'should build action to change tax-category', ->
-      delta = @utils.diff @OLD_REFERENCE, @NEW_REFERENCE
-      update = @utils.actionsMapReferences delta, @OLD_REFERENCE, @NEW_REFERENCE
-      expected_update = [
-        { action: 'setTaxCategory', taxCategory: { typeId: 'tax-category', id: 'tax-us' } }
-      ]
-      expect(update).toEqual expected_update
-
-    it 'should build action to delete tax-category', ->
-      delete @NEW_REFERENCE.taxCategory
-      delta = @utils.diff @OLD_REFERENCE, @NEW_REFERENCE
-      update = @utils.actionsMapReferences delta, @OLD_REFERENCE, @NEW_REFERENCE
-      expected_update = [
-        { action: 'setTaxCategory' }
-      ]
-      expect(update).toEqual expected_update
-
-    it 'should build action to add tax-category', ->
-      delete @OLD_REFERENCE.taxCategory
-      delta = @utils.diff @OLD_REFERENCE, @NEW_REFERENCE
-      update = @utils.actionsMapReferences delta, @OLD_REFERENCE, @NEW_REFERENCE
-      expected_update = [
-        { action: 'setTaxCategory', taxCategory: { typeId: 'tax-category', id: 'tax-us' } }
-      ]
-      expect(update).toEqual expected_update
-
-  describe '#actionsMapReferences', ->
-    beforeEach ->
-      @OLD_REFERENCE =
-        id: '123'
-        categories: [
-          { typeId: 'category', id: 'cat1' }
-          { typeId: 'category', id: 'cat2' }
+  it 'should build change price actions', ->
+    oldPrice =
+      masterVariant:
+        id: 1
+        prices: [
+          {value: {currencyCode: 'EUR', centAmount: 2}}
+          {value: {currencyCode: 'EUR', centAmount: 10}}
+          {value: {currencyCode: 'EUR', centAmount: 10}, country: 'DE'}
+          {value: {currencyCode: 'EUR', centAmount: 10}, country: 'DE'}
         ]
-
-      @NEW_REFERENCE =
-        id: '123'
-        categories: [
-          { typeId: 'category', id: 'cat1' }
-          { typeId: 'category', id: 'cat3' }
+    newPrice =
+      masterVariant:
+        id: 1
+        prices: [
+          {value: {currencyCode: 'EUR', centAmount: 5}}
+          {value: {currencyCode: 'USD', centAmount: 20}}
+          {value: {currencyCode: 'EUR', centAmount: 20}, country: 'US'}
+          {value: {currencyCode: 'EUR', centAmount: 10}, country: 'US'}
         ]
+    delta = @utils.diff oldPrice, newPrice
+    update = @utils.actionsMapPrices delta, oldPrice, newPrice
 
-    it 'should build actions to change category', ->
-      delta = @utils.diff @OLD_REFERENCE, @NEW_REFERENCE
-      update = @utils.actionsMapReferences delta, @OLD_REFERENCE, @NEW_REFERENCE
-      expected_update = [
-        { action: 'removeFromCategory', category: { typeId: 'category', id: 'cat2' } }
-        { action: 'addToCategory', category: { typeId: 'category', id: 'cat3' } }
+    expect(update.length).toBe 7
+    expect(update[0]).toEqual { action: 'changePrice', variantId: 1, price: { value: { currencyCode: 'EUR', centAmount: 5 } } }
+    expect(update[1].action).toBe 'removePrice'
+    expect(update[2].action).toBe 'removePrice'
+    expect(update[3].action).toBe 'removePrice'
+    expect(update[4].action).toBe 'addPrice'
+    expect(update[5].action).toBe 'addPrice'
+    expect(update[6].action).toBe 'addPrice'
+
+describe 'ProductUtils.actionsMapReferences (tax-category)', ->
+
+  beforeEach ->
+    @utils = new ProductUtils
+    @OLD_REFERENCE =
+      id: '123'
+      taxCategory:
+        typeId: 'tax-category'
+        id: 'tax-de'
+
+    @NEW_REFERENCE =
+      id: '123'
+      taxCategory:
+        typeId: 'tax-category'
+        id: 'tax-us'
+
+  it 'should build action to change tax-category', ->
+    delta = @utils.diff @OLD_REFERENCE, @NEW_REFERENCE
+    update = @utils.actionsMapReferences delta, @OLD_REFERENCE, @NEW_REFERENCE
+    expected_update = [
+      { action: 'setTaxCategory', taxCategory: { typeId: 'tax-category', id: 'tax-us' } }
+    ]
+    expect(update).toEqual expected_update
+
+  it 'should build action to delete tax-category', ->
+    delete @NEW_REFERENCE.taxCategory
+    delta = @utils.diff @OLD_REFERENCE, @NEW_REFERENCE
+    update = @utils.actionsMapReferences delta, @OLD_REFERENCE, @NEW_REFERENCE
+    expected_update = [
+      { action: 'setTaxCategory' }
+    ]
+    expect(update).toEqual expected_update
+
+  it 'should build action to add tax-category', ->
+    delete @OLD_REFERENCE.taxCategory
+    delta = @utils.diff @OLD_REFERENCE, @NEW_REFERENCE
+    update = @utils.actionsMapReferences delta, @OLD_REFERENCE, @NEW_REFERENCE
+    expected_update = [
+      { action: 'setTaxCategory', taxCategory: { typeId: 'tax-category', id: 'tax-us' } }
+    ]
+    expect(update).toEqual expected_update
+
+describe 'ProductUtils.actionsMapReferences (category)', ->
+
+  beforeEach ->
+    @utils = new ProductUtils
+    @OLD_REFERENCE =
+      id: '123'
+      categories: [
+        { typeId: 'category', id: 'cat1' }
+        { typeId: 'category', id: 'cat2' }
       ]
-      expect(update).toEqual expected_update
+
+    @NEW_REFERENCE =
+      id: '123'
+      categories: [
+        { typeId: 'category', id: 'cat1' }
+        { typeId: 'category', id: 'cat3' }
+      ]
+
+  it 'should build actions to change category', ->
+    delta = @utils.diff @OLD_REFERENCE, @NEW_REFERENCE
+    update = @utils.actionsMapReferences delta, @OLD_REFERENCE, @NEW_REFERENCE
+    expected_update = [
+      { action: 'removeFromCategory', category: { typeId: 'category', id: 'cat2' } }
+      { action: 'addToCategory', category: { typeId: 'category', id: 'cat3' } }
+    ]
+    expect(update).toEqual expected_update
