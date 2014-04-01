@@ -528,11 +528,69 @@ describe 'ProductUtils.diff', ->
         it: 'Esempio'
 
     delta = @utils.diff OLD, NEW
-    update = @utils.actionsMap(delta, OLD)
+    update = @utils.actionsMapBase(delta, OLD)
     expected_update = [
       { action: 'changeName', name: {en: undefined, de: 'Boo'} }
       { action: 'changeSlug', slug: {en: 'boo'} }
       { action: 'setDescription', description: {en: 'Sample', it: 'Esempio'} }
+    ]
+    expect(update).toEqual expected_update
+
+  it 'should diff meta attributes', ->
+    OLD =
+      id: '123'
+      metaTitle:
+        en: 'A title'
+      metaDescription:
+        en: 'A description'
+      metaKeywords:
+        en: 'foo, bar'
+    NEW =
+      id: '123'
+      metaTitle:
+        en: 'A new title'
+      metaDescription:
+        en: 'A new description'
+      metaKeywords:
+        en: 'foo, bar, qux'
+
+    delta = @utils.diff OLD, NEW
+    update = @utils.actionsMapMetaAttributes(delta, OLD)
+    expected_update = [
+      {
+        action: 'setMetaAttributes'
+        metaTitle: {en: 'A new title'}
+        metaDescription: {en: 'A new description'}
+        metaKeywords: {en: 'foo, bar, qux'}
+      }
+    ]
+    expect(update).toEqual expected_update
+
+  it 'should build meta attributes action with original values, if not all are changed', ->
+    OLD =
+      id: '123'
+      metaTitle:
+        en: 'A title'
+      metaDescription:
+        en: 'A description'
+    NEW =
+      id: '123'
+      metaTitle:
+        en: 'A new title'
+      metaDescription:
+        en: 'A description'
+      metaKeywords:
+        en: 'foo, bar'
+
+    delta = @utils.diff OLD, NEW
+    update = @utils.actionsMapMetaAttributes(delta, OLD)
+    expected_update = [
+      {
+        action: 'setMetaAttributes'
+        metaTitle: {en: 'A new title'}
+        metaDescription: {en: 'A description'}
+        metaKeywords: {en: 'foo, bar'}
+      }
     ]
     expect(update).toEqual expected_update
 

@@ -62,43 +62,36 @@ class ProductUtils extends Utils
     super(old_obj, new_obj)
 
 
-  # This is used assuming the keys are on the first level of the object
-  actionsMap: (diff, old_obj) ->
+  ###
+  # Actions mapping
+  ###
+  actionsMapBase: (diff, old_obj) ->
+    list = _.filter actionsBaseList(), (a) ->
+      switch a.key
+        when 'name', 'slug', 'description' then true
+        else false
     actions = []
-    _.each actionsList(), (item) ->
-      key = item.key
-      action = switch key
-        when 'name', 'slug', 'description'
-          obj = diff[key]
-          if obj
-            updated = {}
-            if _.isArray obj
-              updated = helper.getDeltaValue(obj)
-            else
-              keys = _.keys obj
-              _.each keys, (k) ->
-                value = helper.getDeltaValue(obj[k])
-                updated[k] = value
-
-            if old_obj[key]
-              # extend values of original object with possible new values of the diffed object
-              # e.g.:
-              #   old = {en: 'foo'}
-              #   updated = {de: 'bar', en: undefined}
-              #   => old = {en: undefined, de: 'bar'}
-              old = _.deepClone old_obj[key]
-              _.extend old, updated
-            else
-              old = updated
-            a =
-              action: item.action
-            if updated
-              a[key] = old
-            else
-              a[key] = undefined
-            a
+    _.each list, (item) ->
+      action = buildBaseAttributesAction(item, diff, old_obj)
       actions.push action if action
     actions
+
+  actionsMapMetaAttributes: (diff, old_obj) ->
+    list = _.filter actionsBaseList(), (a) ->
+      switch a.key
+        when 'metaTitle', 'metaDescription', 'metaKeywords' then true
+        else false
+    actions = []
+    _.each list, (item) ->
+      action = buildBaseAttributesAction(item, diff, old_obj)
+      actions.push action if action
+    return [] if _.isEmpty actions
+    # since there is only one action for each of those attributes, we can reduce them to one
+    reduced = _.reduce actions, (memo, action) ->
+      _.extend {}, memo, action
+    , {action: 'setMetaAttributes'}
+    defaults = _.pick old_obj, 'metaTitle', 'metaDescription', 'metaKeywords'
+    [_.defaults(reduced, defaults)]
 
   actionsMapVariants: (diff, old_obj, new_obj) ->
     actions = []
@@ -294,6 +287,7 @@ class ProductUtils extends Utils
     # this will sort the actions ranked in asc order (first 'remove' then 'add')
     _.sortBy actions, (a) -> a.action is 'addExternalImage'
 
+
 ###
 Exports object
 ###
@@ -303,7 +297,7 @@ module.exports = ProductUtils
 # Product helper methods
 #################
 
-actionsList = ->
+actionsBaseList = ->
   [
     {
       action: 'changeName'
@@ -316,9 +310,51 @@ actionsList = ->
     {
       action: 'setDescription'
       key: 'description'
+    },
+    {
+      action: 'setMetaAttributes'
+      key: 'metaTitle'
+    },
+    {
+      action: 'setMetaAttributes'
+      key: 'metaDescription'
+    },
+    {
+      action: 'setMetaAttributes'
+      key: 'metaKeywords'
     }
-    # TODO: meta attributes
   ]
+
+buildBaseAttributesAction = (item, diff, old_obj) ->
+  key = item.key
+  obj = diff[key]
+  if obj
+    updated = {}
+    if _.isArray obj
+      updated = helper.getDeltaValue(obj)
+    else
+      keys = _.keys obj
+      _.each keys, (k) ->
+        value = helper.getDeltaValue(obj[k])
+        updated[k] = value
+
+    if old_obj[key]
+      # extend values of original object with possible new values of the diffed object
+      # e.g.:
+      #   old = {en: 'foo'}
+      #   updated = {de: 'bar', en: undefined}
+      #   => old = {en: undefined, de: 'bar'}
+      old = _.deepClone old_obj[key]
+      _.extend old, updated
+    else
+      old = updated
+    action =
+      action: item.action
+    if updated
+      action[key] = old
+    else
+      action[key] = undefined
+  action
 
 buildChangePriceAction = (centAmountDiff, variant, index) ->
   price = variant.prices[index]
