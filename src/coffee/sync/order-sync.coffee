@@ -18,9 +18,7 @@ class OrderSync extends Sync
     allActions.push @_mapActionOrNot 'deliveries', => @_utils.actionsMapDeliveries(diff, old_obj)
     _.flatten allActions
 
-  _doUpdate: (callback) ->
-    payload = JSON.stringify @_data.update
-    @_rest.POST "/orders/#{@_data.updateId}", payload, callback
+  _doUpdate: -> @_client.orders.byId(@_data.updateId).update(@_data.update)
 
 
 ###

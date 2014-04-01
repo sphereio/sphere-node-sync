@@ -26,9 +26,7 @@ class ProductSync extends Sync
     allActions.push @_mapActionOrNot 'metaAttributes', => @_utils.actionsMapMetaAttributes(diff, old_obj, new_obj)
     _.flatten allActions
 
-  _doUpdate: (callback) ->
-    payload = JSON.stringify @_data.update
-    @_rest.POST "/products/#{@_data.updateId}", payload, callback
+  _doUpdate: -> @_client.products.byId(@_data.updateId).update(@_data.update)
 
 
 ###

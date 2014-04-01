@@ -15,28 +15,23 @@ describe 'Integration test', ->
       logConfig:
         levelStream: 'error'
         levelFile: 'error'
-    del = (id) =>
-      deferred = Q.defer()
-      @sync._rest.DELETE "/inventory/#{id}", (error, response, body) ->
-        if error
-          deferred.reject error
-        else
-          if response.statusCode is 200 or response.statusCode is 404
-            deferred.resolve true
-          else
-            deferred.reject body
-      deferred.promise
 
-    @sync._rest.PAGED '/inventory', (e, r, b) ->
-      stocks = b.results
+    @sync._client.inventoryEntries.perPage(0).fetch()
+    .then (result) =>
+      stocks = result.body.results
       if stocks.length is 0
+        Q()
+      else
+        dels = []
+        for s in stocks
+          dels.push @sync._client.inventoryEntries.byId(s.id).delete(s.version)
+        Q.all(dels)
+    .then (v) -> done()
+    .fail (error) ->
+      if error.statusCode is 404
         done()
-      dels = []
-      for s in stocks
-        dels.push del(s.id)
-      Q.all(dels)
-      .then (v) -> done()
-      .fail (error) -> done(error)
+      else
+        done(error)
 
   it 'should update inventory entry', (done) ->
     ie =
@@ -45,14 +40,15 @@ describe 'Integration test', ->
     ieChanged =
       sku: '123'
       quantityOnStock: 7
-    @sync._rest.POST '/inventory', ie, (error, response, body) =>
-      expect(error).toBeNull()
-      expect(response.statusCode).toBe 201
-      @sync.buildActions(ieChanged, body).update (error, response, body) ->
-        expect(error).toBeNull()
-        expect(response.statusCode).toBe 200
-        expect(body.quantityOnStock).toBe 7
-        done()
+    @sync._client.inventoryEntries.save(ie)
+    .then (result) =>
+      expect(result.statusCode).toBe 201
+      @sync.buildActions(ieChanged, result.body).update()
+    .then (result) ->
+      expect(result.statusCode).toBe 200
+      expect(result.body.quantityOnStock).toBe 7
+      done()
+    .fail (error) -> done(error)
 
   it 'should add expectedDelivery date', (done) ->
     ie =
@@ -62,15 +58,16 @@ describe 'Integration test', ->
       sku: 'x1'
       quantityOnStock: 7
       expectedDelivery: '2000-01-01T01:01:01'
-    @sync._rest.POST '/inventory', ie, (error, response, body) =>
-      expect(error).toBeNull()
-      expect(response.statusCode).toBe 201
-      @sync.buildActions(ieChanged, body).update (error, response, body) ->
-        expect(error).toBeNull()
-        expect(response.statusCode).toBe 200
-        expect(body.quantityOnStock).toBe 7
-        expect(body.expectedDelivery).toBe '2000-01-01T01:01:01.000Z'
-        done()
+    @sync._client.inventoryEntries.save(ie)
+    .then (result) =>
+      expect(result.statusCode).toBe 201
+      @sync.buildActions(ieChanged, result.body).update()
+    .then (result) ->
+      expect(result.statusCode).toBe 200
+      expect(result.body.quantityOnStock).toBe 7
+      expect(result.body.expectedDelivery).toBe '2000-01-01T01:01:01.000Z'
+      done()
+    .fail (error) -> done(error)
 
   it 'should update expectedDelivery date', (done) ->
     ie =
@@ -81,15 +78,16 @@ describe 'Integration test', ->
       sku: 'x2'
       quantityOnStock: 3
       expectedDelivery: '2000-01-01T01:01:01.000Z'
-    @sync._rest.POST '/inventory', ie, (error, response, body) =>
-      expect(error).toBeNull()
-      expect(response.statusCode).toBe 201
-      @sync.buildActions(ieChanged, body).update (error, response, body) ->
-        expect(error).toBeNull()
-        expect(response.statusCode).toBe 200
-        expect(body.quantityOnStock).toBe 3
-        expect(body.expectedDelivery).toBe '2000-01-01T01:01:01.000Z'
-        done()
+    @sync._client.inventoryEntries.save(ie)
+    .then (result) =>
+      expect(result.statusCode).toBe 201
+      @sync.buildActions(ieChanged, result.body).update()
+    .then (result) ->
+      expect(result.statusCode).toBe 200
+      expect(result.body.quantityOnStock).toBe 3
+      expect(result.body.expectedDelivery).toBe '2000-01-01T01:01:01.000Z'
+      done()
+    .fail (error) -> done(error)
 
   it 'should remove expectedDelivery date', (done) ->
     ie =
@@ -99,12 +97,13 @@ describe 'Integration test', ->
     ieChanged =
       sku: 'x3'
       quantityOnStock: 3
-    @sync._rest.POST '/inventory', ie, (error, response, body) =>
-      expect(error).toBeNull()
-      expect(response.statusCode).toBe 201
-      @sync.buildActions(ieChanged, body).update (error, response, body) ->
-        expect(error).toBeNull()
-        expect(response.statusCode).toBe 200
-        expect(body.quantityOnStock).toBe 3
-        expect(body.expectedDelivery).toBeUndefined()
-        done()
+    @sync._client.inventoryEntries.save(ie)
+    .then (result) =>
+      expect(result.statusCode).toBe 201
+      @sync.buildActions(ieChanged, result.body).update()
+    .then (result) ->
+      expect(result.statusCode).toBe 200
+      expect(result.body.quantityOnStock).toBe 3
+      expect(result.body.expectedDelivery).not.toBeDefined()
+      done()
+    .fail (error) -> done(error)
