@@ -154,6 +154,7 @@ Based on the instantiated resource sync (product, order, ...) there are groups o
 - `attributes`
 - `images`
 - `variants`
+- `metaAttributes`
 
 ### OrderSync
 
