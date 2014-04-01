@@ -130,12 +130,11 @@ describe 'ProductSync.buildActions', ->
         { action: 'changeName', name: {en: 'Foo', de: undefined, it: 'Boo'} }
         { action: 'changeSlug', slug: {en: 'foo', it: 'boo'} }
         { action: 'setDescription', description: undefined }
-        { action: 'removePrice', variantId: 1, price: {value: {currencyCode: 'EUR', centAmount: 1000}} }
+        { action: 'changePrice', variantId: 1, price: {value: {currencyCode: 'EUR', centAmount: 3800}} }
         { action: 'removePrice', variantId: 1, price: {value: {currencyCode: 'EUR', centAmount: 1100}, country: 'DE'} }
         { action: 'removePrice', variantId: 1, price: {value: {currencyCode: 'EUR', centAmount: 1200}, customerGroup: {id: '984a64de-24a4-42c0-868b-da7abfe1c5f6', typeId: 'customer-group'}} }
         { action: 'removePrice', variantId: 2, price: {value: {currencyCode: 'EUR', centAmount: 2100}, country: 'US'} }
         { action: 'removePrice', variantId: 2, price: {value: {currencyCode: 'EUR', centAmount: 2200}, customerGroup: {id: '59c64f80-6472-474e-b5be-dc57b45b2faf', typeId: 'customer-group'}} }
-        { action: 'addPrice', variantId: 1, price: {value: {currencyCode: 'EUR', centAmount: 3800}} }
         { action: 'addPrice', variantId: 1, price: {value: {currencyCode: 'EUR', centAmount: 1100}, country: 'IT'} }
         { action: 'addPrice', variantId: 2, price: {value: {currencyCode: 'EUR', centAmount: 2200}, customerGroup: {id: '59c64f80-6472-474e-b5be-dc57b45b2faf', typeId: 'customer-group'}} }
       ]
