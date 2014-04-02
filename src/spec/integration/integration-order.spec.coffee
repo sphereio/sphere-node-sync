@@ -1,5 +1,5 @@
 _ = require 'underscore'
-_.mixin deepClone: (obj) -> JSON.parse(JSON.stringify(obj))
+_.mixin require('sphere-node-utils')._u
 Q = require 'q'
 OrderSync = require '../../lib/sync/order-sync'
 Config = require('../../config').config
@@ -15,38 +15,37 @@ describe "Integration test", ->
         levelFile: 'error'
 
     # get a tax category required for setting up shippingInfo (simply returning first found)
-    createResourcePromise(@sync._rest, '/tax-categories', taxCategoryMock())
-      .then (taxCategory) =>
-        @taxCategory = taxCategory
-        createResourcePromise(@sync._rest, '/zones', zoneMock())
-    .then (zone) =>
-      @zone = zone
-      createResourcePromise(@sync._rest, '/shipping-methods', shippingMethodMock(@zone, @taxCategory))
-    .then (shippingMethod) =>
-      @shippingMethod = shippingMethod
-      createResourcePromise(@sync._rest, '/product-types', productTypeMock())
-    .then (productType) =>
-      @productType = productType
-      createResourcePromise(@sync._rest, '/products', productMock(productType))
-    .then (product) =>
-      @product = product
-      createResourcePromise(@sync._rest, '/orders/import', orderMock(@shippingMethod, product, @taxCategory))
-    .then (order) =>
-      @order = order
+    @sync._client.taxCategories.save(taxCategoryMock())
+    .then (result) =>
+      @taxCategory = result.body
+      @sync._client.zones.save(zoneMock())
+    .then (result) =>
+      @zone = result.body
+      @sync._client.shippingMethods.save(shippingMethodMock(@zone, @taxCategory))
+    .then (result) =>
+      @shippingMethod = result.body
+      @sync._client.productTypes.save(productTypeMock())
+    .then (result) =>
+      @productType = result.body
+      @sync._client.products.save(productMock(@productType))
+    .then (result) =>
+      @product = result.body
+      @sync._client.orders.import(orderMock(@shippingMethod, @product, @taxCategory))
+    .then (result) =>
+      @order = result.body
       done()
     .fail (error) ->
+      console.log error
       done(error)
 
   afterEach (done) ->
 
     # TODO: delete order (not supported by API yet)
-    deleteResourcePromise(@sync._rest, "/products/#{@product.id}?version=#{@product.version}")
-      .then (product) =>
-        deleteResourcePromise(@sync._rest, "/product-types/#{@productType.id}?version=#{@productType.version}")
-    .then (productType) ->
-      done()
-    .fail (error) ->
-      done(error)
+    @sync._client.products.byId(@product.id).delete(@product.version)
+    .then (result) =>
+      @sync._client.productTypes.byId(@productType.id).delete(@productType.version)
+    .then (result) -> done()
+    .fail (error) -> done(error)
     .fin ->
       @product = null
       @productType = null
@@ -59,15 +58,16 @@ describe "Integration test", ->
     orderNew.paymentState = 'Paid'
     orderNew.shipmentState = 'Ready'
 
-    @sync.buildActions(orderNew, @order).update (error, response, body) ->
-      expect(response.statusCode).toBe 200
-      console.error body unless response.statusCode is 200
-      orderUpdated = body
+    @sync.buildActions(orderNew, @order).update()
+    .then (result) ->
+      expect(result.statusCode).toBe 200
+      orderUpdated = result.body
       expect(orderUpdated).toBeDefined()
       expect(orderUpdated.orderState).toBe orderNew.orderState
       expect(orderUpdated.paymentState).toBe orderNew.paymentState
       expect(orderUpdated.shipmentState).toBe orderNew.shipmentState
       done()
+    .fail (error) -> done(error)
 
   it 'should sync returnInfo', (done) ->
     orderNew = _.deepClone @order
@@ -82,14 +82,14 @@ describe "Integration test", ->
         shipmentState: 'Advised'
       }]
 
-    @sync.buildActions(orderNew, @order).update (error, response, body) ->
-      expect(response.statusCode).toBe 200
-      console.error body unless response.statusCode is 200
-      orderUpdated = body
+    @sync.buildActions(orderNew, @order).update()
+    .then (result) ->
+      expect(result.statusCode).toBe 200
+      orderUpdated = result.body
       expect(orderUpdated).toBeDefined()
       expect(orderUpdated.returnInfo[0].id).toBe orderNew.returnInfo[0].id
-
       done()
+    .fail (error) -> done(error)
 
   it 'should sync returnInfo status', (done) ->
     orderNew = _.deepClone @order
@@ -105,30 +105,29 @@ describe "Integration test", ->
       }]
 
     # prepare order: add returnInfo first
-    @sync.buildActions(orderNew, @order).update (error, response, body) =>
+    @sync.buildActions(orderNew, @order).update()
+    .then (result) =>
+      orderUpdated = result.body
+      @orderNew2 = _.deepClone orderUpdated
 
-      console.error body unless response.statusCode is 200
-      orderUpdated = body
-      orderNew2 = _.deepClone orderUpdated
-
-      orderNew2.returnInfo[0].items[0].shipmentState = 'BackInStock'
-      orderNew2.returnInfo[0].items[0].paymentState = 'Refunded'
+      @orderNew2.returnInfo[0].items[0].shipmentState = 'BackInStock'
+      @orderNew2.returnInfo[0].items[0].paymentState = 'Refunded'
 
       # update returnInfo status
-      @sync.buildActions(orderNew2, orderUpdated).update (error, response, body) ->
+      @sync.buildActions(@orderNew2, orderUpdated).update()
+    .then (result) =>
+      expect(result.statusCode).toBe 200
+      orderUpdated2 = result.body
 
-        expect(response.statusCode).toBe 200
-        console.error body unless response.statusCode is 200
-        orderUpdated2 = body
-
-        expect(orderUpdated2).toBeDefined()
-        expect(orderUpdated2.returnInfo[0].items[0].shipmentState).toEqual orderNew2.returnInfo[0].items[0].shipmentState
-        expect(orderUpdated2.returnInfo[0].items[0].paymentState).toEqual orderNew2.returnInfo[0].items[0].paymentState
-        done()
+      expect(orderUpdated2).toBeDefined()
+      expect(orderUpdated2.returnInfo[0].items[0].shipmentState).toEqual @orderNew2.returnInfo[0].items[0].shipmentState
+      expect(orderUpdated2.returnInfo[0].items[0].paymentState).toEqual @orderNew2.returnInfo[0].items[0].paymentState
+      done()
+    .fail (error) -> done(error)
 
   it 'should sync delivery items', (done) ->
 
-    orderNew = JSON.parse(JSON.stringify(@order))
+    orderNew = _.deepClone @order
 
     # add one delivery item
     orderNew.shippingInfo.deliveries = [
@@ -137,19 +136,19 @@ describe "Integration test", ->
          quantity: 1
       }]]
 
-    @sync.buildActions(orderNew, @order).update (error, response, body) ->
-      expect(response.statusCode).toBe 200
-      console.error body unless response.statusCode is 200
-      orderUpdated = body
+    @sync.buildActions(orderNew, @order).update()
+    .then (result) ->
+      expect(result.statusCode).toBe 200
+      orderUpdated = result.body
 
       expect(orderUpdated).toBeDefined()
       expect(orderUpdated.shippingInfo.deliveries.length).toBe 1
-
       done()
+    .fail (error) -> done(error)
 
   it 'should sync parcel items of a delivery', (done) ->
 
-    orderNew = JSON.parse(JSON.stringify(@order))
+    orderNew = _.deepClone @order
 
     # add one delivery item
     orderNew.shippingInfo.deliveries = [
@@ -158,13 +157,12 @@ describe "Integration test", ->
          quantity: 1
       }]]
 
-    @sync.buildActions(orderNew, @order).update (error, response, body) =>
-      expect(response.statusCode).toBe 200
-      console.error body unless response.statusCode is 200
-      orderUpdated = body
+    @sync.buildActions(orderNew, @order).update()
+    .then (result) =>
+      expect(result.statusCode).toBe 200
+      orderUpdated = result.body
 
-      orderNew2 = JSON.parse(JSON.stringify(orderUpdated))
-
+      orderNew2 = _.deepClone orderUpdated
 
       # add a parcel item
       orderNew2.shippingInfo.deliveries[0].parcels = [{
@@ -184,28 +182,27 @@ describe "Integration test", ->
       }]
 
       # sync first parcel
-      @sync.buildActions(orderNew2, orderUpdated).update (error, response, body) =>
+      @sync.buildActions(orderNew2, orderUpdated).update()
+    .then (result) =>
+      expect(result.statusCode).toBe 200
+      orderUpdated2 = result.body
 
-        expect(response.statusCode).toBe 200
-        console.error body unless response.statusCode is 200
-        orderUpdated2 = body
+      orderNew3 = _.deepClone orderUpdated2
 
-        orderNew3 = JSON.parse(JSON.stringify(orderUpdated2))
+      # add a parcel item
+      orderNew3.shippingInfo.deliveries[0].parcels.push {}
 
-        # add a parcel item
-        orderNew3.shippingInfo.deliveries[0].parcels.push {}
+      # sync a second parcel
+      @sync.buildActions(orderNew3, orderUpdated2).update()
+    .then (result) ->
+      expect(result.statusCode).toBe 200
+      orderUpdated3 = result.body
 
-        # sync a second parcel
-        @sync.buildActions(orderNew3, orderUpdated2).update (error, response, body) ->
-
-          expect(response.statusCode).toBe 200
-          console.error body unless response.statusCode is 200
-          orderUpdated3 = body
-
-          expect(orderUpdated3).toBeDefined()
-          parcels = _.first(orderUpdated3.shippingInfo.deliveries).parcels
-          expect(parcels.length).toBe 2
-          done()
+      expect(orderUpdated3).toBeDefined()
+      parcels = _.first(orderUpdated3.shippingInfo.deliveries).parcels
+      expect(parcels.length).toBe 2
+      done()
+    .fail (error) -> done(error)
 
 ###
 helper methods
@@ -312,25 +309,3 @@ orderMock = (shippingMethod, product, taxCategory) ->
       shippingMethod:
         typeId: 'shipping-method'
         id: shippingMethod.id
-
-createResourcePromise = (rest, url, body) ->
-  deferred = Q.defer()
-  rest.POST url, JSON.stringify(body), (error, response, body) ->
-    if response.statusCode is 201
-      deferred.resolve body
-    else if error
-      deferred.reject new Error(error)
-    else
-      deferred.reject new Error(body)
-  deferred.promise
-
-deleteResourcePromise = (rest, url) ->
-  deferred = Q.defer()
-  rest.DELETE url, (error, response, body) ->
-    if response.statusCode is 200
-      deferred.resolve body
-    else if error
-      deferred.reject new Error(error)
-    else
-      deferred.reject new Error(body)
-  deferred.promise

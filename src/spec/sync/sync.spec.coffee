@@ -1,4 +1,5 @@
 _ = require 'underscore'
+Q = require 'q'
 Sync = require '../../lib/sync/sync'
 Config = require('../../config').config.prod
 
@@ -26,8 +27,8 @@ describe 'Sync', ->
         levelStream: 'error'
         levelFile: 'error'
     expect(sync).toBeDefined()
-    expect(sync._rest).toBeDefined()
-    expect(sync._rest._options.config).toEqual Config
+    expect(sync._client).toBeDefined()
+    expect(sync._client._rest._options.config).toEqual Config
 
   it 'should throw error if no credentials are given', ->
     sync = -> new Sync foo: 'bar'
@@ -155,26 +156,22 @@ describe 'Sync.update', ->
     expect(sync.update).toThrow new Error('Cannot update: the Rest connector wasn\'t instantiated (probabily because of missing credentials)')
 
   it 'should send update request', (done) ->
-    spyOn(@sync._rest, 'POST')
+    spyOn(@sync, '_doUpdate').andReturn Q({foo: 'bar'})
     @sync._data =
       update:
         actions: []
         version: 1
       updateId: '123'
-    callMe = (e, r, b) ->
-      expect(e).toBe null
-      expect(r).toBe null
-      expect(b).toBe null
+    @sync.update()
+    .then (result) ->
+      expect(result.foo).toBe 'bar'
       done()
-    @sync.update(callMe)
-    expect(@sync._rest.POST).not.toHaveBeenCalled()
+    .fail (error) -> done(error)
 
   it 'should return \'304\' if there are no update actions', (done) ->
-    spyOn(@sync._rest, 'POST')
-    callMe = (e, r, b) ->
-      expect(e).toBe null
-      expect(r.statusCode).toBe 304
-      expect(b).toBe null
+    @sync.update()
+    .then (result) ->
+      expect(result.statusCode).toBe 304
+      expect(result.body).toBe null
       done()
-    @sync.update(callMe)
-    expect(@sync._rest.POST).not.toHaveBeenCalled()
+    .fail (error) -> done(error)

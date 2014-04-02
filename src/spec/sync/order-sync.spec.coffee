@@ -30,8 +30,8 @@ describe 'OrderSync', ->
         levelStream: 'error'
         levelFile: 'error'
     expect(sync).toBeDefined()
-    expect(sync._rest).toBeDefined()
-    expect(sync._rest._options.config).toEqual Config
+    expect(sync._client).toBeDefined()
+    expect(sync._client._rest._options.config).toEqual Config
 
   it 'should throw error if no credentials are given', ->
     sync = -> new OrderSync foo: 'bar'
@@ -48,71 +48,73 @@ describe 'OrderSync', ->
           levelFile: 'error'
       expect(sync).toThrow new Error("Missing '#{key}'")
 
-describe 'OrderSync.config', ->
+  describe ':: config', ->
 
-  beforeEach ->
-    @sync = new OrderSync
+    beforeEach ->
+      @sync = new OrderSync
 
-  afterEach ->
-    @sync = null
+    afterEach ->
+      @sync = null
 
-  it 'should build white/black-listed actions update', ->
-    opts = [
-      {type: 'status', group: 'white'}
-      {type: 'returnInfo', group: 'black'}
-    ]
-    spyOn(@sync._utils, 'actionsMapReturnInfo').andReturn [{action: 'addReturnInfo', returnTrackingId: '1234', items: []}]
-    update = @sync.config(opts).buildActions(NEW_ORDER, OLD_ORDER).get()
-    expected_update =
-      actions: [
-        { action: 'changeOrderState', orderState: 'Complete' }
-        { action: 'changePaymentState', paymentState: 'Paid' }
-        { action: 'changeShipmentState', shipmentState: 'Ready' }
+    it 'should build white/black-listed actions update', ->
+      opts = [
+        {type: 'status', group: 'white'}
+        {type: 'returnInfo', group: 'black'}
       ]
-      version: OLD_ORDER.version
-    expect(update).toEqual expected_update
+      spyOn(@sync._utils, 'actionsMapReturnInfo').andReturn [{action: 'addReturnInfo', returnTrackingId: '1234', items: []}]
+      update = @sync.config(opts).buildActions(NEW_ORDER, OLD_ORDER).get()
+      expected_update =
+        actions: [
+          { action: 'changeOrderState', orderState: 'Complete' }
+          { action: 'changePaymentState', paymentState: 'Paid' }
+          { action: 'changeShipmentState', shipmentState: 'Ready' }
+        ]
+        version: OLD_ORDER.version
+      expect(update).toEqual expected_update
 
-describe 'OrderSync.buildActions', ->
+  describe ':: buildActions', ->
 
-  beforeEach ->
-    @sync = new OrderSync
+    beforeEach ->
+      @sync = new OrderSync
 
-  afterEach ->
-    @sync = null
+    afterEach ->
+      @sync = null
 
-  it 'should build the action update', ->
-    update = @sync.buildActions(NEW_ORDER, OLD_ORDER).get()
-    expected_update =
-      actions: [
-        { action: 'changeOrderState', orderState: 'Complete' }
-        { action: 'changePaymentState', paymentState: 'Paid' }
-        { action: 'changeShipmentState', shipmentState: 'Ready' }
-      ]
-      version: OLD_ORDER.version
-    expect(update).toEqual expected_update
+    it 'should build the action update', ->
+      update = @sync.buildActions(NEW_ORDER, OLD_ORDER).get()
+      expected_update =
+        actions: [
+          { action: 'changeOrderState', orderState: 'Complete' }
+          { action: 'changePaymentState', paymentState: 'Paid' }
+          { action: 'changeShipmentState', shipmentState: 'Ready' }
+        ]
+        version: OLD_ORDER.version
+      expect(update).toEqual expected_update
 
 
-describe 'OrderSync.update', ->
+  describe ':: update', ->
 
-  beforeEach ->
-    @sync = new OrderSync
-      config: Config
-      logConfig:
-        levelStream: 'error'
-        levelFile: 'error'
+    beforeEach ->
+      @sync = new OrderSync
+        config: Config
+        logConfig:
+          levelStream: 'error'
+          levelFile: 'error'
 
-  afterEach ->
-    @sync = null
+    afterEach ->
+      @sync = null
 
-  it 'should send update request', (done) ->
-    spyOn(@sync._rest, 'POST').andCallFake((path, payload, callback) -> callback(null, null, {id: '123'}))
-    @sync._data =
-      update:
-        actions: []
-        version: 1
-      updateId: '123'
-    callMe = (e, r, b) ->
-      expect(b.id).toBe '123'
-      done()
-    @sync.update(callMe)
-    expect(@sync._rest.POST).toHaveBeenCalledWith('/orders/123', JSON.stringify(@sync._data.update), jasmine.any(Function))
+    it 'should send update request', (done) ->
+      spyOn(@sync._client._rest, 'POST').andCallFake((path, payload, callback) -> callback(null, {statusCode: 200}, {id: '123'}))
+      @sync._data =
+        update:
+          actions: []
+          version: 1
+        updateId: '123'
+      @sync.update()
+      .then (result) =>
+        expect(result.statusCode).toBe 200
+        expect(result.body.id).toBe '123'
+        expect(@sync._client._rest.POST).toHaveBeenCalledWith('/orders/123', JSON.stringify(@sync._data.update), jasmine.any(Function))
+        done()
+      .fail (error) -> done(error)

@@ -18,9 +18,7 @@ class InventorySync extends Sync
     allActions.push @_mapActionOrNot 'expectedDelivery', => @_utils.actionsMapExpectedDelivery(diff, old_obj)
     _.flatten allActions
 
-  _doUpdate: (callback) ->
-    payload = JSON.stringify @_data.update
-    @_rest.POST "/inventory/#{@_data.updateId}", payload, callback
+  _doUpdate: -> @_client.inventoryEntries.byId(@_data.updateId).update(@_data.update)
 
 ###
 Exports object

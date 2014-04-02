@@ -1,5 +1,6 @@
 _ = require 'underscore'
-{Rest} = require 'sphere-node-connect'
+Q = require 'q'
+SphereClient = require 'sphere-node-client'
 Logger = require '../logger'
 Utils = require '../utils/utils'
 
@@ -11,12 +12,7 @@ class Sync
     @_logger = new Logger opts.logConfig
 
     unless _.isEmpty opts
-      config = opts.config
-      throw new Error('Missing credentials') unless config
-      throw new Error('Missing \'client_id\'') unless config.client_id
-      throw new Error('Missing \'client_secret\'') unless config.client_secret
-      throw new Error('Missing \'project_key\'') unless config.project_key
-      @_rest = new Rest _.extend opts,
+      @_client = new SphereClient _.extend opts,
         logConfig:
           logger: @_logger
 
@@ -58,14 +54,14 @@ class Sync
 
   get: (key = 'update') -> @_data[key]
 
-  update: (callback) ->
-    unless @_rest
+  update: ->
+    unless @_client
       throw new Error 'Cannot update: the Rest connector wasn\'t instantiated (probabily because of missing credentials)'
     unless _.isEmpty @_data.update
-      @_doUpdate(callback)
+      @_doUpdate()
     else
       # nothing to update
-      callback(null, statusCode: 304, null)
+      Q({statusCode: 304, body: null})
 
   _mapActionOrNot: (type, fn) ->
     return fn() if _.isEmpty @_syncConfig
@@ -83,9 +79,9 @@ class Sync
     # => Override to map actions
     []
 
-  _doUpdate: (callback) ->
+  _doUpdate: ->
     # => Override to send update request
-    callback(null, null, null)
+    Q()
 
 ###
 Exports object
