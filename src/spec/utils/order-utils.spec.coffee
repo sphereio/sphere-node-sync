@@ -1,5 +1,5 @@
 _ = require 'underscore'
-_.mixin deepClone: (obj) -> JSON.parse(JSON.stringify(obj))
+_.mixin require('sphere-node-utils')._u
 OrderUtils = require '../../lib/utils/order-utils'
 
 uniqueId = (prefix = '') ->
