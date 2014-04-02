@@ -1,4 +1,4 @@
-{ProductSync, OrderSync, InventorySync, InventoryUpdater, CommonUpdater} = require '../lib/main'
+{ProductSync, OrderSync, InventorySync} = require '../lib/main'
 
 describe 'exports', ->
 
@@ -10,9 +10,3 @@ describe 'exports', ->
 
   it 'InventorySync', ->
     expect(InventorySync).toBeDefined()
-
-  it 'InventoryUpdater', ->
-    expect(InventoryUpdater).toBeDefined()
-
-  it 'CommonUpdater', ->
-    expect(CommonUpdater).toBeDefined()
