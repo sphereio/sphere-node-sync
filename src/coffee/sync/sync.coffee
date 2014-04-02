@@ -1,4 +1,5 @@
 _ = require 'underscore'
+Q = require 'q'
 SphereClient = require 'sphere-node-client'
 Logger = require '../logger'
 Utils = require '../utils/utils'
@@ -53,14 +54,14 @@ class Sync
 
   get: (key = 'update') -> @_data[key]
 
-  update: (callback) ->
+  update: ->
     unless @_client
       throw new Error 'Cannot update: the Rest connector wasn\'t instantiated (probabily because of missing credentials)'
     unless _.isEmpty @_data.update
-      @_doUpdate(callback)
+      @_doUpdate()
     else
       # nothing to update
-      callback(null, statusCode: 304, null)
+      Q({statusCode: 304, body: null})
 
   _mapActionOrNot: (type, fn) ->
     return fn() if _.isEmpty @_syncConfig
