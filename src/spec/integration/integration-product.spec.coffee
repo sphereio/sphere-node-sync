@@ -194,7 +194,8 @@ describe 'Integration test between projects', ->
     .then (result) =>
       @allProdProducts = result.body.results
       # sync prod -> staging
-      searches = _.map @allProdProducts, (prodProd) =>
+      searches = _.filter @allProdProducts, (prodProd) -> prodProd.masterVariant.sku
+      .map (prodProd) =>
         sku = prodProd.masterVariant.sku
         predicate = "masterVariant(sku=\"#{sku}\")"
         @syncStaging._client.productProjections.where(predicate).staged(true).fetch()
