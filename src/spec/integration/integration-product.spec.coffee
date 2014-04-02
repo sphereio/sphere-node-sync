@@ -1,6 +1,5 @@
 _ = require 'underscore'
 Q = require 'q'
-{Rest, OAuth2} = require 'sphere-node-connect'
 Logger = require '../../lib/logger'
 ProductSync = require '../../lib/sync/product-sync'
 Config = require('../../config').config
@@ -20,24 +19,13 @@ getProductFromStaged = (product) ->
 
 describe 'Integration test', ->
 
-  createResourcePromise = (rest, url, body) ->
-    deferred = Q.defer()
-    rest.POST url, JSON.stringify(body), (error, response, body) ->
-      if response.statusCode is 201
-        deferred.resolve body
-      else if error
-        deferred.reject new Error(error)
-      else
-        deferred.reject new Error(body)
-    deferred.promise
-
   beforeEach (done) ->
     @sync = new ProductSync
       config: Config.prod
       logConfig:
         levelStream: 'error'
         levelFile: 'error'
-    @rest = @sync._rest
+    @client = @sync._client
 
     @unique = new Date().getTime()
     pt =
@@ -58,11 +46,12 @@ describe 'Integration test', ->
         prices: []
         images: []
 
-    createResourcePromise(@rest, '/product-types', pt)
-    .then (productType) =>
-      @newProduct.productType.id = productType.id
-      createResourcePromise(@rest, '/products', @newProduct)
-    .then (product) =>
+    @client.productTypes.save(pt)
+    .then (result) =>
+      @newProduct.productType.id = result.body.id
+      @client.products.save(@newProduct)
+    .then (result) =>
+      product = result.body
       @oldProduct = product.masterData.staged
       @oldProduct.productType = product.productType # set product type to staged subset
       # set id for matching and version for update
@@ -70,25 +59,28 @@ describe 'Integration test', ->
       @oldProduct.version = product.version
       @newProduct.id = product.id
       done()
-    .fail (msg) ->
-      done(msg)
+    .fail (msg) -> done(msg)
 
 
   it 'should not update minimum product', (done) ->
     data = @sync.buildActions @newProduct, @oldProduct
-    data.update (e, r, b) ->
-      expect(r.statusCode).toBe 304
+    data.update()
+    .then (result) ->
+      expect(result.statusCode).toBe 304
       done()
+    .fail (error) -> done(error)
 
   it 'should update name', (done) ->
     @newProduct.name.en = 'Hello'
     @newProduct.name.de = 'Hallo'
     data = @sync.buildActions @newProduct, @oldProduct
-    data.update (e, r, b) ->
-      expect(r.statusCode).toBe 200
-      expect(b.masterData.staged.name.en).toBe 'Hello'
-      expect(b.masterData.staged.name.de).toBe 'Hallo'
+    data.update()
+    .then (result) ->
+      expect(result.statusCode).toBe 200
+      expect(result.body.masterData.staged.name.en).toBe 'Hello'
+      expect(result.body.masterData.staged.name.de).toBe 'Hallo'
       done()
+    .fail (error) -> done(error)
 
   it 'should add, update and delete tax category', (done) ->
     tax =
@@ -96,46 +88,49 @@ describe 'Integration test', ->
       rates: []
 
     # addition
-    createResourcePromise(@rest, '/tax-categories', tax)
-    .then (taxCategory) =>
+    @client.taxCategories.save(tax)
+    .then (result) =>
+      @taxCategory = result.body
       @newProduct.taxCategory =
         typeId: 'tax-category'
-        id: taxCategory.id
+        id: @taxCategory.id
       data = @sync.buildActions @newProduct, @oldProduct
-      data.update (e, r, b) =>
-        expect(r.statusCode).toBe 200
-        expect(b.taxCategory).toBeDefined()
-        expect(b.taxCategory.typeId).toBe 'tax-category'
-        expect(b.taxCategory.id).toBe taxCategory.id
+      data.update()
+    .then (result) =>
+      @productResult = result.body
+      expect(result.statusCode).toBe 200
+      expect(result.body.taxCategory).toBeDefined()
+      expect(result.body.taxCategory.typeId).toBe 'tax-category'
+      expect(result.body.taxCategory.id).toBe @taxCategory.id
 
     # change
-        tax =
-          name: "myTax2-#{@unique}"
-          rates: []
-        createResourcePromise(@rest, '/tax-categories', tax)
-        .then (taxCategory2) =>
-          @newProduct.taxCategory.id = taxCategory2.id
-          @oldProduct = getProductFromStaged b
-          data = @sync.buildActions @newProduct, @oldProduct
-          data.update (e, r, b) =>
-            expect(r.statusCode).toBe 200
-            expect(b.taxCategory).toBeDefined()
-            expect(b.taxCategory.typeId).toBe 'tax-category'
-            expect(b.taxCategory.id).toBe taxCategory2.id
+      tax =
+        name: "myTax2-#{@unique}"
+        rates: []
+      @client.taxCategories.save(tax)
+    .then (result) =>
+      @taxCategory2 = result.body
+      @newProduct.taxCategory.id = @taxCategory2.id
+      @oldProduct = getProductFromStaged @productResult
+      data = @sync.buildActions @newProduct, @oldProduct
+      data.update()
+    .then (result) =>
+      expect(result.statusCode).toBe 200
+      expect(result.body.taxCategory).toBeDefined()
+      expect(result.body.taxCategory.typeId).toBe 'tax-category'
+      expect(result.body.taxCategory.id).toBe @taxCategory2.id
 
     # deletion
-            @oldProduct = getProductFromStaged b
-            @newProduct.taxCategory = null
+      @oldProduct = getProductFromStaged result.body
+      @newProduct.taxCategory = null
 
-            data = @sync.buildActions @newProduct, @oldProduct
-            data.update (e, r, b) ->
-              expect(r.statusCode).toBe 200
-              expect(b.taxCategory).toBeUndefined()
-              done()
-        .fail (msg) ->
-          done(JSON.stringify(msg))
-    .fail (msg) ->
-      done(JSON.stringify(msg))
+      data = @sync.buildActions @newProduct, @oldProduct
+      data.update()
+    .then (result) ->
+      expect(result.statusCode).toBe 200
+      expect(result.body.taxCategory).not.toBeDefined()
+      done()
+    .fail (msg) -> done(msg)
 
   it 'should add, change and remove image', (done) ->
     @newProduct.masterVariant.images = [
@@ -144,118 +139,66 @@ describe 'Integration test', ->
 
     # addition
     data = @sync.buildActions @newProduct, @oldProduct
-    data.update (e, r, b) =>
-      expect(r.statusCode).toBe 200
-      expect(_.size b.masterData.staged.masterVariant.images).toBe 1
-      expect(b.masterData.staged.masterVariant.images[0].url).toBe '//example.com/image.png'
+    data.update()
+    .then (result) =>
+      product = result.body
+      expect(result.statusCode).toBe 200
+      expect(_.size product.masterData.staged.masterVariant.images).toBe 1
+      expect(product.masterData.staged.masterVariant.images[0].url).toBe '//example.com/image.png'
 
     # change
-      @oldProduct = getProductFromStaged b
+      @oldProduct = getProductFromStaged product
       @newProduct.masterVariant.images = [
         { url: '//example.com/CHANGED.png', dimensions: { h: 0, w: 0 } }
       ]
       data = @sync.buildActions @newProduct, @oldProduct
-      data.update (e, r, b) =>
-        expect(r.statusCode).toBe 200
-        expect(_.size b.masterData.staged.masterVariant.images).toBe 1
-        expect(b.masterData.staged.masterVariant.images[0].url).toBe '//example.com/CHANGED.png'
+      data.update()
+    .then (result) =>
+      product = result.body
+      expect(result.statusCode).toBe 200
+      expect(_.size product.masterData.staged.masterVariant.images).toBe 1
+      expect(product.masterData.staged.masterVariant.images[0].url).toBe '//example.com/CHANGED.png'
 
     # deletion
-        @oldProduct = getProductFromStaged b
-        @newProduct.masterVariant.images = []
-        data = @sync.buildActions @newProduct, @oldProduct
-        data.update (e, r, b) ->
-          expect(r.statusCode).toBe 200
-          expect(_.size b.masterData.staged.masterVariant.images).toBe 0
-          done()
+      @oldProduct = getProductFromStaged product
+      @newProduct.masterVariant.images = []
+      data = @sync.buildActions @newProduct, @oldProduct
+      data.update()
+    .then (result) ->
+      expect(result.statusCode).toBe 200
+      expect(_.size result.body.masterData.staged.masterVariant.images).toBe 0
+      done()
+    .fail (msg) -> done(JSON.stringify(msg))
 
 describe 'Integration test between projects', ->
 
-  beforeEach (done) ->
+  beforeEach ->
     logger = new Logger
       levelStream: 'error'
       levelFile: 'error'
 
-    getAuthToken = (config) ->
-      d = Q.defer()
-      oa = new OAuth2
-        config: config
-        logConfig:
-          logger: logger
-      oa.getAccessToken (error, response, body) ->
-        if body
-          optionsApi = _.clone(config)
-          optionsApi.access_token = body.access_token
-          d.resolve(optionsApi)
-        else
-          d.reject new Error(error)
-      d.promise
-
-    allAuthTokens = Q.all [getAuthToken(Config.staging), getAuthToken(Config.prod)]
-    allAuthTokens.spread (staging, prod)=>
-      @restStaging = new Rest
-        config: staging
-        logConfig:
-          logger: logger
-      @restProd = new Rest
-        config: prod
-        logConfig:
-          logger: logger
-      @sync = new ProductSync
-        config: staging
-        logConfig:
-          levelStream: 'error'
-          levelFile: 'error'
-      done()
-    .fail (err) -> done(err)
-
-  afterEach ->
-    @restStaging = null
-    @restProd = null
-    @sync = null
+    @syncStaging = new ProductSync
+      config: Config.staging
+      logConfig:
+        levelStream: 'error'
+        levelFile: 'error'
+    @syncProd = new ProductSync
+      config: Config.prod
+      logConfig:
+        levelStream: 'error'
+        levelFile: 'error'
 
   it 'should sync products with same SKU', (done) ->
 
-    getProducts = (rest) ->
-      deferred = Q.defer()
-      rest.GET '/product-projections?staged=true', (error, response, body) ->
-        if response.statusCode is 200
-          deferred.resolve body.results
-        else
-          deferred.reject body
-      deferred.promise
-
-    searchProduct = (rest, value, prod) ->
-      deferred = Q.defer()
-      predicate = "masterVariant(sku=\"#{value}\")"
-      rest.GET "/product-projections?where=#{encodeURIComponent(predicate)}&staged=true", (error, response, body) ->
-        if response.statusCode is 200
-          deferred.resolve
-            product: prod
-            results: body.results
-        else
-          deferred.reject body
-      deferred.promise
-
-    syncProducts = (sync, new_product, old_product) ->
-      new_product.categories = [] # categories can not be transformed by Id to another project.
-      deferred = Q.defer()
-      try
-        sync.buildActions(new_product, old_product).update (e, r, b) ->
-          if r.statusCode is 200 or r.statusCode is 304
-            deferred.resolve(true)
-          else
-            deferred.reject b
-      catch e
-        deferred.reject e
-      deferred.promise
-
-    getProducts(@restProd)
-    .then (products) =>
+    @syncProd._client.productProjections.staged(true).fetch()
+    .then (result) =>
+      @allProdProducts = result.body.results
       # sync prod -> staging
-      searches = _.map products, (prodProd) =>
+      searches = _.map @allProdProducts, (prodProd) =>
         sku = prodProd.masterVariant.sku
-        searchProduct(@restStaging, sku, prodProd)
+        predicate = "masterVariant(sku=\"#{sku}\")"
+        @syncStaging._client.productProjections.where(predicate).staged(true).fetch()
+
       # 'allSettled' waits for all of the promises to either be fulfilled or rejected
       Q.allSettled searches
     .then (responses) =>
@@ -266,21 +209,21 @@ describe 'Integration test between projects', ->
         # {state: "rejected", reason: rejectedError}
         if response.state is 'fulfilled'
           resolver = response.value
-          stagingProd = _.first(resolver.results)
+          stagingProd = _.first(resolver.body.results)
           # sync only if product is found on staging
           if stagingProd
-            updates.push syncProducts(@sync, resolver.product, stagingProd)
+            prodProd = _.find @allProdProducts, (p) -> p.masterVariant.sku is stagingProd.masterVariant.sku
+            updates.push @syncStaging.buildActions(prodProd, stagingProd).update()
       Q.allSettled updates
     .then (results) ->
       errors = []
       _.each results, (result) ->
         if result.state is 'fulfilled'
-          expect(result.value).toBe true
+          expect(result.value.statusCode).toBe (200 or 304)
         else
           errors.push result.reason
       if errors.length > 0
         done(JSON.stringify(errors))
       else
         done()
-    .fail (err) ->
-      done(JSON.stringify(err))
+    .fail (err) -> done(JSON.stringify(err))
