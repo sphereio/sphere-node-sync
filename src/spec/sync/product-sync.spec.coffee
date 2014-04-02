@@ -72,8 +72,8 @@ describe 'ProductSync', ->
         levelStream: 'error'
         levelFile: 'error'
     expect(sync).toBeDefined()
-    expect(sync._rest).toBeDefined()
-    expect(sync._rest._options.config).toEqual Config
+    expect(sync._client._rest).toBeDefined()
+    expect(sync._client._rest._options.config).toEqual Config
 
   it 'should throw error if no credentials are given', ->
     sync = -> new ProductSync foo: 'bar'
@@ -91,78 +91,80 @@ describe 'ProductSync', ->
       expect(sync).toThrow new Error("Missing '#{key}'")
 
 
-describe 'ProductSync.config', ->
+  describe ':: config', ->
 
-  beforeEach ->
-    @sync = new ProductSync
+    beforeEach ->
+      @sync = new ProductSync
 
-  afterEach ->
-    @sync = null
+    afterEach ->
+      @sync = null
 
-  it 'should build white/black-listed actions update', ->
-    opts = [
-      {type: 'base', group: 'white'}
-      {type: 'prices', group: 'black'}
-    ]
-    update = @sync.config(opts).buildActions(NEW_PRODUCT, OLD_PRODUCT).get()
-    expected_update =
-      actions: [
-        { action: 'changeName', name: {en: 'Foo', de: undefined, it: 'Boo'} }
-        { action: 'changeSlug', slug: {en: 'foo', it: 'boo'} }
-        { action: 'setDescription', description: undefined }
+    it 'should build white/black-listed actions update', ->
+      opts = [
+        {type: 'base', group: 'white'}
+        {type: 'prices', group: 'black'}
       ]
-      version: OLD_PRODUCT.version
-    expect(update).toEqual expected_update
+      update = @sync.config(opts).buildActions(NEW_PRODUCT, OLD_PRODUCT).get()
+      expected_update =
+        actions: [
+          { action: 'changeName', name: {en: 'Foo', de: undefined, it: 'Boo'} }
+          { action: 'changeSlug', slug: {en: 'foo', it: 'boo'} }
+          { action: 'setDescription', description: undefined }
+        ]
+        version: OLD_PRODUCT.version
+      expect(update).toEqual expected_update
 
 
-describe 'ProductSync.buildActions', ->
+  describe ':: buildActions', ->
 
-  beforeEach ->
-    @sync = new ProductSync
+    beforeEach ->
+      @sync = new ProductSync
 
-  afterEach ->
-    @sync = null
+    afterEach ->
+      @sync = null
 
-  it 'should build the action update', ->
-    update = @sync.buildActions(NEW_PRODUCT, OLD_PRODUCT).get()
-    expected_update =
-      actions: [
-        { action: 'changeName', name: {en: 'Foo', de: undefined, it: 'Boo'} }
-        { action: 'changeSlug', slug: {en: 'foo', it: 'boo'} }
-        { action: 'setDescription', description: undefined }
-        { action: 'changePrice', variantId: 1, price: {value: {currencyCode: 'EUR', centAmount: 3800}} }
-        { action: 'removePrice', variantId: 1, price: {value: {currencyCode: 'EUR', centAmount: 1100}, country: 'DE'} }
-        { action: 'removePrice', variantId: 1, price: {value: {currencyCode: 'EUR', centAmount: 1200}, customerGroup: {id: '984a64de-24a4-42c0-868b-da7abfe1c5f6', typeId: 'customer-group'}} }
-        { action: 'removePrice', variantId: 2, price: {value: {currencyCode: 'EUR', centAmount: 2100}, country: 'US'} }
-        { action: 'removePrice', variantId: 2, price: {value: {currencyCode: 'EUR', centAmount: 2200}, customerGroup: {id: '59c64f80-6472-474e-b5be-dc57b45b2faf', typeId: 'customer-group'}} }
-        { action: 'addPrice', variantId: 1, price: {value: {currencyCode: 'EUR', centAmount: 1100}, country: 'IT'} }
-        { action: 'addPrice', variantId: 2, price: {value: {currencyCode: 'EUR', centAmount: 2200}, customerGroup: {id: '59c64f80-6472-474e-b5be-dc57b45b2faf', typeId: 'customer-group'}} }
-      ]
-      version: OLD_PRODUCT.version
-    expect(update).toEqual expected_update
+    it 'should build the action update', ->
+      update = @sync.buildActions(NEW_PRODUCT, OLD_PRODUCT).get()
+      expected_update =
+        actions: [
+          { action: 'changeName', name: {en: 'Foo', de: undefined, it: 'Boo'} }
+          { action: 'changeSlug', slug: {en: 'foo', it: 'boo'} }
+          { action: 'setDescription', description: undefined }
+          { action: 'changePrice', variantId: 1, price: {value: {currencyCode: 'EUR', centAmount: 3800}} }
+          { action: 'removePrice', variantId: 1, price: {value: {currencyCode: 'EUR', centAmount: 1100}, country: 'DE'} }
+          { action: 'removePrice', variantId: 1, price: {value: {currencyCode: 'EUR', centAmount: 1200}, customerGroup: {id: '984a64de-24a4-42c0-868b-da7abfe1c5f6', typeId: 'customer-group'}} }
+          { action: 'removePrice', variantId: 2, price: {value: {currencyCode: 'EUR', centAmount: 2100}, country: 'US'} }
+          { action: 'removePrice', variantId: 2, price: {value: {currencyCode: 'EUR', centAmount: 2200}, customerGroup: {id: '59c64f80-6472-474e-b5be-dc57b45b2faf', typeId: 'customer-group'}} }
+          { action: 'addPrice', variantId: 1, price: {value: {currencyCode: 'EUR', centAmount: 1100}, country: 'IT'} }
+          { action: 'addPrice', variantId: 2, price: {value: {currencyCode: 'EUR', centAmount: 2200}, customerGroup: {id: '59c64f80-6472-474e-b5be-dc57b45b2faf', typeId: 'customer-group'}} }
+        ]
+        version: OLD_PRODUCT.version
+      expect(update).toEqual expected_update
 
 
-describe 'ProductSync.update', ->
+  describe ':: update', ->
 
-  beforeEach ->
-    @sync = new ProductSync
-      config: Config
-      logConfig:
-        levelStream: 'error'
-        levelFile: 'error'
+    beforeEach ->
+      @sync = new ProductSync
+        config: Config
+        logConfig:
+          levelStream: 'error'
+          levelFile: 'error'
 
-  afterEach ->
-    @sync = null
+    afterEach ->
+      @sync = null
 
-  it 'should send update request', (done) ->
-    spyOn(@sync._rest, 'POST').andCallFake((path, payload, callback) -> callback(null, null, {id: '123'}))
-    @sync._data =
-      update:
-        actions: []
-        version: 1
-      updateId: '123'
-    callMe = (e, r, b) ->
-      expect(b.id).toBe '123'
-      done()
-    @sync.update(callMe)
-    expect(@sync._rest.POST).toHaveBeenCalledWith('/products/123', JSON.stringify(@sync._data.update), jasmine.any(Function))
+    it 'should send update request', (done) ->
+      spyOn(@sync._client._rest, 'POST').andCallFake((path, payload, callback) -> callback(null, {statusCode: 200}, {id: '123'}))
+      @sync._data =
+        update:
+          actions: []
+          version: 1
+        updateId: '123'
+      @sync.update()
+      .then (result) =>
+        expect(result.statusCode).toBe 200
+        expect(result.body.id).toBe '123'
+        expect(@sync._client._rest.POST).toHaveBeenCalledWith('/products/123', JSON.stringify(@sync._data.update), jasmine.any(Function))
+        done()
+      .fail (error) -> done(error)
