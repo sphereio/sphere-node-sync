@@ -573,14 +573,12 @@ describe 'ProductUtils.diff', ->
         en: 'A title'
       metaDescription:
         en: 'A description'
+      metaKeywords:
+        en: 'foo, bar'
     NEW =
       id: '123'
       metaTitle:
         en: 'A new title'
-      metaDescription:
-        en: 'A description'
-      metaKeywords:
-        en: 'foo, bar'
 
     delta = @utils.diff OLD, NEW
     update = @utils.actionsMapMetaAttributes(delta, OLD)
