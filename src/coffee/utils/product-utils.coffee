@@ -4,13 +4,13 @@ jsondiffpatch = require 'jsondiffpatch'
 Utils = require './utils'
 helper = require '../helper'
 
+REGEX_NUMBER = new RegExp /^\d+$/
+REGEX_UNDERSCORE_NUMBER = new RegExp /^\_\d+$/
+
 ###
 Product Utils class
 ###
 class ProductUtils extends Utils
-
-  REGEX_NUMBER = new RegExp /^\d+$/
-  REGEX_UNDERSCORE_NUMBER = new RegExp /^\_\d+$/
 
   allVariants = (product) ->
     {masterVariant, variants} = _.defaults product,
@@ -256,32 +256,18 @@ class ProductUtils extends Utils
     # Ensure we have each action only once per product. Use string representation of object to allow `===` on array objects
     _.unique actions, (action) -> JSON.stringify action
 
-  actionsMapVariantImages = (images, old_variant, new_variant) ->
-    actions = []
-    _.each images, (img, key) ->
-      if REGEX_NUMBER.test key
-        action = buildRemoveImageAction old_variant, old_variant.images[key]
-        actions.push action if action
-        action = buildAddExternalImageAction old_variant, new_variant.images[key]
-        actions.push action if action
-      else if REGEX_UNDERSCORE_NUMBER.test key
-        index = key.substring(1)
-        action = buildRemoveImageAction old_variant, old_variant.images[index]
-        actions.push action if action
-    actions
-
   actionsMapImages: (diff, old_obj, new_obj) ->
     actions = []
     # masterVariant
     masterVariant = diff.masterVariant
     if masterVariant
-      mActions = actionsMapVariantImages masterVariant.images, old_obj.masterVariant, new_obj.masterVariant
+      mActions = buildVariantImagesAction masterVariant.images, old_obj.masterVariant, new_obj.masterVariant
       actions = actions.concat mActions
 
     # variants
     if diff.variants
       _.each diff.variants, (variant, i) ->
-        vActions = actionsMapVariantImages variant.images, old_obj.variants[i], new_obj.variants[i]
+        vActions = buildVariantImagesAction variant.images, old_obj.variants[i], new_obj.variants[i]
         actions = actions.concat vActions
 
     # this will sort the actions ranked in asc order (first 'remove' then 'add')
@@ -386,6 +372,23 @@ buildAddPriceAction = (variant, index) ->
       variantId: variant.id
       price: price
   action
+
+buildVariantImagesAction = (images, old_variant, new_variant) ->
+  actions = []
+  _.each images, (img, key) ->
+    if REGEX_NUMBER.test key
+      unless _.isEmpty old_variant.images
+        action = buildRemoveImageAction old_variant, old_variant.images[key]
+        actions.push action if action
+      unless _.isEmpty new_variant.images
+        action = buildAddExternalImageAction old_variant, new_variant.images[key]
+        actions.push action if action
+    else if REGEX_UNDERSCORE_NUMBER.test key
+      index = key.substring(1)
+      unless _.isEmpty old_variant.images
+        action = buildRemoveImageAction old_variant, old_variant.images[index]
+        actions.push action if action
+  actions
 
 buildAddExternalImageAction = (variant, image) ->
   if image
