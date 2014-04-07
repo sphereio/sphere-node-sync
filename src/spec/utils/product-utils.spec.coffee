@@ -758,6 +758,10 @@ describe 'ProductUtils.actionsMapAttributes', ->
       ]
     expect(update).toEqual expected_update
 
+describe 'ProductUtils.actionsMapImages', ->
+  beforeEach ->
+    @utils = new ProductUtils
+
   it 'should build actions for images', ->
     delta = @utils.diff OLD_IMAGE_PRODUCT, NEW_IMAGE_PRODUCT
     update = @utils.actionsMapImages delta, OLD_IMAGE_PRODUCT, NEW_IMAGE_PRODUCT
@@ -771,6 +775,23 @@ describe 'ProductUtils.actionsMapAttributes', ->
       { action: 'addExternalImage', variantId: 3, image: { url: '//example.com/CHANGED.jpg', label: 'foo', dimensions: { x: 400, y: 300 } } }
       { action: 'addExternalImage', variantId: 5, image: { url: '//example.com/new.png', label: 'foo', dimensions: { x: 1024, y: 768 } } }
     ]
+    expect(update).toEqual expected_update
+
+  it 'should not build actions if images are not set', ->
+    oldProduct =
+      id: '123-abc'
+      masterVariant:
+        id: 1,
+        images: []
+      variants: []
+    newProduct =
+      id: '456-def'
+      masterVariant:
+        id: 1
+      variants: []
+    delta = @utils.diff oldProduct, newProduct
+    update = @utils.actionsMapImages delta, oldProduct, newProduct
+    expected_update = []
     expect(update).toEqual expected_update
 
 describe 'ProductUtils.actionsMapPrices', ->
