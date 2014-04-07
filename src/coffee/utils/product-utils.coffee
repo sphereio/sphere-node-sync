@@ -111,7 +111,7 @@ class ProductUtils extends Utils
             id: variant[0].id
           actions.push action
 
-    actions
+    _.sortBy actions, (a) -> a.action is 'addVariant'
 
   actionsMapReferences: (diff, old_obj, new_obj) ->
     actions = []
