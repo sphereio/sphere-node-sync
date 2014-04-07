@@ -635,7 +635,7 @@ describe 'ProductUtils.diff', ->
 
     expect(delta).toEqual expected_delta
 
-describe 'ProductUtils.actionsMapAttributes', ->
+describe 'ProductUtils.actionsMapVariants', ->
   beforeEach ->
     @utils = new ProductUtils
 
@@ -643,10 +643,14 @@ describe 'ProductUtils.actionsMapAttributes', ->
     delta = @utils.diff OLD_VARIANT, NEW_VARIANT
     update = @utils.actionsMapVariants delta, OLD_VARIANT, NEW_VARIANT
     expected_update = [
-      { action: 'addVariant', sku: 'v5' }
       { action: 'removeVariant', id: 4 }
+      { action: 'addVariant', sku: 'v5' }
     ]
     expect(update).toEqual expected_update
+
+describe 'ProductUtils.actionsMapAttributes', ->
+  beforeEach ->
+    @utils = new ProductUtils
 
   it 'should create action for sku', ->
     delta = @utils.diff OLD_VARIANT, NEW_VARIANT
