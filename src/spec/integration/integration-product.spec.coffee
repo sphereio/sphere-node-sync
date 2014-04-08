@@ -59,7 +59,7 @@ describe 'Integration test :: Products', ->
       @oldProduct.version = product.version
       @newProduct.id = product.id
       done()
-    .fail (msg) -> done(msg)
+    .fail (error) -> done(_.prettify(error))
   , 10000 # 10sec
 
   afterEach (done) ->
@@ -83,7 +83,7 @@ describe 'Integration test :: Products', ->
     .then (result) ->
       expect(result.statusCode).toBe 304
       done()
-    .fail (error) -> done(error)
+    .fail (error) -> done(_.prettify(error))
 
   it 'should update name', (done) ->
     @newProduct.name.en = 'Hello'
@@ -95,11 +95,11 @@ describe 'Integration test :: Products', ->
       expect(result.body.masterData.staged.name.en).toBe 'Hello'
       expect(result.body.masterData.staged.name.de).toBe 'Hallo'
       done()
-    .fail (error) -> done(error)
+    .fail (error) -> done(_.prettify(error))
 
   it 'should add, update and delete tax category', (done) ->
     tax =
-      name: "myTax-#{@unique}"
+      name: _.uniqueId 'myTax'
       rates: []
 
     # addition
@@ -120,7 +120,7 @@ describe 'Integration test :: Products', ->
 
     # change
       tax =
-        name: "myTax2-#{@unique}"
+        name: _.uniqueId 'myTax2'
         rates: []
       @client.taxCategories.save(tax)
     .then (result) =>
@@ -145,7 +145,7 @@ describe 'Integration test :: Products', ->
       expect(result.statusCode).toBe 200
       expect(result.body.taxCategory).not.toBeDefined()
       done()
-    .fail (msg) -> done(msg)
+    .fail (error) -> done(_.prettify(error))
 
   it 'should add, change and remove image', (done) ->
     @newProduct.masterVariant.images = [
@@ -183,7 +183,7 @@ describe 'Integration test :: Products', ->
       expect(result.statusCode).toBe 200
       expect(_.size result.body.masterData.staged.masterVariant.images).toBe 0
       done()
-    .fail (msg) -> done(JSON.stringify(msg))
+    .fail (error) -> done(_.prettify(error))
 
 describe 'Integration test :: Products :: between projects', ->
 
@@ -242,4 +242,4 @@ describe 'Integration test :: Products :: between projects', ->
         done(JSON.stringify(errors))
       else
         done()
-    .fail (err) -> done(JSON.stringify(err))
+    .fail (error) -> done(_.prettify(error))
