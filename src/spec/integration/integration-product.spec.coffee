@@ -1,12 +1,13 @@
 _ = require 'underscore'
 Q = require 'q'
+_.mixin require('sphere-node-utils')._u
 Logger = require '../../lib/logger'
 ProductSync = require '../../lib/sync/product-sync'
 Config = require('../../config').config
 product = require '../../models/product.json'
 
-# Increase timeout
-jasmine.getEnv().defaultTimeoutInterval = 10000
+uniqueId = (prefix) ->
+  _.uniqueId "#{prefix}#{new Date().getTime()}_"
 
 getProductFromStaged = (product) ->
   p = product.masterData.staged
@@ -27,7 +28,6 @@ describe 'Integration test', ->
         levelFile: 'error'
     @client = @sync._client
 
-    @unique = new Date().getTime()
     pt =
       name: 'myType'
       description: 'foo'
@@ -35,7 +35,7 @@ describe 'Integration test', ->
       name:
         en: 'Foo'
       slug:
-        en: "foo-#{@unique}"
+        en: uniqueId 'foo'
       productType:
         typeId: 'product-type'
       # without all these default the syncer does not work!
@@ -60,7 +60,22 @@ describe 'Integration test', ->
       @newProduct.id = product.id
       done()
     .fail (msg) -> done(msg)
+  , 10000 # 10sec
 
+  afterEach (done) ->
+    @client.products.perPage(0).fetch()
+    .then (payload) =>
+      Q.all _.map payload.body.results, (product) =>
+        @client.products.byId(product.id).delete(product.version)
+    .then (results) =>
+      @client.productTypes.perPage(0).fetch()
+    .then (payload) =>
+      Q.all _.map payload.body.results, (productType) =>
+        @client.productTypes.byId(productType.id).delete(productType.version)
+    .then (results) =>
+      done()
+    .fail (error) -> done(_.prettify(error))
+  , 60000 # 1min
 
   it 'should not update minimum product', (done) ->
     data = @sync.buildActions @newProduct, @oldProduct
