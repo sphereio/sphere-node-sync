@@ -190,68 +190,27 @@ class ProductUtils extends Utils
     # this will sort the actions ranked in asc order (first 'remove' then 'add')
     _.sortBy actions, (a) -> a.action is 'addPrice'
 
-  actionsMapVariantAttributes = (attributes, variant, sameForAllAttributeNames) ->
-    actions = []
-    if attributes
-      _.each attributes, (value, key) ->
-        if REGEX_NUMBER.test key
-          if _.isArray value
-            v = helper.getDeltaValue(value)
-            id = variant.id
-            setAction = buildNewSetAttributeAction(id, v, sameForAllAttributeNames)
-            actions.push setAction if setAction
-          else
-            # key is index of attribute
-            index = key
-            setAction = buildSetAttributeAction(value.value, variant, index, sameForAllAttributeNames)
-            actions.push setAction if setAction
-        else if REGEX_UNDERSCORE_NUMBER.test key
-          if _.isArray value
-            # ignore pure array moves! TODO: remove when moving to new version of jsondiffpath (issue #9)
-            if _.size(value) is 3 and value[2] is 3
-              return
-            v = helper.getDeltaValue(value)
-            unless v
-              v = value[0]
-              delete v.value
-            id = variant.id
-            setAction = buildNewSetAttributeAction(id, v, sameForAllAttributeNames)
-            actions.push setAction if setAction
-          else
-            index = key.substring(1)
-            setAction = buildSetAttributeAction(value.value, variant, index, sameForAllAttributeNames)
-            actions.push setAction if setAction
-
-    actions
-
-  actionForSku = (variantDiff, variant) ->
-    if _.has variantDiff, 'sku'
-      action =
-        action: 'setSKU'
-        variantId: variant.id
-        sku: helper.getDeltaValue(variantDiff.sku)
-
   # we assume that the products have the same ProductType
   # TODO: validate ProductType between products
-  actionsMapAttributes: (diff, new_obj, sameForAllAttributeNames = []) ->
+  actionsMapAttributes: (diff, old_obj, new_obj, sameForAllAttributeNames = []) ->
     actions = []
     # masterVariant
     masterVariant = diff.masterVariant
     if masterVariant
-      skuAction = actionForSku(masterVariant, new_obj.masterVariant)
+      skuAction = buildSkuActions(masterVariant, old_obj.masterVariant)
       actions.push(skuAction) if skuAction?
       attributes = masterVariant.attributes
-      mActions = actionsMapVariantAttributes attributes, new_obj.masterVariant, sameForAllAttributeNames
-      actions = actions.concat mActions
+      attrActions = buildVariantAttributesActions attributes, old_obj.masterVariant, new_obj.masterVariant, sameForAllAttributeNames
+      actions = actions.concat attrActions
 
     # variants
     if diff.variants
       _.each diff.variants, (variant, i) ->
-        skuAction = actionForSku(variant, new_obj.variants[i])
+        skuAction = buildSkuActions(variant, old_obj.variants[i])
         actions.push(skuAction) if skuAction?
         attributes = variant.attributes
-        vActions = actionsMapVariantAttributes attributes, new_obj.variants[i], sameForAllAttributeNames
-        actions = actions.concat vActions
+        attrActions = buildVariantAttributesActions attributes, old_obj.variants[i], new_obj.variants[i], sameForAllAttributeNames
+        actions = actions.concat attrActions
 
     # Ensure we have each action only once per product. Use string representation of object to allow `===` on array objects
     _.unique actions, (action) -> JSON.stringify action
@@ -407,13 +366,12 @@ buildRemoveImageAction = (variant, image) ->
   action
 
 
-buildSetAttributeAction = (diffed_value, variant, index, sameForAllAttributeNames) ->
-  attribute = variant.attributes[index]
+buildSetAttributeAction = (diffed_value, old_variant, attribute, sameForAllAttributeNames) ->
   return unless attribute
   if attribute
     action =
       action: 'setAttribute'
-      variantId: variant.id
+      variantId: old_variant.id
       name: attribute.name
 
     if _.contains(sameForAllAttributeNames, attribute.name)
@@ -466,3 +424,43 @@ buildNewSetAttributeAction = (id, el, sameForAllAttributeNames) ->
     action.action = 'setAttributeInAllVariants'
     delete action.variantId
   action
+
+buildVariantAttributesActions = (attributes, old_variant, new_variant, sameForAllAttributeNames) ->
+  actions = []
+  if attributes
+    _.each attributes, (value, key) ->
+      if REGEX_NUMBER.test key
+        if _.isArray value
+          v = helper.getDeltaValue(value)
+          id = old_variant.id
+          setAction = buildNewSetAttributeAction(id, v, sameForAllAttributeNames)
+          actions.push setAction if setAction
+        else
+          # key is index of attribute
+          index = key
+          setAction = buildSetAttributeAction(value.value, old_variant, new_variant.attributes[index], sameForAllAttributeNames)
+          actions.push setAction if setAction
+      else if REGEX_UNDERSCORE_NUMBER.test key
+        if _.isArray value
+          # ignore pure array moves! TODO: remove when moving to new version of jsondiffpath (issue #9)
+          if _.size(value) is 3 and value[2] is 3
+            return
+          v = helper.getDeltaValue(value)
+          unless v
+            v = value[0]
+            delete v.value
+          id = old_variant.id
+          setAction = buildNewSetAttributeAction(id, v, sameForAllAttributeNames)
+          actions.push setAction if setAction
+        else
+          index = key.substring(1)
+          setAction = buildSetAttributeAction(value.value, old_variant, new_variant.attributes[index], sameForAllAttributeNames)
+          actions.push setAction if setAction
+  actions
+
+buildSkuActions = (variantDiff, old_variant) ->
+  if _.has variantDiff, 'sku'
+    action =
+      action: 'setSKU'
+      variantId: old_variant.id
+      sku: helper.getDeltaValue(variantDiff.sku)

@@ -141,6 +141,36 @@ describe 'ProductSync', ->
         version: OLD_PRODUCT.version
       expect(update).toEqual expected_update
 
+    it 'should handle mapping actions for new variants without ids', ->
+      oldProduct =
+        id: '123'
+        version: 1
+        masterVariant:
+          id: 1
+          sku: 'v1'
+          attributes: [{name: 'foo', value: 'bar'}]
+        variants: [
+          { id: 2, sku: 'v2', attributes: [{name: 'foo', value: 'qux'}] }
+        ]
+
+      newProduct =
+        id: '123'
+        masterVariant:
+          sku: 'v1'
+          attributes: [{name: 'foo', value: 'new value'}]
+        variants: [
+          { sku: 'v2', attributes: [{name: 'foo', value: 'another value'}] }
+        ]
+      update = @sync.buildActions(newProduct, oldProduct).get()
+      expected_update =
+        actions: [
+          { action: 'setAttribute', variantId: 1, name: 'foo', value: 'new value' }
+          { action: 'removeVariant', id: 2 }
+          { action: 'addVariant', sku: 'v2', attributes: [{name: 'foo', value: 'another value'}] }
+        ]
+        version: oldProduct.version
+      expect(update).toEqual expected_update
+
 
   describe ':: update', ->
 
