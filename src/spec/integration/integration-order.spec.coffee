@@ -5,7 +5,7 @@ OrderSync = require '../../lib/sync/order-sync'
 Config = require('../../config').config
 order = require '../../models/order.json'
 
-describe "Integration test", ->
+describe "Integration test :: Orders", ->
 
   beforeEach (done) ->
     @sync = new OrderSync
