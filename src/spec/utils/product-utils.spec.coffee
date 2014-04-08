@@ -89,7 +89,7 @@ OLD_VARIANT =
     id: 1
   variants: [
     { id: 2 }
-    { id: 3, attributes: { name: 'foo', value: 'bar' } }
+    { id: 3, attributes: [{ name: 'foo', value: 'bar' }] }
     { id: 4, sku: 'v4' }
     { id: 6, sku: 'v6' }
     { id: 7, sku: 'v7' }
@@ -101,7 +101,7 @@ NEW_VARIANT =
     id: 1
   variants: [
     { id: 2, sku: 'SKUadded' }
-    { id: 3, attributes: { name: 'foo', value: 'CHANGED' } }
+    { id: 3, attributes: [{ name: 'foo', value: 'CHANGED' }] }
     { id: 5, sku: 'v5' }
     { id: 6, sku: 'SKUchanged!' }
     { id: 7 }
@@ -653,10 +653,16 @@ describe 'ProductUtils.actionsMapAttributes', ->
   it 'should create action for sku', ->
     delta = @utils.diff OLD_VARIANT, NEW_VARIANT
     update = @utils.actionsMapAttributes delta, OLD_VARIANT, NEW_VARIANT
+    # expected_update = [
+    #   { action: 'setSKU', sku: 'SKUadded', variantId: 2 }
+    #   { action: 'setSKU', sku: 'SKUchanged!', variantId: 6 }
+    #   { action: 'setSKU', variantId: 7 }
+    # ]
     expected_update = [
-      { action: 'setSKU', sku: 'SKUadded', variantId: 2 }
-      { action: 'setSKU', sku: 'SKUchanged!', variantId: 6 }
-      { action: 'setSKU', variantId: 7 }
+      { action: 'setSKU', variantId: 2, sku: 'SKUadded' }
+      { action: 'setAttribute', variantId: 3, name: 'foo', value: 'CHANGED' }
+      { action: 'setSKU', variantId: 6, sku: 'SKUchanged!' }
+      { action: 'setSKU', variantId: 7, sku: undefined }
     ]
     expect(update).toEqual expected_update
 
@@ -691,7 +697,7 @@ describe 'ProductUtils.actionsMapAttributes', ->
         _t: 'a'
     expect(delta).toEqual expected_delta
 
-    update = @utils.actionsMapAttributes(delta, NEW_ATTRIBUTES)
+    update = @utils.actionsMapAttributes(delta, OLD_ATTRIBUTES, NEW_ATTRIBUTES)
     expected_update =
       [
         { action: 'setAttribute', variantId: 1, name: 'uid', value: '20063675' }
@@ -711,7 +717,7 @@ describe 'ProductUtils.actionsMapAttributes', ->
 
   it 'should build attribute actions for all types', ->
     delta = @utils.diff(OLD_ALL_ATTRIBUTES, NEW_ALL_ATTRIBUTES)
-    update = @utils.actionsMapAttributes(delta, NEW_ALL_ATTRIBUTES)
+    update = @utils.actionsMapAttributes(delta, OLD_ALL_ATTRIBUTES, NEW_ALL_ATTRIBUTES)
     expected_update =
       [
         { action: 'setAttribute', variantId: 1, name: 'foo', value: 'qux' }
@@ -726,7 +732,7 @@ describe 'ProductUtils.actionsMapAttributes', ->
 
   it 'should build attribute especially for (l)enum', ->
     delta = @utils.diff EXISTING_ENUM_ATTRIBUTES, NEW_ENUM_ATTRIBUTES
-    update = @utils.actionsMapAttributes delta, NEW_ENUM_ATTRIBUTES
+    update = @utils.actionsMapAttributes delta, EXISTING_ENUM_ATTRIBUTES, NEW_ENUM_ATTRIBUTES
     expected_update =
       [
         { action: 'setAttribute', variantId: 1, name: 'size', value: 'small' }
@@ -737,7 +743,7 @@ describe 'ProductUtils.actionsMapAttributes', ->
 
   it 'should build setAttributeInAllVariants actions', ->
     delta = @utils.diff OLD_SAME_FOR_ALL_ATTRIBUTES, NEW_SAME_FOR_ALL_ATTRIBUTES
-    update = @utils.actionsMapAttributes delta, NEW_SAME_FOR_ALL_ATTRIBUTES, ['brand', 'tags']
+    update = @utils.actionsMapAttributes delta, OLD_SAME_FOR_ALL_ATTRIBUTES, NEW_SAME_FOR_ALL_ATTRIBUTES, ['brand', 'tags']
     expected_update =
       [
         { action: 'setAttributeInAllVariants', name: 'brand', value: 'Cool Shirts' }
@@ -747,7 +753,7 @@ describe 'ProductUtils.actionsMapAttributes', ->
 
   it 'should build setVariants actions for set attributes', ->
     delta = @utils.diff OLD_SET_ATTRIBUTES, NEW_SET_ATTRIBUTES
-    update = @utils.actionsMapAttributes delta, NEW_SET_ATTRIBUTES
+    update = @utils.actionsMapAttributes delta, OLD_SET_ATTRIBUTES, NEW_SET_ATTRIBUTES
     expected_update =
       [
         { action: 'setAttribute', variantId: 1, name: 'colors', value: [ 'pink', 'orange' ] }

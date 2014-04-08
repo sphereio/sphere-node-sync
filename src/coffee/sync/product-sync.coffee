@@ -20,7 +20,7 @@ class ProductSync extends Sync
     allActions.push @_mapActionOrNot 'base', => @_utils.actionsMapBase(diff, old_obj)
     allActions.push @_mapActionOrNot 'references', => @_utils.actionsMapReferences(diff, old_obj, new_obj)
     allActions.push @_mapActionOrNot 'prices', => @_utils.actionsMapPrices(diff, old_obj, new_obj)
-    allActions.push @_mapActionOrNot 'attributes', => @_utils.actionsMapAttributes(diff, new_obj, @sameForAllAttributeNames)
+    allActions.push @_mapActionOrNot 'attributes', => @_utils.actionsMapAttributes(diff, old_obj, new_obj, @sameForAllAttributeNames)
     allActions.push @_mapActionOrNot 'images', => @_utils.actionsMapImages(diff, old_obj, new_obj)
     allActions.push @_mapActionOrNot 'variants', => @_utils.actionsMapVariants(diff, old_obj, new_obj)
     allActions.push @_mapActionOrNot 'metaAttributes', => @_utils.actionsMapMetaAttributes(diff, old_obj, new_obj)
