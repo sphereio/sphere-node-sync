@@ -18,7 +18,7 @@ getProductFromStaged = (product) ->
   p.version = product.version
   p
 
-describe 'Integration test', ->
+describe 'Integration test :: Products', ->
 
   beforeEach (done) ->
     @sync = new ProductSync
@@ -185,7 +185,7 @@ describe 'Integration test', ->
       done()
     .fail (msg) -> done(JSON.stringify(msg))
 
-describe 'Integration test between projects', ->
+describe 'Integration test :: Products :: between projects', ->
 
   beforeEach ->
     logger = new Logger

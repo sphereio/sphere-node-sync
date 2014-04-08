@@ -7,7 +7,7 @@ order = require '../../models/order.json'
 # Increase timeout
 jasmine.getEnv().defaultTimeoutInterval = 10000
 
-describe 'Integration test', ->
+describe 'Integration test :: Inventories', ->
 
   beforeEach (done) ->
     @sync = new InventorySync
