@@ -72,7 +72,7 @@ describe 'Integration test :: Products', ->
     .then (payload) =>
       Q.all _.map payload.body.results, (productType) =>
         @client.productTypes.byId(productType.id).delete(productType.version)
-    .then (results) =>
+    .then (results) ->
       done()
     .fail (error) -> done(_.prettify(error))
   , 60000 # 1min
@@ -182,6 +182,40 @@ describe 'Integration test :: Products', ->
     .then (result) ->
       expect(result.statusCode).toBe 200
       expect(_.size result.body.masterData.staged.masterVariant.images).toBe 0
+      done()
+    .fail (error) -> done(_.prettify(error))
+
+  it 'should update variants (with SKUs) by removing -> adding them', (done) ->
+    # set some variants + SKUs first
+    @newProduct.masterVariant.sku = 'v1'
+    @newProduct.variants = [
+      {sku: 'v2', prices: [{value: {centAmount: 1000, currencyCode: 'EUR'}}]}
+      {sku: 'v3', prices: [{value: {centAmount: 2000, currencyCode: 'EUR'}}]}
+    ]
+    @sync.buildActions(@newProduct, @oldProduct).update()
+    .then (result) =>
+      expect(result.statusCode).toBe 200
+      updatedProduct1 = result.body.masterData.staged
+      expect(updatedProduct1.masterVariant.sku).toBe 'v1'
+      expect(updatedProduct1.variants[0].sku).toBe 'v2'
+      expect(updatedProduct1.variants[1].sku).toBe 'v3'
+
+      updatedProduct1.id = result.body.id
+      updatedProduct1.version = result.body.version
+      # Let's provide an update with the same variants (but without IDs)
+      # -> it should remove -> add variants as they are
+      updatedProduct2 = _.deepClone updatedProduct1
+      updatedProduct2.variants = [
+        {sku: 'v2', prices: [{value: {centAmount: 1000, currencyCode: 'EUR'}}]}
+        {sku: 'v3', prices: [{value: {centAmount: 2000, currencyCode: 'EUR'}}]}
+      ]
+      @sync.buildActions(updatedProduct2, updatedProduct1).update()
+    .then (result) ->
+      expect(result.statusCode).toBe 200
+      updated = result.body.masterData.staged
+      expect(updated.masterVariant.sku).toBe 'v1'
+      expect(updated.variants[0].sku).toBe 'v2'
+      expect(updated.variants[1].sku).toBe 'v3'
       done()
     .fail (error) -> done(_.prettify(error))
 
