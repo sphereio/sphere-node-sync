@@ -99,7 +99,7 @@ describe 'Integration test :: Products', ->
 
   it 'should add, update and delete tax category', (done) ->
     tax =
-      name: _.uniqueId 'myTax'
+      name: uniqueId 'myTax'
       rates: []
 
     # addition
@@ -120,7 +120,7 @@ describe 'Integration test :: Products', ->
 
     # change
       tax =
-        name: _.uniqueId 'myTax2'
+        name: uniqueId 'myTax2'
         rates: []
       @client.taxCategories.save(tax)
     .then (result) =>
