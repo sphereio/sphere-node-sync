@@ -155,16 +155,14 @@ class ProductUtils extends Utils
             index = key.substring(1)
 
           if index
-            # TODO: needs to be fixed in the backend
-
-            # if _.size(value) is 1 and _.size(value.value) is 1 and _.has(value.value, 'centAmount')
-            #   changeAction = buildChangePriceAction(value.value.centAmount, old_obj.masterVariant, index)
-            #   actions.push changeAction if changeAction
-            # else
-            removeAction = buildRemovePriceAction(old_obj.masterVariant, index)
-            actions.push removeAction if removeAction
-            addAction = buildAddPriceAction(new_obj.masterVariant, index)
-            actions.push addAction if addAction
+            if _.size(value) is 1 and _.size(value.value) is 1 and _.has(value.value, 'centAmount')
+              changeAction = buildChangePriceAction(value.value.centAmount, old_obj.masterVariant, index)
+              actions.push changeAction if changeAction
+            else
+              removeAction = buildRemovePriceAction(old_obj.masterVariant, index)
+              actions.push removeAction if removeAction
+              addAction = buildAddPriceAction(new_obj.masterVariant, index)
+              actions.push addAction if addAction
 
     # variants
     if diff.variants
@@ -180,16 +178,14 @@ class ProductUtils extends Utils
               index = key.substring(1)
 
             if index
-              # TODO: needs to be fixed in the backend
-
-              # if _.size(value) is 1 and _.size(value.value) is 1 and _.has(value.value, 'centAmount')
-              #   changeAction = buildChangePriceAction(value.value.centAmount, old_obj.masterVariant, index)
-              #   actions.push changeAction if changeAction
-              # else
-              removeAction = buildRemovePriceAction(old_obj.variants[i], index)
-              actions.push removeAction if removeAction
-              addAction = buildAddPriceAction(new_obj.variants[i], index)
-              actions.push addAction if addAction
+              if _.size(value) is 1 and _.size(value.value) is 1 and _.has(value.value, 'centAmount')
+                changeAction = buildChangePriceAction(value.value.centAmount, old_obj.masterVariant, index)
+                actions.push changeAction if changeAction
+              else
+                removeAction = buildRemovePriceAction(old_obj.variants[i], index)
+                actions.push removeAction if removeAction
+                addAction = buildAddPriceAction(new_obj.variants[i], index)
+                actions.push addAction if addAction
 
     # this will sort the actions ranked in asc order (first 'remove' then 'add')
     _.sortBy actions, (a) -> a.action is 'addPrice'
