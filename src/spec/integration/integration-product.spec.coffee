@@ -274,7 +274,7 @@ describe 'Integration test :: Products :: between projects', ->
         else
           errors.push result.reason
       if errors.length > 0
-        done(JSON.stringify(errors))
+        done(_.prettify(error))
       else
         done()
     .fail (error) -> done(_.prettify(error))

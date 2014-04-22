@@ -241,7 +241,7 @@ describe 'OrderUtils.actionsMapStatusValues', ->
     delta = @utils.diff(@order, orderChanged)
     update = @utils.actionsMapDeliveries(delta, orderChanged)
 
-    action = JSON.parse(JSON.stringify(orderChanged.shippingInfo.deliveries[0]))
+    action = _.deepClone(orderChanged.shippingInfo.deliveries[0])
     action.action = "addDelivery"
 
     expect(update).toEqual [action]

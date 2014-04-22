@@ -165,6 +165,6 @@ describe 'InventorySync', ->
       .then (result) =>
         expect(result.statusCode).toBe 200
         expect(result.body.id).toBe '123'
-        expect(@sync._client._rest.POST).toHaveBeenCalledWith('/inventory/123', JSON.stringify(@sync._data.update), jasmine.any(Function))
+        expect(@sync._client._rest.POST).toHaveBeenCalledWith('/inventory/123', @sync._data.update, jasmine.any(Function))
         done()
       .fail (error) -> done(error)
