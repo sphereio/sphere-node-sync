@@ -36,9 +36,9 @@
   },
   "dependencies": {
     "jsondiffpatch": "0.0.11",
-    "q": "1.0.0",
-    "sphere-node-client": "0.6.6",
-    "sphere-node-utils": "0.4.7",
+    "q": "1.0.1",
+    "sphere-node-client": "0.7.1",
+    "sphere-node-utils": "0.4.9",
     "underscore": "1.6.0"
   },
   "devDependencies": {
