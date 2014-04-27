@@ -736,7 +736,7 @@ describe 'ProductUtils.actionsMapAttributes', ->
     expected_update =
       [
         { action: 'setAttribute', variantId: 1, name: 'size', value: 'small' }
-        { action: 'setAttribute', variantId: 1, name: 'color' }
+        { action: 'setAttribute', variantId: 1, name: 'color', value: undefined }
         { action: 'setAttribute', variantId: 2, name: 'tags', value: [ 'tag2' ] }
       ]
     expect(update).toEqual expected_update
@@ -757,7 +757,7 @@ describe 'ProductUtils.actionsMapAttributes', ->
     expected_update =
       [
         { action: 'setAttribute', variantId: 1, name: 'colors', value: [ 'pink', 'orange' ] }
-        { action: 'setAttribute', variantId: 3, name: 'colors' }
+        { action: 'setAttribute', variantId: 3, name: 'colors', value: undefined }
         { action: 'setAttribute', variantId: 4, name: 'colors', value: [ 'gray' ] }
       ]
     expect(update).toEqual expected_update
@@ -878,7 +878,7 @@ describe 'ProductUtils.actionsMapReferences (tax-category)', ->
     delta = @utils.diff @OLD_REFERENCE, @NEW_REFERENCE
     update = @utils.actionsMapReferences delta, @OLD_REFERENCE, @NEW_REFERENCE
     expected_update = [
-      { action: 'setTaxCategory' }
+      { action: 'setTaxCategory', taxCategory: undefined }
     ]
     expect(update).toEqual expected_update
 

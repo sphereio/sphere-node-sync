@@ -185,7 +185,7 @@ describe 'ProductSync', ->
       @sync = null
 
     it 'should send update request', (done) ->
-      spyOn(@sync._client._rest, 'POST').andCallFake((path, payload, callback) -> callback(null, {statusCode: 200}, {id: '123'}))
+      spyOn(@sync._client._rest, 'POST').and.callFake((path, payload, callback) -> callback(null, {statusCode: 200}, {id: '123'}))
       @sync._data =
         update:
           actions: []

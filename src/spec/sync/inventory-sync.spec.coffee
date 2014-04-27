@@ -55,7 +55,7 @@ describe 'InventorySync', ->
         id: '123'
         quantityOnStock: 10
         version: 1
-      spyOn(@sync._utils, 'actionsMapExpectedDelivery').andReturn [{action: 'setExpectedDelivery', expectedDelivery: "2001-09-11T14:00:00.000Z"}]
+      spyOn(@sync._utils, 'actionsMapExpectedDelivery').and.returnValue [{action: 'setExpectedDelivery', expectedDelivery: "2001-09-11T14:00:00.000Z"}]
       update = @sync.config(opts).buildActions(newInventory, oldInventory).get()
       expected_update =
         actions: [
@@ -154,7 +154,7 @@ describe 'InventorySync', ->
           levelFile: 'error'
 
     it 'should send update request', (done) ->
-      spyOn(@sync._client._rest, 'POST').andCallFake((path, payload, callback) -> callback(null, {statusCode: 200}, {id: '123'}))
+      spyOn(@sync._client._rest, 'POST').and.callFake((path, payload, callback) -> callback(null, {statusCode: 200}, {id: '123'}))
       @sync._data =
         update:
           actions: [ { name: 'addQuantity', quantity: 7 } ]

@@ -4,9 +4,6 @@ InventorySync = require '../../lib/sync/inventory-sync'
 Config = require('../../config').config
 order = require '../../models/order.json'
 
-# Increase timeout
-jasmine.getEnv().defaultTimeoutInterval = 10000
-
 describe 'Integration test :: Inventories', ->
 
   beforeEach (done) ->
@@ -32,6 +29,7 @@ describe 'Integration test :: Inventories', ->
         done()
       else
         done(error)
+  , 10000 # 10sec
 
   it 'should update inventory entry', (done) ->
     ie =

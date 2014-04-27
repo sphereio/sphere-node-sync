@@ -37,6 +37,7 @@ describe "Integration test :: Orders", ->
     .fail (error) ->
       console.log error
       done(error)
+  , 30000 # 30sec
 
   afterEach (done) ->
 
@@ -50,6 +51,7 @@ describe "Integration test :: Orders", ->
       @product = null
       @productType = null
       @order = null
+  , 20000 # 20sec
 
   it 'should update an order', (done) ->
     orderNew = _.deepClone @order

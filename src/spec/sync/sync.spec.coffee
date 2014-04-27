@@ -55,7 +55,7 @@ describe 'Sync.config', ->
     @sync = null
 
   it 'should build all actions if config is not defined', ->
-    spyOn(@sync, '_doMapActions').andReturn [{foo: 'bar'}]
+    spyOn(@sync, '_doMapActions').and.returnValue [{foo: 'bar'}]
     update = @sync.config().buildActions({foo: 'bar'}, {foo: 'qux', version: 1}).get()
     expected_update =
       actions: [
@@ -65,7 +65,7 @@ describe 'Sync.config', ->
     expect(update).toEqual expected_update
 
   it 'should throw if given group is not supported', ->
-    spyOn(@sync, '_doMapActions').andCallFake (type, fn) => @sync._mapActionOrNot 'base', -> [{foo: 'bar'}]
+    spyOn(@sync, '_doMapActions').and.callFake (type, fn) => @sync._mapActionOrNot 'base', -> [{foo: 'bar'}]
     expect(=> @sync.config([{type: 'base', group: 'foo'}]).buildActions({foo: 'bar'}, {foo: 'qux', version: 1})).toThrow new Error 'Action group \'foo\' not supported. Please use black or white.'
 
 
@@ -100,7 +100,7 @@ describe 'Sync.filterActions', ->
 
   it 'should filter built actions', ->
     builtActions = ['foo', 'bar']
-    spyOn(@sync, '_doMapActions').andReturn builtActions
+    spyOn(@sync, '_doMapActions').and.returnValue builtActions
     update = @sync.buildActions(NEW_OBJ, OLD_OBJ).filterActions (a) ->
       a isnt 'bar'
     .get()
@@ -114,7 +114,7 @@ describe 'Sync.filterActions', ->
 
   it 'should set update to undefined if filter returns empty action list', ->
     builtActions = ['some', 'action']
-    spyOn(@sync, '_doMapActions').andReturn builtActions
+    spyOn(@sync, '_doMapActions').and.returnValue builtActions
     update = @sync.buildActions(NEW_OBJ, OLD_OBJ).filterActions (a) ->
       false
     .get()
@@ -156,7 +156,7 @@ describe 'Sync.update', ->
     expect(sync.update).toThrow new Error('Cannot update: the Rest connector wasn\'t instantiated (probabily because of missing credentials)')
 
   it 'should send update request', (done) ->
-    spyOn(@sync, '_doUpdate').andReturn Q({foo: 'bar'})
+    spyOn(@sync, '_doUpdate').and.returnValue Q({foo: 'bar'})
     @sync._data =
       update:
         actions: []
@@ -172,6 +172,6 @@ describe 'Sync.update', ->
     @sync.update()
     .then (result) ->
       expect(result.statusCode).toBe 304
-      expect(result.body).toBe null
+      expect(result.body).toBeNull()
       done()
     .fail (error) -> done(error)

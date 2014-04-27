@@ -61,7 +61,7 @@ describe 'OrderSync', ->
         {type: 'status', group: 'white'}
         {type: 'returnInfo', group: 'black'}
       ]
-      spyOn(@sync._utils, 'actionsMapReturnInfo').andReturn [{action: 'addReturnInfo', returnTrackingId: '1234', items: []}]
+      spyOn(@sync._utils, 'actionsMapReturnInfo').and.returnValue [{action: 'addReturnInfo', returnTrackingId: '1234', items: []}]
       update = @sync.config(opts).buildActions(NEW_ORDER, OLD_ORDER).get()
       expected_update =
         actions: [
@@ -105,7 +105,7 @@ describe 'OrderSync', ->
       @sync = null
 
     it 'should send update request', (done) ->
-      spyOn(@sync._client._rest, 'POST').andCallFake((path, payload, callback) -> callback(null, {statusCode: 200}, {id: '123'}))
+      spyOn(@sync._client._rest, 'POST').and.callFake((path, payload, callback) -> callback(null, {statusCode: 200}, {id: '123'}))
       @sync._data =
         update:
           actions: []
