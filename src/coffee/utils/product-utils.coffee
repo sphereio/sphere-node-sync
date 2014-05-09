@@ -179,7 +179,7 @@ class ProductUtils extends Utils
 
             if index
               if _.size(value) is 1 and _.size(value.value) is 1 and _.has(value.value, 'centAmount')
-                changeAction = buildChangePriceAction(value.value.centAmount, old_obj.masterVariant, index)
+                changeAction = buildChangePriceAction(value.value.centAmount, old_obj.variants[i], index)
                 actions.push changeAction if changeAction
               else
                 removeAction = buildRemovePriceAction(old_obj.variants[i], index)

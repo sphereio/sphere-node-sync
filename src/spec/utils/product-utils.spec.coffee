@@ -824,30 +824,42 @@ describe 'ProductUtils.actionsMapPrices', ->
         id: 1
         prices: [
           {value: {currencyCode: 'EUR', centAmount: 2}}
-          {value: {currencyCode: 'EUR', centAmount: 10}}
-          {value: {currencyCode: 'EUR', centAmount: 10}, country: 'DE'}
           {value: {currencyCode: 'EUR', centAmount: 10}, country: 'DE'}
         ]
+      variants: [
+        {
+          id: 2
+          prices: [
+            {value: {currencyCode: 'EUR', centAmount: 2}, customerGroup: {id: '987', typeId: 'customer-group'}}
+            {value: {currencyCode: 'EUR', centAmount: 10}, country: 'DE'}
+          ]
+        }
+      ]
     newPrice =
       masterVariant:
         id: 1
         prices: [
           {value: {currencyCode: 'EUR', centAmount: 5}}
-          {value: {currencyCode: 'USD', centAmount: 20}}
-          {value: {currencyCode: 'EUR', centAmount: 20}, country: 'US'}
-          {value: {currencyCode: 'EUR', centAmount: 10}, country: 'US'}
+          {value: {currencyCode: 'EUR', centAmount: 20}, country: 'DE'}
         ]
+      variants: [
+        {
+          id: 2
+          prices: [
+            {value: {currencyCode: 'EUR', centAmount: 5}, customerGroup: {id: '987', typeId: 'customer-group'}}
+            {value: {currencyCode: 'EUR', centAmount: 20}, country: 'DE'}
+          ]
+        }
+      ]
+
     delta = @utils.diff oldPrice, newPrice
     update = @utils.actionsMapPrices delta, oldPrice, newPrice
 
-    expect(update.length).toBe 7
-    expect(update[0]).toEqual { action: 'changePrice', variantId: 1, price: { value: { currencyCode: 'EUR', centAmount: 5 } } }
-    expect(update[1].action).toBe 'removePrice'
-    expect(update[2].action).toBe 'removePrice'
-    expect(update[3].action).toBe 'removePrice'
-    expect(update[4].action).toBe 'addPrice'
-    expect(update[5].action).toBe 'addPrice'
-    expect(update[6].action).toBe 'addPrice'
+    expect(update.length).toBe 4
+    expect(update[0]).toEqual {action: 'changePrice', variantId: 1, price: {value: {currencyCode: 'EUR', centAmount: 5}}}
+    expect(update[1]).toEqual {action: 'changePrice', variantId: 1, price: {value: {currencyCode: 'EUR', centAmount: 20}, country: 'DE'}}
+    expect(update[2]).toEqual {action: 'changePrice', variantId: 2, price: {value: {currencyCode: 'EUR', centAmount: 5}, customerGroup: {id: '987', typeId: 'customer-group'}}}
+    expect(update[3]).toEqual {action: 'changePrice', variantId: 2, price: {value: {currencyCode: 'EUR', centAmount: 20}, country: 'DE'}}
 
 describe 'ProductUtils.actionsMapReferences (tax-category)', ->
 
