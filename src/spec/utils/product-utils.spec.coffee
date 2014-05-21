@@ -929,3 +929,21 @@ describe 'ProductUtils.actionsMapReferences (category)', ->
       { action: 'addToCategory', category: { typeId: 'category', id: 'cat3' } }
     ]
     expect(update).toEqual expected_update
+
+  it 'should ignore changes in ordering of category references', ->
+    before =
+      id: '123'
+      categories: [
+        { typeId: 'category', id: 'cat1' }
+        { typeId: 'category', id: 'cat2' }
+      ]
+
+    after =
+      id: '123'
+      categories: [
+        { typeId: 'category', id: 'cat2' }
+        { typeId: 'category', id: 'cat1' }
+      ]
+    delta = @utils.diff before, after
+    update = @utils.actionsMapReferences delta, before, after
+    expect(update).toEqual []

@@ -133,10 +133,14 @@ class ProductUtils extends Utils
           action =
             category: category[0]
           if _.size(category) is 3
-            action.action = 'removeFromCategory'
+            # ignore pure array moves! TODO: remove when moving to new version of jsondiffpath (issue #9)
+            if category[2] isnt 3
+              action.action = 'removeFromCategory'
           else if _.size(category) is 1
             action.action = 'addToCategory'
-          actions.push action
+
+          if action.action?
+            actions.push action
 
     _.sortBy actions, (a) -> a.action is 'addToCategory'
 
