@@ -22,14 +22,20 @@ class ProductUtils extends Utils
     # patch 'prices' to have an identifier in order for the diff
     # to be able to match nested objects in arrays
     # e.g.: prices: [ { _id: x, value: {} } ]
-    patchPrices = (obj) ->
-      _.each allVariants(obj), (variant) ->
-        if variant.prices
-          _.each variant.prices, (price, index) ->
-            price._id = index
+    patchPrices = (variant) ->
+      if variant.prices
+        _.each variant.prices, (price, index) ->
+          price._id = index
 
-    patchPrices(old_obj)
-    patchPrices(new_obj)
+    # Let's compare variants with their SKU, if present.
+    # Otherwise let's use the provided id.
+    # If there is no SKU and no id present, lst's use the index of the variant in the array.
+    patchVariantId = (variant, index) ->
+      variant._originalId = variant.id # store the id in order to use it for the actions later.
+      if variant.sku?
+        variant.id = variant.sku
+      if not variant.id?
+        variant.id = index
 
     isEnum = (value) -> _.has(value, 'key') and _.has(value, 'label')
 
@@ -37,29 +43,31 @@ class ProductUtils extends Utils
     # Thus we delete the original value (containing key and label) and set
     # the key as value at the attribute.
     # This way (l)enum attributes are handled the same way as text attributes.
-    patchEnum = (attribute) ->
-      return if _.isUndefined(attribute.value) or _.isNull(attribute.value)
-      if isEnum attribute.value
-        v = attribute.value.key
-        delete attribute.value
-        attribute.value = v
-      else if _.isArray(attribute.value)
-        for val, index in attribute.value
-          if isEnum val
-            attribute.value[index] = val.key
-          else # if we can't find key and label it isn't an (l)enum set and we can stop immediately
-            return
+    patchEnums = (variant) ->
+      if variant.attributes
+        _.each variant.attributes, (attribute) ->
+          if attribute.value?
+            if isEnum attribute.value
+              v = attribute.value.key
+              delete attribute.value
+              attribute.value = v
+            else if _.isArray(attribute.value)
+              for val, index in attribute.value
+                if isEnum val
+                  attribute.value[index] = val.key
+                else # if we can't find key and label it isn't an (l)enum set and we can stop immediately
+                  return
 
-    patchEnums = (obj) ->
-      _.each allVariants(obj), (variant) ->
-        if variant.attributes
-          _.each variant.attributes, (attrib, index) ->
-            patchEnum attrib
+    patch = (obj) ->
+      _.each allVariants(obj), (variant, index) ->
+        patchVariantId variant, index
+        patchPrices variant
+        patchEnums variant
 
-    patchEnums(old_obj)
-    patchEnums(new_obj)
+    patch old_obj
+    patch new_obj
 
-    super(old_obj, new_obj)
+    super old_obj, new_obj
 
 
   ###
@@ -108,7 +116,7 @@ class ProductUtils extends Utils
         else if REGEX_UNDERSCORE_NUMBER.test(key) and _.isArray(variant)
           action =
             action: 'removeVariant'
-            id: variant[0].id
+            id: getVariantId variant[0]
           actions.push action
 
     _.sortBy actions, (a) -> a.action is 'addVariant'
@@ -312,7 +320,7 @@ buildChangePriceAction = (centAmountDiff, variant, index) ->
     price.value.centAmount = helper.getDeltaValue(centAmountDiff)
     action =
       action: 'changePrice'
-      variantId: variant.id
+      variantId: getVariantId variant
       price: price
   action
 
@@ -322,7 +330,7 @@ buildRemovePriceAction = (variant, index) ->
     delete price._id
     action =
       action: 'removePrice'
-      variantId: variant.id
+      variantId: getVariantId variant
       price: price
   action
 
@@ -332,7 +340,7 @@ buildAddPriceAction = (variant, index) ->
     delete price._id
     action =
       action: 'addPrice'
-      variantId: variant.id
+      variantId: getVariantId variant
       price: price
   action
 
@@ -357,7 +365,7 @@ buildAddExternalImageAction = (variant, image) ->
   if image
     action =
       action: 'addExternalImage'
-      variantId: variant.id
+      variantId: getVariantId variant
       image: image
   action
 
@@ -365,7 +373,7 @@ buildRemoveImageAction = (variant, image) ->
   if image
     action =
       action: 'removeImage'
-      variantId: variant.id
+      variantId: getVariantId variant
       imageUrl: image.url
   action
 
@@ -375,7 +383,7 @@ buildSetAttributeAction = (diffed_value, old_variant, attribute, sameForAllAttri
   if attribute
     action =
       action: 'setAttribute'
-      variantId: old_variant.id
+      variantId: getVariantId old_variant
       name: attribute.name
 
     if _.contains(sameForAllAttributeNames, attribute.name)
@@ -436,7 +444,7 @@ buildVariantAttributesActions = (attributes, old_variant, new_variant, sameForAl
       if REGEX_NUMBER.test key
         if _.isArray value
           v = helper.getDeltaValue(value)
-          id = old_variant.id
+          id = getVariantId old_variant
           setAction = buildNewSetAttributeAction(id, v, sameForAllAttributeNames)
           actions.push setAction if setAction
         else
@@ -453,7 +461,7 @@ buildVariantAttributesActions = (attributes, old_variant, new_variant, sameForAl
           unless v
             v = value[0]
             delete v.value
-          id = old_variant.id
+          id = getVariantId old_variant
           setAction = buildNewSetAttributeAction(id, v, sameForAllAttributeNames)
           actions.push setAction if setAction
         else
@@ -466,5 +474,8 @@ buildSkuActions = (variantDiff, old_variant) ->
   if _.has variantDiff, 'sku'
     action =
       action: 'setSKU'
-      variantId: old_variant.id
+      variantId: getVariantId old_variant
       sku: helper.getDeltaValue(variantDiff.sku)
+
+getVariantId = (variant) ->
+  variant._originalId
