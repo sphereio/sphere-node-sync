@@ -32,10 +32,11 @@ class ProductUtils extends Utils
     # If there is no SKU and no id present, lst's use the index of the variant in the array.
     patchVariantId = (variant, index) ->
       variant._originalId = variant.id # store the id in order to use it for the actions later.
-      if variant.sku?
-        variant.id = variant.sku
-      if not variant.id?
-        variant.id = index
+      if index > 0
+        if variant.sku?
+          variant.id = variant.sku
+        if not variant.id?
+          throw new Error 'A variant must either have an ID or an SKU.'
 
     isEnum = (value) -> _.has(value, 'key') and _.has(value, 'label')
 
