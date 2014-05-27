@@ -30,6 +30,7 @@ OLD_PRODUCT =
         {value: {currencyCode: 'EUR', centAmount: 2200}, customerGroup: {id: '59c64f80-6472-474e-b5be-dc57b45b2faf', typeId: 'customer-group'}}
       ]
     }
+    { id: 4 }
   ]
 
 NEW_PRODUCT =
@@ -56,6 +57,8 @@ NEW_PRODUCT =
         {value: {currencyCode: 'EUR', centAmount: 2200}, customerGroup: {id: '59c64f80-6472-474e-b5be-dc57b45b2faf', typeId: 'customer-group'}}
       ]
     }
+    { sku: 'new', attributes: [ { name: 'what', value: 'no ID' } ] }
+    { id: 7, attributes: [ { name: 'what', value: 'no SKU' } ] }
   ]
 
 describe 'ProductSync', ->
@@ -137,6 +140,9 @@ describe 'ProductSync', ->
           { action: 'removePrice', variantId: 2, price: {value: {currencyCode: 'EUR', centAmount: 2200}, customerGroup: {id: '59c64f80-6472-474e-b5be-dc57b45b2faf', typeId: 'customer-group'}} }
           { action: 'addPrice', variantId: 1, price: {value: {currencyCode: 'EUR', centAmount: 1100}, country: 'IT'} }
           { action: 'addPrice', variantId: 2, price: {value: {currencyCode: 'EUR', centAmount: 2200}, customerGroup: {id: '59c64f80-6472-474e-b5be-dc57b45b2faf', typeId: 'customer-group'}} }
+          { action: 'removeVariant', id: 4 }
+          { action: 'addVariant', sku: 'new', attributes: [ { name: 'what', value: 'no ID' } ] }
+          { action: 'addVariant', attributes: [ { name: 'what', value: 'no SKU' } ] }
         ]
         version: OLD_PRODUCT.version
       expect(update).toEqual expected_update
@@ -151,6 +157,7 @@ describe 'ProductSync', ->
           attributes: [{name: 'foo', value: 'bar'}]
         variants: [
           { id: 2, sku: 'v2', attributes: [{name: 'foo', value: 'qux'}] }
+          { id: 3, sku: 'v3', attributes: [{name: 'foo', value: 'baz'}] }
         ]
 
       newProduct =
@@ -160,13 +167,14 @@ describe 'ProductSync', ->
           attributes: [{name: 'foo', value: 'new value'}]
         variants: [
           { sku: 'v2', attributes: [{name: 'foo', value: 'another value'}] }
+          { sku: 'v3', attributes: [{name: 'foo', value: 'i dont care'}] }
         ]
       update = @sync.buildActions(newProduct, oldProduct).get()
       expected_update =
         actions: [
           { action: 'setAttribute', variantId: 1, name: 'foo', value: 'new value' }
-          { action: 'removeVariant', id: 2 }
-          { action: 'addVariant', sku: 'v2', attributes: [{name: 'foo', value: 'another value'}] }
+          { action: 'setAttribute', variantId: 2, name: 'foo', value: 'another value' }
+          { action: 'setAttribute', variantId: 3, name: 'foo', value: 'i dont care' }
         ]
         version: oldProduct.version
       expect(update).toEqual expected_update

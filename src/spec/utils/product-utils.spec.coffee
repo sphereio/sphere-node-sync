@@ -91,8 +91,9 @@ OLD_VARIANT =
     { id: 2 }
     { id: 3, attributes: [{ name: 'foo', value: 'bar' }] }
     { id: 4, sku: 'v4' }
+    { id: 5 }
     { id: 6, sku: 'v6' }
-    { id: 7, sku: 'v7' }
+    { id: 7, sku: 'v7', attributes: [{ name: 'foo', value: 'bar' }] }
   ]
 
 NEW_VARIANT =
@@ -102,9 +103,12 @@ NEW_VARIANT =
   variants: [
     { id: 2, sku: 'SKUadded' }
     { id: 3, attributes: [{ name: 'foo', value: 'CHANGED' }] }
-    { id: 5, sku: 'v5' }
     { id: 6, sku: 'SKUchanged!' }
-    { id: 7 }
+    { id: 7, attributes: [{ name: 'foo', value: 'bar' }] }
+    { id: 8, attributes: [{ name: 'some', value: 'thing' }] }
+    { id: 9, attributes: [{ name: 'yet', value: 'another' }] }
+    { sku: 'v10', attributes: [{ name: 'something', value: 'else' }] }
+    { id: 100, sku: 'SKUwins' }
   ]
 
 ###
@@ -439,6 +443,35 @@ describe 'ProductUtils.diff', ->
     delta = @utils.diff({id: '123'}, {id: '123'})
     expect(delta).not.toBeDefined()
 
+  it 'should use SKU to compare variants', ->
+    OLD =
+      id: 'xyz'
+      variants: [
+        { id: 3, sku: 'mySKU' }
+      ]
+    NEW =
+      id: 'xyz'
+      variants: [
+        { id: 2, sku: 'mySKU' }
+      ]
+    delta = @utils.diff(OLD, NEW)
+    expected_delta =
+      variants:
+        0: { _originalId: [ 3, 2 ] }
+        _t: 'a'
+
+    expect(delta).toEqual expected_delta
+
+  it 'should throw an Error if variant has wheter ID nor SKU', ->
+    OLD =
+      id: 'xyz'
+      variants: [
+        { }
+      ]
+    NEW =
+      id: 'xyz'
+    expect(=> @utils.diff(OLD, NEW)).toThrow new Error 'A variant must either have an ID or an SKU.'
+
   it 'should diff basic attributes (name, slug, description)', ->
     OLD =
       id: '123'
@@ -639,10 +672,40 @@ describe 'ProductUtils.actionsMapVariants', ->
 
   it 'should build variant actions', ->
     delta = @utils.diff OLD_VARIANT, NEW_VARIANT
+    expected_delta =
+      variants:
+        0: [ { id: 'SKUadded', sku: 'SKUadded', _originalId: 2 } ]
+        1: { attributes: { 0: { value: [ 'bar', 'CHANGED' ] }, _t: 'a' } }
+        2: [ { id: 'SKUchanged!', sku: 'SKUchanged!', _originalId: 6 } ]
+        3: [ { id: 7, attributes: [ { name: 'foo', value: 'bar' } ], _originalId: 7 } ]
+        4: [ { id: 8, attributes: [ { name: 'some', value: 'thing' } ], _originalId: 8 } ]
+        5: [ { id: 9, attributes: [ { name: 'yet', value: 'another' } ], _originalId: 9 } ]
+        6: [ { sku: 'v10', attributes: [ { name: 'something', value: 'else' } ], _originalId: undefined, id: 'v10' } ]
+        7: [ { id: 'SKUwins', sku: 'SKUwins', _originalId: 100 } ]
+
+        _t: 'a'
+        _0: [ { id: 2, _originalId: 2 }, 0, 0 ]
+        _2: [ { id: 'v4', sku: 'v4', _originalId: 4 }, 0, 0 ]
+        _3: [ { id: 5, _originalId: 5 }, 0, 0 ]
+        _4: [ { id: 'v6', sku: 'v6', _originalId: 6 }, 0, 0 ]
+        _5: [ { id: 'v7', sku: 'v7', attributes: [ { name: 'foo', value: 'bar' } ], _originalId: 7 }, 0, 0 ]
+
+    expect(delta).toEqual expected_delta
+
     update = @utils.actionsMapVariants delta, OLD_VARIANT, NEW_VARIANT
     expected_update = [
+      { action: 'removeVariant', id: 2 }
       { action: 'removeVariant', id: 4 }
-      { action: 'addVariant', sku: 'v5' }
+      { action: 'removeVariant', id: 5 }
+      { action: 'removeVariant', id: 6 }
+      { action: 'removeVariant', id: 7 }
+      { action: 'addVariant', sku: 'SKUadded' }
+      { action: 'addVariant', sku: 'SKUchanged!' }
+      { action: 'addVariant', attributes: [ { name: 'foo', value: 'bar' } ] }
+      { action: 'addVariant', attributes: [ { name: 'some', value: 'thing' } ] }
+      { action: 'addVariant', attributes: [ { name: 'yet', value: 'another' } ] }
+      { action: 'addVariant', sku: 'v10', attributes: [ { name: 'something', value: 'else' } ] }
+      { action: 'addVariant', sku: 'SKUwins' }
     ]
     expect(update).toEqual expected_update
 
@@ -650,19 +713,11 @@ describe 'ProductUtils.actionsMapAttributes', ->
   beforeEach ->
     @utils = new ProductUtils
 
-  it 'should create action for sku', ->
+  it 'should not create action for sku', ->
     delta = @utils.diff OLD_VARIANT, NEW_VARIANT
     update = @utils.actionsMapAttributes delta, OLD_VARIANT, NEW_VARIANT
-    # expected_update = [
-    #   { action: 'setSKU', sku: 'SKUadded', variantId: 2 }
-    #   { action: 'setSKU', sku: 'SKUchanged!', variantId: 6 }
-    #   { action: 'setSKU', variantId: 7 }
-    # ]
     expected_update = [
-      { action: 'setSKU', variantId: 2, sku: 'SKUadded' }
       { action: 'setAttribute', variantId: 3, name: 'foo', value: 'CHANGED' }
-      { action: 'setSKU', variantId: 6, sku: 'SKUchanged!' }
-      { action: 'setSKU', variantId: 7, sku: undefined }
     ]
     expect(update).toEqual expected_update
 
