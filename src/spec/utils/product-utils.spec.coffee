@@ -457,7 +457,7 @@ describe 'ProductUtils.diff', ->
     delta = @utils.diff(OLD, NEW)
     expected_delta =
       variants:
-        0: { _originalId: [ 3, 2 ] }
+        0: { id: [ 3, 2 ] }
         _t: 'a'
 
     expect(delta).toEqual expected_delta
@@ -535,10 +535,10 @@ describe 'ProductUtils.diff', ->
         2:
           prices:
             _t: 'a'
-            _0: [ { value: { currencyCode: 'YEN', centAmount: 7777 }, _id: 0 }, 0, 0 ]
+            _0: [ { value: { currencyCode: 'YEN', centAmount: 7777 }, _MATCH_CRITERIA: 0 }, 0, 0 ]
         3:
           prices:
-            0: [ { value: { currencyCode: 'EUR', centAmount: 999 }, _id: 0 } ]
+            0: [ { value: { currencyCode: 'EUR', centAmount: 999 }, _MATCH_CRITERIA: 0 } ]
             _t: 'a'
         _t: 'a'
     expect(delta).toEqual expected_delta
@@ -674,21 +674,21 @@ describe 'ProductUtils.actionsMapVariants', ->
     delta = @utils.diff OLD_VARIANT, NEW_VARIANT
     expected_delta =
       variants:
-        0: [ { id: 'SKUadded', sku: 'SKUadded', _originalId: 2 } ]
+        0: [ { id: 2, sku: 'SKUadded', _MATCH_CRITERIA: 'SKUadded' } ]
         1: { attributes: { 0: { value: [ 'bar', 'CHANGED' ] }, _t: 'a' } }
-        2: [ { id: 'SKUchanged!', sku: 'SKUchanged!', _originalId: 6 } ]
-        3: [ { id: 7, attributes: [ { name: 'foo', value: 'bar' } ], _originalId: 7 } ]
-        4: [ { id: 8, attributes: [ { name: 'some', value: 'thing' } ], _originalId: 8 } ]
-        5: [ { id: 9, attributes: [ { name: 'yet', value: 'another' } ], _originalId: 9 } ]
-        6: [ { sku: 'v10', attributes: [ { name: 'something', value: 'else' } ], _originalId: undefined, id: 'v10' } ]
-        7: [ { id: 'SKUwins', sku: 'SKUwins', _originalId: 100 } ]
+        2: [ { id: 6, sku: 'SKUchanged!', _MATCH_CRITERIA: 'SKUchanged!' } ]
+        3: [ { id: 7, attributes: [ { name: 'foo', value: 'bar' } ], _MATCH_CRITERIA: 7 } ]
+        4: [ { id: 8, attributes: [ { name: 'some', value: 'thing' } ], _MATCH_CRITERIA: 8 } ]
+        5: [ { id: 9, attributes: [ { name: 'yet', value: 'another' } ], _MATCH_CRITERIA: 9 } ]
+        6: [ { sku: 'v10', attributes: [ { name: 'something', value: 'else' } ], _MATCH_CRITERIA: 'v10' } ]
+        7: [ { id: 100, sku: 'SKUwins', _MATCH_CRITERIA: 'SKUwins' } ]
 
         _t: 'a'
-        _0: [ { id: 2, _originalId: 2 }, 0, 0 ]
-        _2: [ { id: 'v4', sku: 'v4', _originalId: 4 }, 0, 0 ]
-        _3: [ { id: 5, _originalId: 5 }, 0, 0 ]
-        _4: [ { id: 'v6', sku: 'v6', _originalId: 6 }, 0, 0 ]
-        _5: [ { id: 'v7', sku: 'v7', attributes: [ { name: 'foo', value: 'bar' } ], _originalId: 7 }, 0, 0 ]
+        _0: [ { id: 2, _MATCH_CRITERIA: 2 }, 0, 0 ]
+        _2: [ { id: 4, sku: 'v4', _MATCH_CRITERIA: 'v4' }, 0, 0 ]
+        _3: [ { id: 5, _MATCH_CRITERIA: 5 }, 0, 0 ]
+        _4: [ { id: 6, sku: 'v6', _MATCH_CRITERIA: 'v6' }, 0, 0 ]
+        _5: [ { id: 7, sku: 'v7', attributes: [ { name: 'foo', value: 'bar' } ], _MATCH_CRITERIA: 'v7' }, 0, 0 ]
 
     expect(delta).toEqual expected_delta
 

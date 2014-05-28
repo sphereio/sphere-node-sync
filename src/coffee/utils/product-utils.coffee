@@ -21,22 +21,21 @@ class ProductUtils extends Utils
   diff: (old_obj, new_obj) ->
     # patch 'prices' to have an identifier in order for the diff
     # to be able to match nested objects in arrays
-    # e.g.: prices: [ { _id: x, value: {} } ]
+    # e.g.: prices: [ { _MATCH_CRITERIA: x, value: {} } ]
     patchPrices = (variant) ->
       if variant.prices
         _.each variant.prices, (price, index) ->
-          price._id = index
+          price._MATCH_CRITERIA = index
 
     # Let's compare variants with their SKU, if present.
     # Otherwise let's use the provided id.
-    # If there is no SKU and no id present, lst's use the index of the variant in the array.
+    # If there is no SKU and no ID present, throw an error
     patchVariantId = (variant, index) ->
-      variant._originalId = variant.id # store the id in order to use it for the actions later.
-      if index > 0
-        if variant.sku?
-          variant.id = variant.sku
-        if not variant.id?
-          throw new Error 'A variant must either have an ID or an SKU.'
+      variant._MATCH_CRITERIA = variant.id
+      if variant.sku?
+        variant._MATCH_CRITERIA = variant.sku
+      if not variant._MATCH_CRITERIA?
+        throw new Error 'A variant must either have an ID or an SKU.'
 
     isEnum = (value) -> _.has(value, 'key') and _.has(value, 'label')
 
@@ -61,7 +60,7 @@ class ProductUtils extends Utils
 
     patch = (obj) ->
       _.each allVariants(obj), (variant, index) ->
-        patchVariantId variant, index
+        patchVariantId variant, index if index > 0
         patchPrices variant
         patchEnums variant
 
@@ -317,7 +316,7 @@ buildBaseAttributesAction = (item, diff, old_obj) ->
 buildChangePriceAction = (centAmountDiff, variant, index) ->
   price = variant.prices[index]
   if price
-    delete price._id
+    delete price._MATCH_CRITERIA
     price.value.centAmount = helper.getDeltaValue(centAmountDiff)
     action =
       action: 'changePrice'
@@ -328,7 +327,7 @@ buildChangePriceAction = (centAmountDiff, variant, index) ->
 buildRemovePriceAction = (variant, index) ->
   price = variant.prices[index]
   if price
-    delete price._id
+    delete price._MATCH_CRITERIA
     action =
       action: 'removePrice'
       variantId: getVariantId variant
@@ -338,7 +337,7 @@ buildRemovePriceAction = (variant, index) ->
 buildAddPriceAction = (variant, index) ->
   price = variant.prices[index]
   if price
-    delete price._id
+    delete price._MATCH_CRITERIA
     action =
       action: 'addPrice'
       variantId: getVariantId variant
@@ -479,4 +478,4 @@ buildSkuActions = (variantDiff, old_variant) ->
       sku: helper.getDeltaValue(variantDiff.sku)
 
 getVariantId = (variant) ->
-  variant._originalId
+  variant.id
