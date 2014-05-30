@@ -166,8 +166,9 @@ describe 'ProductSync', ->
           sku: 'v1'
           attributes: [{name: 'foo', value: 'new value'}]
         variants: [
-          { sku: 'v2', attributes: [{name: 'foo', value: 'another value'}] }
-          { sku: 'v3', attributes: [{name: 'foo', value: 'i dont care'}] }
+          { id: 2, sku: 'v2', attributes: [{name: 'foo', value: 'another value'}] }
+          { id: 3, sku: 'v4', attributes: [{name: 'foo', value: 'i dont care'}] }
+          { id: 4, sku: 'v3', attributes: [{name: 'foo', value: 'yet another'}] }
         ]
       update = @sync.buildActions(newProduct, oldProduct).get()
       expected_update =
