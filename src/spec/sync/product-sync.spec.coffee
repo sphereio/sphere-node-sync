@@ -175,11 +175,11 @@ describe 'ProductSync', ->
         actions: [
           { action: 'setAttribute', variantId: 1, name: 'foo', value: 'new value' }
           { action: 'setAttribute', variantId: 2, name: 'foo', value: 'another value' }
-          { action: 'setAttribute', variantId: 3, name: 'foo', value: 'i dont care' }
+          { action: 'setAttribute', variantId: 3, name: 'foo', value: 'yet another' }
+          { action: 'addVariant', sku: 'v4', attributes: [{ name: 'foo', value: 'i dont care' }] }
         ]
         version: oldProduct.version
       expect(update).toEqual expected_update
-
 
   describe ':: update', ->
 
