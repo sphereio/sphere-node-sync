@@ -542,13 +542,13 @@ describe 'ProductUtils.diff', ->
             _t: 'a'
             _0: [ { value: { currencyCode: 'YEN', centAmount: 7777 }, _MATCH_CRITERIA: 0 }, 0, 0 ]
           _NEW_ARRAY_INDEX: [2]
-          _EXISTING_ARRAY_INDEX : [2, 0, 0]
+          _EXISTING_ARRAY_INDEX: [2, 0, 0]
         3:
           prices:
             0: [ { value: { currencyCode: 'EUR', centAmount: 999 }, _MATCH_CRITERIA: 0 } ]
             _t: 'a'
           _NEW_ARRAY_INDEX: [3]
-          _EXISTING_ARRAY_INDEX : [3, 0, 0]
+          _EXISTING_ARRAY_INDEX: [3, 0, 0]
         _t: 'a'
     expect(delta).toEqual expected_delta
 
