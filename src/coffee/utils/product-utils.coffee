@@ -58,14 +58,16 @@ class ProductUtils extends Utils
                 else # if we can't find key and label it isn't an (l)enum set and we can stop immediately
                   return
 
-    patch = (obj) ->
+    patch = (obj, arrayIndexFieldName) ->
       _.each allVariants(obj), (variant, index) ->
-        patchVariantId variant, index if index > 0
+        if index > 0
+          patchVariantId variant, index
+          variant[arrayIndexFieldName] = index - 1 # for variants (not master) we store the actual index in the array
         patchPrices variant
         patchEnums variant
 
-    patch old_obj
-    patch new_obj
+    patch old_obj, '_EXISTING_ARRAY_INDEX'
+    patch new_obj, '_NEW_ARRAY_INDEX'
 
     super old_obj, new_obj
 
@@ -114,10 +116,13 @@ class ProductUtils extends Utils
           action.attributes = newVariant.attributes if newVariant.attributes
           actions.push action
         else if REGEX_UNDERSCORE_NUMBER.test(key) and _.isArray(variant)
-          action =
-            action: 'removeVariant'
-            id: getVariantId variant[0]
-          actions.push action
+          if _.size(variant) is 3 and variant[2] is 3
+             # only array move - do nothing
+          else
+            action =
+              action: 'removeVariant'
+              id: getVariantId variant[0]
+            actions.push action
 
     _.sortBy actions, (a) -> a.action is 'addVariant'
 
@@ -154,7 +159,6 @@ class ProductUtils extends Utils
 
   actionsMapPrices: (diff, old_obj, new_obj) ->
     actions = []
-    # masterVariant
     if diff.masterVariant
       prices = diff.masterVariant.prices
       if prices
@@ -176,28 +180,31 @@ class ProductUtils extends Utils
               addAction = buildAddPriceAction(new_obj.masterVariant, index)
               actions.push addAction if addAction
 
-    # variants
     if diff.variants
-      _.each diff.variants, (variant, i) ->
-        prices = variant.prices
-        if prices
-          _.each prices, (value, key) ->
-            if REGEX_NUMBER.test key
-              # key is index of new price
-              index = key
-            else if REGEX_UNDERSCORE_NUMBER.test key
-              # key is index of old price
-              index = key.substring(1)
+      _.each diff.variants, (variant, key) ->
+        if REGEX_NUMBER.test key
+          if not _.isArray variant
+            index_old = variant._EXISTING_ARRAY_INDEX[0]
+            if not _.isArray variant
+              prices = variant.prices
+              if prices
+                _.each prices, (value, key) ->
+                  if REGEX_NUMBER.test key
+                    # key is index of new price
+                    index = key
+                  else if REGEX_UNDERSCORE_NUMBER.test key
+                    # key is index of old price
+                    index = key.substring(1)
 
-            if index
-              if _.size(value) is 1 and _.size(value.value) is 1 and _.has(value.value, 'centAmount')
-                changeAction = buildChangePriceAction(value.value.centAmount, old_obj.variants[i], index)
-                actions.push changeAction if changeAction
-              else
-                removeAction = buildRemovePriceAction(old_obj.variants[i], index)
-                actions.push removeAction if removeAction
-                addAction = buildAddPriceAction(new_obj.variants[i], index)
-                actions.push addAction if addAction
+                  if index
+                    if _.size(value) is 1 and _.size(value.value) is 1 and _.has(value.value, 'centAmount')
+                      changeAction = buildChangePriceAction(value.value.centAmount, old_obj.variants[index_old], index)
+                      actions.push changeAction if changeAction
+                    else
+                      removeAction = buildRemovePriceAction(old_obj.variants[index_old], index)
+                      actions.push removeAction if removeAction
+                      addAction = buildAddPriceAction(new_obj.variants[index_old], index)
+                      actions.push addAction if addAction
 
     # this will sort the actions ranked in asc order (first 'remove' then 'add')
     _.sortBy actions, (a) -> a.action is 'addPrice'
@@ -206,7 +213,6 @@ class ProductUtils extends Utils
   # TODO: validate ProductType between products
   actionsMapAttributes: (diff, old_obj, new_obj, sameForAllAttributeNames = []) ->
     actions = []
-    # masterVariant
     masterVariant = diff.masterVariant
     if masterVariant
       skuAction = buildSkuActions(masterVariant, old_obj.masterVariant)
@@ -215,31 +221,37 @@ class ProductUtils extends Utils
       attrActions = buildVariantAttributesActions attributes, old_obj.masterVariant, new_obj.masterVariant, sameForAllAttributeNames
       actions = actions.concat attrActions
 
-    # variants
     if diff.variants
-      _.each diff.variants, (variant, i) ->
-        skuAction = buildSkuActions(variant, old_obj.variants[i])
-        actions.push(skuAction) if skuAction?
-        attributes = variant.attributes
-        attrActions = buildVariantAttributesActions attributes, old_obj.variants[i], new_obj.variants[i], sameForAllAttributeNames
-        actions = actions.concat attrActions
+      _.each diff.variants, (variant, key) ->
+        if REGEX_NUMBER.test key
+          if not _.isArray variant
+            index_old = variant._EXISTING_ARRAY_INDEX[0]
+            index_new = variant._NEW_ARRAY_INDEX[0]
+            skuAction = buildSkuActions(variant, old_obj.variants[index_old])
+            actions.push(skuAction) if skuAction?
+            attributes = variant.attributes
+            attrActions = buildVariantAttributesActions attributes, old_obj.variants[index_old], new_obj.variants[index_new], sameForAllAttributeNames
+            actions = actions.concat attrActions
 
     # Ensure we have each action only once per product. Use string representation of object to allow `===` on array objects
     _.unique actions, (action) -> JSON.stringify action
 
   actionsMapImages: (diff, old_obj, new_obj) ->
     actions = []
-    # masterVariant
     masterVariant = diff.masterVariant
     if masterVariant
       mActions = buildVariantImagesAction masterVariant.images, old_obj.masterVariant, new_obj.masterVariant
       actions = actions.concat mActions
 
-    # variants
     if diff.variants
-      _.each diff.variants, (variant, i) ->
-        vActions = buildVariantImagesAction variant.images, old_obj.variants[i], new_obj.variants[i]
-        actions = actions.concat vActions
+      _.each diff.variants, (variant, key) ->
+        if REGEX_NUMBER.test key
+          if not _.isArray variant
+            index_old = variant._EXISTING_ARRAY_INDEX[0]
+            index_new = variant._NEW_ARRAY_INDEX[0]
+            if not _.isArray variant
+              vActions = buildVariantImagesAction variant.images, old_obj.variants[index_old], new_obj.variants[index_new]
+              actions = actions.concat vActions
 
     # this will sort the actions ranked in asc order (first 'remove' then 'add')
     _.sortBy actions, (a) -> a.action is 'addExternalImage'
