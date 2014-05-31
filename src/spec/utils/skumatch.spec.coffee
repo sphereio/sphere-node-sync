@@ -5,11 +5,11 @@ describe 'SKU based matching', ->
     @utils = new ProductUtils
     @existingProduct =
       id: '123'
-      variants: [ ]
+      variants: []
 
     @newProduct =
       id: '123'
-      variants: [ ]
+      variants: []
 
   compareDiff = (utils, existingProduct, newProduct, expectedDelta) ->
     delta = utils.diff existingProduct, newProduct
@@ -32,11 +32,11 @@ describe 'SKU based matching', ->
     ]
 
     delta = compareDiff @utils, @existingProduct, @newProduct, variants:
-      0: [ { sku :'v2', attributes: [ { name: 'attrib', value: 'val' } ], _MATCH_CRITERIA : 'v2', _NEW_ARRAY_INDEX: 0 } ]
+      0: [{ sku :'v2', attributes: [{ name: 'attrib', value: 'val' }], _MATCH_CRITERIA : 'v2', _NEW_ARRAY_INDEX: 0 }]
       _t: 'a'
 
     compareVariantActions @utils, delta, @existingProduct, @newProduct, [
-      { action: 'addVariant', sku: 'v2', attributes: [ { name: 'attrib', value: 'val' } ] }
+      { action: 'addVariant', sku: 'v2', attributes: [{ name: 'attrib', value: 'val' }] }
     ]
 
     compareAttributeActions @utils, delta, @existingProduct, @newProduct, []
@@ -48,7 +48,7 @@ describe 'SKU based matching', ->
     
     delta = compareDiff @utils, @existingProduct, @newProduct, variants:
       _t: 'a'
-      _0: [ { id: 7, sku :'vX', attributes: [ { name: 'attrib', value: 'val' } ], _MATCH_CRITERIA : 'vX', _EXISTING_ARRAY_INDEX: 0 }, 0, 0 ]
+      _0: [{ id: 7, sku :'vX', attributes: [{ name: 'attrib', value: 'val' }], _MATCH_CRITERIA : 'vX', _EXISTING_ARRAY_INDEX: 0 }, 0, 0]
 
     compareVariantActions @utils, delta, @existingProduct, @newProduct, [
       { action: 'removeVariant', id: 7 }
@@ -67,8 +67,8 @@ describe 'SKU based matching', ->
     ]
 
     delta = compareDiff @utils, @existingProduct, @newProduct, variants:
-      0: [ { sku :'vN', attributes: [ { name: 'attribN', value: 'valN' } ], _MATCH_CRITERIA : 'vN', _NEW_ARRAY_INDEX: 0 } ]
-      1: { attributes : { 0: { value: [ 'val', 'CHANGED' ] }, _t : 'a' }, id : [ 9, 0, 0 ], _NEW_ARRAY_INDEX: [ 1 ], _EXISTING_ARRAY_INDEX: [0, 0, 0] }
+      0: [{ sku :'vN', attributes: [{ name: 'attribN', value: 'valN' }], _MATCH_CRITERIA : 'vN', _NEW_ARRAY_INDEX: 0 }]
+      1: { attributes : { 0: { value: ['val', 'CHANGED'] }, _t : 'a' }, id : [9, 0, 0], _NEW_ARRAY_INDEX: [1], _EXISTING_ARRAY_INDEX: [0, 0, 0] }
       _t: 'a'
 
     compareVariantActions @utils, delta, @existingProduct, @newProduct,  [
@@ -91,11 +91,11 @@ describe 'SKU based matching', ->
     ]
 
     delta = compareDiff @utils, @existingProduct, @newProduct, variants:
-      0: { id: [3, 2], _NEW_ARRAY_INDEX: [ 0 ], _EXISTING_ARRAY_INDEX: [1, 0, 0] }
-      1: { id: [2, 3], _NEW_ARRAY_INDEX: [ 1 ], _EXISTING_ARRAY_INDEX: [0, 0, 0] }
+      0: { id: [3, 2], _NEW_ARRAY_INDEX: [0], _EXISTING_ARRAY_INDEX: [1, 0, 0] }
+      1: { id: [2, 3], _NEW_ARRAY_INDEX: [1], _EXISTING_ARRAY_INDEX: [0, 0, 0] }
       _t: 'a'
       _1 : ['', 0, 3]
 
-    compareVariantActions @utils, delta, @existingProduct, @newProduct,  [ ]
+    compareVariantActions @utils, delta, @existingProduct, @newProduct,  []
 
-    compareAttributeActions @utils, delta, @existingProduct, @newProduct, [ ]
+    compareAttributeActions @utils, delta, @existingProduct, @newProduct, []
