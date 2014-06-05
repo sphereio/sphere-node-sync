@@ -440,25 +440,37 @@ describe 'ProductUtils.diff', ->
     @utils = new ProductUtils
 
   it 'should diff nothing', ->
-    delta = @utils.diff({id: '123'}, {id: '123'})
+    delta = @utils.diff({id: '123', masterVariant: { id: 1 }}, {id: '123', masterVariant: { id: 1 }})
     expect(delta).not.toBeDefined()
 
   it 'should use SKU to compare variants', ->
     OLD =
       id: 'xyz'
+      masterVariant: {
+        id: 1
+        sku: 'mySKU1'
+      }
       variants: [
-        { id: 3, sku: 'mySKU' }
+        { id: 3, sku: 'mySKU2' }
       ]
     NEW =
       id: 'xyz'
+      masterVariant: {
+        id: 1,
+        sku: 'mySKU2'
+      }
       variants: [
-        { id: 2, sku: 'mySKU' }
+        { id: 2, sku: 'mySKU1' }
       ]
     delta = @utils.diff(OLD, NEW)
     expected_delta =
+      masterVariant:
+        sku: [ 'mySKU1', 'mySKU2' ]
+        _MATCH_CRITERIA: [ 'mySKU1', 'mySKU2' ]
       variants:
-        0: { id: [3, 2], _NEW_ARRAY_INDEX: [0], _EXISTING_ARRAY_INDEX: [0, 0, 0] }
-        _t: 'a'
+        0: [{ id: 2, sku: 'mySKU1', _MATCH_CRITERIA: 'mySKU1', _NEW_ARRAY_INDEX: 0 }],
+        _t: 'a',
+        _0: [{ id: 3, sku: 'mySKU2', _MATCH_CRITERIA: 'mySKU2', _EXISTING_ARRAY_INDEX: 0 }, 0, 0]
 
     expect(delta).toEqual expected_delta
 
@@ -482,6 +494,8 @@ describe 'ProductUtils.diff', ->
         en: 'foo'
       description:
         en: 'Sample'
+      masterVariant:
+        id: 1
     NEW =
       id: '123'
       name:
@@ -491,6 +505,8 @@ describe 'ProductUtils.diff', ->
       description:
         en: 'Sample'
         it: 'Esempio'
+      masterVariant:
+        id: 1
 
     delta = @utils.diff(OLD, NEW)
     expected_delta =
@@ -559,6 +575,8 @@ describe 'ProductUtils.diff', ->
         en: 'Foo'
       slug:
         en: 'foo'
+      masterVariant:
+        id: 1
     NEW =
       id: '123'
       name:
@@ -568,6 +586,8 @@ describe 'ProductUtils.diff', ->
       description:
         en: 'Sample'
         it: 'Esempio'
+      masterVariant:
+        id: 1
 
     delta = @utils.diff OLD, NEW
     update = @utils.actionsMapBase(delta, OLD)
@@ -587,6 +607,8 @@ describe 'ProductUtils.diff', ->
         en: 'A description'
       metaKeywords:
         en: 'foo, bar'
+      masterVariant:
+        id: 1
     NEW =
       id: '123'
       metaTitle:
@@ -595,6 +617,8 @@ describe 'ProductUtils.diff', ->
         en: 'A new description'
       metaKeywords:
         en: 'foo, bar, qux'
+      masterVariant:
+        id: 1
 
     delta = @utils.diff OLD, NEW
     update = @utils.actionsMapMetaAttributes(delta, OLD)
@@ -617,10 +641,14 @@ describe 'ProductUtils.diff', ->
         en: 'A description'
       metaKeywords:
         en: 'foo, bar'
+      masterVariant:
+        id: 1
     NEW =
       id: '123'
       metaTitle:
         en: 'A new title'
+      masterVariant:
+        id: 1
 
     delta = @utils.diff OLD, NEW
     update = @utils.actionsMapMetaAttributes(delta, OLD)
@@ -941,12 +969,16 @@ describe 'ProductUtils.actionsMapReferences (tax-category)', ->
       taxCategory:
         typeId: 'tax-category'
         id: 'tax-de'
+      masterVariant:
+        id: 1
 
     @NEW_REFERENCE =
       id: '123'
       taxCategory:
         typeId: 'tax-category'
         id: 'tax-us'
+      masterVariant:
+        id: 1
 
   it 'should build action to change tax-category', ->
     delta = @utils.diff @OLD_REFERENCE, @NEW_REFERENCE
@@ -984,6 +1016,8 @@ describe 'ProductUtils.actionsMapReferences (category)', ->
         { typeId: 'category', id: 'cat1' }
         { typeId: 'category', id: 'cat2' }
       ]
+      masterVariant:
+        id: 1
 
     @NEW_REFERENCE =
       id: '123'
@@ -991,6 +1025,8 @@ describe 'ProductUtils.actionsMapReferences (category)', ->
         { typeId: 'category', id: 'cat1' }
         { typeId: 'category', id: 'cat3' }
       ]
+      masterVariant:
+        id: 1
 
   it 'should build actions to change category', ->
     delta = @utils.diff @OLD_REFERENCE, @NEW_REFERENCE
@@ -1008,6 +1044,8 @@ describe 'ProductUtils.actionsMapReferences (category)', ->
         { typeId: 'category', id: 'cat1' }
         { typeId: 'category', id: 'cat2' }
       ]
+      masterVariant:
+        id: 1
 
     after =
       id: '123'
@@ -1015,6 +1053,9 @@ describe 'ProductUtils.actionsMapReferences (category)', ->
         { typeId: 'category', id: 'cat2' }
         { typeId: 'category', id: 'cat1' }
       ]
+      masterVariant:
+        id: 1
+
     delta = @utils.diff before, after
     update = @utils.actionsMapReferences delta, before, after
     expect(update).toEqual []

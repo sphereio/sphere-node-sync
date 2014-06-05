@@ -60,11 +60,11 @@ class ProductUtils extends Utils
 
     patch = (obj, arrayIndexFieldName) ->
       _.each allVariants(obj), (variant, index) ->
-        if index > 0
-          patchVariantId variant, index
-          variant[arrayIndexFieldName] = index - 1 # for variants (not master) we store the actual index in the array
         patchPrices variant
         patchEnums variant
+        patchVariantId variant, index
+        if index > 0
+          variant[arrayIndexFieldName] = index - 1 # for variants we store the actual index in the array
 
     patch old_obj, '_EXISTING_ARRAY_INDEX'
     patch new_obj, '_NEW_ARRAY_INDEX'
