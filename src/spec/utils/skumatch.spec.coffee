@@ -5,10 +5,14 @@ describe 'SKU based matching', ->
     @utils = new ProductUtils
     @existingProduct =
       id: '123'
+      masterVariant:
+        id: 1
       variants: []
 
     @newProduct =
       id: '123'
+      masterVariant:
+        id: 1
       variants: []
 
   compareDiff = (utils, existingProduct, newProduct, expectedDelta) ->
