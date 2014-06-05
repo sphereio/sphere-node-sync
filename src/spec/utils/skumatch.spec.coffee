@@ -147,3 +147,33 @@ describe 'SKU based matching', ->
       { action: 'setAttribute', variantId: 3, name: 'attrib3', value: 'CHANGED3' }
       { action: 'setAttribute', variantId: 5, name: 'attrib5', value: 'CHANGED5' }
     ]
+
+  it 'should work when master variant was switched with another variant', ->
+    @existingProduct.masterVariant.sku = 'v1'
+    @existingProduct.variants = [
+      { id: 3, sku: 'v3', attributes: [{name: 'attrib3', value: 'val3'}] }
+    ]
+
+    @newProduct.masterVariant.sku = 'v3'
+    @newProduct.variants = [
+      { sku: 'v1', attributes: [{name: 'attrib3', value: 'CHANGED3'}] }
+    ]
+
+    expectedDelta =
+      masterVariant:
+        sku: ['v1', 'v3']
+        _MATCH_CRITERIA: ['v1', 'v3']
+      variants:
+        0: [{ sku: 'v1', attributes: [{ name: 'attrib3', value: 'CHANGED3' }], _MATCH_CRITERIA: 'v1', _NEW_ARRAY_INDEX: 0 }]
+        _t: 'a'
+        _0: [{ id: 3, sku: 'v3', attributes: [ { name: 'attrib3', value: 'val3' } ], _MATCH_CRITERIA: 'v3', _EXISTING_ARRAY_INDEX: 0 }, 0, 0 ]
+    delta = compareDiff @utils, @existingProduct, @newProduct, expectedDelta
+
+    compareVariantActions @utils, delta, @existingProduct, @newProduct,  [
+      { action: 'removeVariant', id: 3 }
+      { action: 'addVariant', sku: 'v1', attributes: [{ name: 'attrib3', value: 'CHANGED3' }] }
+    ]
+
+    compareAttributeActions @utils, delta, @existingProduct, @newProduct, [
+      { action: 'setSKU', variantId: 1, sku: 'v3' }
+    ]
