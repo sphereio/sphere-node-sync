@@ -115,7 +115,7 @@ describe 'SKU based matching', ->
       { action: 'setAttribute', variantId: 2, name: 'attrib2', value: 'CHANGED2' }
     ]
 
-  it 'should work', ->
+  it 'should work in combination with variant additions and removes', ->
     @existingProduct.variants = [
       { id: 2, sku: 'v2', attributes: [{name: 'attrib2', value: 'val2'}] }
       { id: 3, sku: 'v3', attributes: [{name: 'attrib3', value: 'val3'}] }
