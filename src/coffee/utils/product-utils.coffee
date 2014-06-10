@@ -185,6 +185,7 @@ class ProductUtils extends Utils
         if REGEX_NUMBER.test key
           if not _.isArray variant
             index_old = variant._EXISTING_ARRAY_INDEX[0]
+            index_new = variant._NEW_ARRAY_INDEX[0]
             if not _.isArray variant
               prices = variant.prices
               if prices
@@ -203,7 +204,7 @@ class ProductUtils extends Utils
                     else
                       removeAction = buildRemovePriceAction(old_obj.variants[index_old], index)
                       actions.push removeAction if removeAction
-                      addAction = buildAddPriceAction(new_obj.variants[index_old], index)
+                      addAction = buildAddPriceAction(new_obj.variants[index_new], index)
                       actions.push addAction if addAction
 
     # this will sort the actions ranked in asc order (first 'remove' then 'add')
