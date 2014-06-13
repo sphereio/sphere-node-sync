@@ -430,9 +430,11 @@ buildSetAttributeAction = (diffed_value, old_variant, attribute, sameForAllAttri
           action.value = attribute.value
         else
           # LText
-          text = {}
-          _.each diffed_value, (v, k) ->
-            text[k] = helper.getDeltaValue(v)
+          attrib = _.find old_variant.attributes, (attrib) ->
+            attrib.name is attribute.name
+          text = _.defaults attrib?.value, {}
+          _.each diffed_value, (localValue, lang) ->
+            text[lang] = helper.getDeltaValue(localValue)
           action.value = text
 
   action

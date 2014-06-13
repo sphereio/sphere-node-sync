@@ -120,7 +120,7 @@ OLD_ALL_ATTRIBUTES =
     id: 1
     attributes: [
       { name: 'foo', value: 'bar' } # text
-      { name: 'dog', value: {en: 'Dog', de: 'Hund'} } # ltext
+      { name: 'dog', value: {en: 'Dog', de: 'Hund', es: 'perro' } } # ltext
       { name: 'num', value: 50 } # number
       { name: 'count', value: { label: 'One', key: 'one' } } # enum
       { name: 'size', value: { label: {en: 'Size'}, key: 'medium' } } # lenum
@@ -133,7 +133,7 @@ NEW_ALL_ATTRIBUTES =
     id: 1
     attributes: [
       { name: 'foo', value: 'qux' } # text
-      { name: 'dog', value: {en: 'Doggy', it: 'Cane'} } # ltext
+      { name: 'dog', value: {en: 'Doggy', it: 'Cane', es: 'perro' } } # ltext
       { name: 'num', value: 100 } # number
       { name: 'count', value: 'two' } # enum
       { name: 'size', value: 'small' } # lenum
@@ -820,7 +820,7 @@ describe 'ProductUtils.actionsMapAttributes', ->
     expected_update =
       [
         { action: 'setAttribute', variantId: 1, name: 'foo', value: 'qux' }
-        { action: 'setAttribute', variantId: 1, name: 'dog', value: {en: 'Doggy', it: 'Cane', de: undefined} }
+        { action: 'setAttribute', variantId: 1, name: 'dog', value: {en: 'Doggy', it: 'Cane', de: undefined, es: 'perro'} }
         { action: 'setAttribute', variantId: 1, name: 'num', value: 100 }
         { action: 'setAttribute', variantId: 1, name: 'count', value: 'two' }
         { action: 'setAttribute', variantId: 1, name: 'size', value: 'small' }
