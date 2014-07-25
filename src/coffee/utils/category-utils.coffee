@@ -22,10 +22,8 @@ class CategoryUtils extends Utils
           data =
             action: item.action
           if _.isArray obj
-            console.log 1, data
             data[key] = helper.getDeltaValue(obj)
           else
-            console.log 2, data, new_obj
             data[key] = new_obj[key]
 
           actions.push data
