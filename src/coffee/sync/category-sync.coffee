@@ -13,10 +13,10 @@ class CategorySync extends Sync
     @
 
   _doMapActions: (diff, new_obj, old_obj) ->
-    actions = @_utils.actionsMap diff
+    actions = @_utils.actionsMap diff, new_obj
 
-  _doUpdate: (callback) ->
-    @_rest.POST "/categories/#{@_data.updateId}", @_data.update, callback
+  _doUpdate: ->
+    @_client.categories.byId(@_data.updateId).update(@_data.update)
 
 
 ###

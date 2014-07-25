@@ -14,19 +14,21 @@ class CategoryUtils extends Utils
   ###
   actionsMap: (diff, new_obj) ->
     actions = []
-    return actions unless diff?
-    _.each actionsList(), (item) ->
-      key = item.key
-      obj = diff[key]
-      if obj?
-        data =
-          action: item.action
-        if _.isArray obj
-          data[key] = helper.getDeltaValue(obj)
-        else
-          data[key] = new_obj[key]
+    if diff?
+      _.each actionsList(), (item) ->
+        key = item.key
+        obj = diff[key]
+        if obj?
+          data =
+            action: item.action
+          if _.isArray obj
+            console.log 1, data
+            data[key] = helper.getDeltaValue(obj)
+          else
+            console.log 2, data, new_obj
+            data[key] = new_obj[key]
 
-        actions.push data
+          actions.push data
     actions
 
 
