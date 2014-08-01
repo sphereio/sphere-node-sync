@@ -267,7 +267,7 @@ productMock = (productType) ->
 orderMock = (shippingMethod, product, taxCategory) ->
   unique = new Date().getTime()
   order =
-    id: "order-#{unique}"
+    # id: "order-#{unique}"
     orderState: 'Open'
     paymentState: 'Pending'
     shipmentState: 'Pending'
