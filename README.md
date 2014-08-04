@@ -101,7 +101,7 @@ You can pass a custom function to filter built actions and internally update the
 
 ```coffeescript
 sync = new ProductSync {...}
-sync.buildActions(new_obj, old_obj).filterActions (a) -> a is 'changeName'
+sync.buildActions(new_obj, old_obj).filterActions (a) -> a.action is 'changeName'
 # => actions payload will now contain only 'changeName' action
 ```
 The method returns a reference to the current object `Sync`, so that you can chain it with optional methods `get` and `update`.
